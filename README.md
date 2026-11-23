@@ -9,7 +9,8 @@ A planting calendar for greenhouses in [Vintage Story](https://www.vintagestory.
 - Shows, for every planting day of the year, whether a crop gets a full harvest, takes cold or heat damage, or dies.
 - Lets you switch the greenhouse bonus (+5 °C) on or off per month, for when you open the roof in summer.
 - Plans a four-greenhouse rotation (N → P → K → rest) where all houses are harvested together once the slowest crop is ripe.
-- Lists what you can plant on a given in-game day, and plans a single shelf for a year.
+- Lists what you can plant on a given in-game day, and plans a single field that you replant all year.
+- Compares every crop's food per block per day at each soil fertility.
 - Switches between English and German (EN/DE, top right). German crop names match the game's German language file.
 
 ## Using it with your world
@@ -25,7 +26,7 @@ Enter the **Year avg** temperature, **Avg. Rainfall** and the latitude. Everythi
 
 ## How it works
 
-The temperature model is the game's own formula from `Systems/Temperature.cs` in vssurvivalmod: a seasonal swing of latitude/90 × 65 °C, coldest in mid-January in the north, and a day/night swing of 18 − 13 × rainfall °C, coldest at 4:00. The game's random weather noise is not simulated; the safety margin setting stands in for it.
+The temperature model is the game's own formula from `Systems/Temperature.cs` in vssurvivalmod: a seasonal swing of latitude/90 × 65 °C, coldest in mid-January in the north, and a day/night swing of 18 − 13 × rainfall °C, coldest at 4:00. The game's random weather noise is not simulated. Instead you can measure your world's current offset: enter the temperature from `/wgen pos climate` and the in-game hour, and the planner works out how far the weather currently is from the formula. The safety margin covers the rest.
 
 Crop limits, growth times, nutrient use and yields come from the 1.22 game assets. Damage and growth follow the farmland code. Each check below the cold limit or above the heat limit cuts the harvest to 50 % (75 % for carrot, parsnip, rye and fennel), 48 hours of damage kills the crop, and growth slows by 10 % per degree below 10 °C.
 

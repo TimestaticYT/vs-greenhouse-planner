@@ -59,6 +59,12 @@ code { font-family: var(--f-mono); font-size: 12.5px; background: var(--accent-s
 .mbtn { font: inherit; font-family: var(--f-mono); font-size: 12.5px; padding: 5px 9px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); cursor: pointer; text-decoration: line-through; }
 .mbtn[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); border-color: var(--accent); text-decoration: none; }
 .climate-line { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--muted); }
+.measure { margin-top: 14px; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 8px; }
+.measure h3 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+.measure .controls { margin-top: 8px; }
+.measure .controls .field { min-width: 120px; flex: 0 1 150px; }
+.measure .out { font-size: 13px; padding-bottom: 8px; }
+.measure .out b { font-family: var(--f-mono); }
 .climate-line b { color: var(--ink); font-family: var(--f-mono); font-weight: 600; }
 
 /* Shared day-scale grid */
@@ -101,6 +107,8 @@ code { font-family: var(--f-mono); font-size: 12.5px; background: var(--accent-s
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
 th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+#ovTable .sel { background: var(--accent-soft); font-weight: 600; }
+#ovTable th.sel { color: var(--accent); }
 td.num, th.num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .chip { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 7px; border-radius: 99px; white-space: nowrap; }
 .chip.ok { background: color-mix(in srgb, var(--ok) 20%, transparent); color: var(--ink); }
@@ -166,9 +174,20 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <div class="field"><label for="dpm" data-i18n="lDpm">Days per month</label><input id="dpm" type="number" step="1" min="3" max="30" value="9"><small data-i18n="sDpm">world setting, default 9</small></div>
       <div class="field"><label for="speed" data-i18n="lSpeed">Growth speed %</label><input id="speed" type="number" step="1" min="10" max="150" value="97"><small data-i18n="sSpeed">97 at 75 % moisture</small></div>
       <div class="field"><label for="fert" data-i18n="lFert">Soil fertility</label><select id="fert"><option value="5" data-i18n="oF5">Very low (5)</option><option value="25" data-i18n="oF25">Low (25)</option><option value="50" data-i18n="oF50" selected>Medium (50)</option><option value="65" data-i18n="oF65">Compost (65)</option><option value="80" data-i18n="oF80">High (80)</option></select><small data-i18n="sFert">what the soil was before you tilled it</small></div>
+      <div class="field"><label for="offset" data-i18n="lOffset">Weather offset °C</label><input id="offset" type="number" step="0.1" min="-15" max="15" value="0"><small data-i18n="sOffset">measured below; 0 = formula only</small></div>
       <div class="field wide"><label id="ghLabel" data-i18n="lGh">Greenhouse active (+5 °C)</label><div class="months" id="ghMonths" role="group" aria-labelledby="ghLabel"></div><small data-i18n="sGh">Switch a month off for the months you open the roof. One missing roof block is enough to stop the greenhouse bonus.</small></div>
     </div>
     <div class="climate-line" id="climateLine"></div>
+    <div class="measure">
+      <h3 data-i18n="hMeasure">Measure the weather offset</h3>
+      <p class="hint" data-i18n="measureHint">The game adds random weather noise to the formula: a slow part (usually within ±4 °C) that stays for many in-game months, and a fast part (about ±1 °C) that changes within hours. Run <code>/wgen pos climate</code>, type its first value (Temperature) and the in-game hour. The date comes from "Plant now". Take two or three readings at different times and use the average. Measure again about once per in-game year. With an offset set, a safety margin of about 1.5 °C is enough.</p>
+      <div class="controls">
+        <div class="field"><label for="mTemp" data-i18n="lMTemp">Temperature °C</label><input id="mTemp" type="number" step="0.1"></div>
+        <div class="field"><label for="mHour" data-i18n="lMHour">Hour</label><input id="mHour" type="number" step="1" min="0" max="23" value="12"></div>
+        <div class="out" id="mOut" aria-live="polite"></div>
+        <button type="button" class="reset" id="mApply" data-i18n="bApply" disabled>Use as offset</button>
+      </div>
+    </div>
   </section>
 
   <section class="panel" aria-labelledby="h-grid">
@@ -191,6 +210,14 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       </div>
     </div>
     <div class="detail" id="detail" data-i18n="detail">Hover over a square to see planting date, harvest date, yield and food per block.</div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-ov">
+    <div class="panel-head">
+      <h2 id="h-ov" data-i18n="hOv">All crops at a glance</h2>
+    </div>
+    <p class="hint" data-i18n="ovHint">Food per block per day for one grow on fully recovered soil, in warm weather (10 °C or more, no damage), with your growth speed and days per month. Each column is one soil fertility; yours is highlighted and sets the order.</p>
+    <div class="scroll"><table id="ovTable"></table></div>
   </section>
 
   <section class="panel" aria-labelledby="h-rot">
@@ -221,9 +248,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
 
     <section class="panel" aria-labelledby="h-plan">
       <div class="panel-head">
-        <h2 id="h-plan" data-i18n="hPlan">Shelf plan for one year</h2>
+        <h2 id="h-plan" data-i18n="hPlan">One field, replanted all year</h2>
       </div>
-      <p class="hint" data-i18n="planHint">Starting today, each harvest is followed by the crop with the most food per block per day that gets a full harvest on the soil as the previous crops left it.</p>
+      <p class="hint" data-i18n="planHint">For a single field outside the four-house rotation that you replant the day it is ripe. Starting on the "Plant now" date, each row is the next crop: the one with the most food per block per day that still gets a full harvest. "Soil" is that crop's nutrient level at planting, after what the crops before it used up, and the growth speed it gives.</p>
       <div class="controls">
         <div class="field"><label for="focus" data-i18n="lFocus">Shelf for</label>
           <select id="focus">
@@ -240,7 +267,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
 
   <section class="panel" aria-labelledby="h-tl">
     <div class="panel-head">
-      <h2 id="h-tl" data-i18n="hTl">Shelf plan on the calendar</h2>
+      <h2 id="h-tl" data-i18n="hTl">The same field on the calendar</h2>
       <span class="legend"><span><i class="sw" style="background:#4e7fc4"></i><span data-i18n="tlN">uses N</span></span><span><i class="sw" style="background:#9a62b8"></i><span data-i18n="tlP">uses P</span></span><span><i class="sw" style="background:#c27a2c"></i><span data-i18n="tlK">uses K</span></span></span>
     </div>
     <div class="scroll"><div id="timeline" class="timeline"></div></div>
@@ -318,7 +345,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       coldest: "Coldest night at the crops", hottest: "Hottest afternoon", seasonal: "Seasonal swing", diurnal: "Day/night swing",
       tipGh: (on) => on ? "greenhouse on (+5 °C)" : "greenhouse off",
       tipFormula: "Formula, 4:00 / 16:00", tipNoise: "With weather noise (±4)", tipCheck: (m) => "Planner checks (±" + m + ")",
-      tipAvg: "Day average",
+      tipAvg: "Day average", tipOffset: "Weather offset included",
+      mOut: (date, h, f, off) => "Formula on " + date + ", " + h + ":00 (outside, without offset): <b>" + f + " °C</b> → offset <b>" + off + " °C</b>",
+      mNeed: "Type the temperature from /wgen to get the offset.",
       profDefault: (n) => "Location " + n, profAskNew: "Name for the new location (it starts as a copy of the current one):",
       profAskRename: "New name for this location:", profAskDelete: (n) => "Delete the location \"" + n + "\"? This can't be undone.",
       open: "open", chartSub: "at the crops", chartAria: "Daily temperature range at the crops over the year",
@@ -329,6 +358,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       food: (v, how) => ' About <b class="mono">' + v + "</b> satiety per block per day " + how + ".",
       fiberLine: (v) => " Plus " + v + " flax fibers per block per day.",
       limits: (c, h) => "Limits: damaged below " + c + " °C or above " + h + " °C.",
+      thSoil: "Soil", thDays: "Days", thNut: "Nutr.", thDaysYour: "Days (your soil)", ovFiber: (v) => "+ " + v + " fibers/day",
       thCrop: "Crop", thOutcome: "Outcome", thRipe: "Ripe", thFood: "Food/block/day", thPlant: "Plant", thHarvestAll: "Harvest all",
       house: (i) => "House " + i,
       chipFull: "Full", chipDies: (c) => "Dies (" + c + ")", chipSlow: "Too slow", fiberUnit: " fiber",
@@ -360,7 +390,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       coldest: "Kälteste Nacht bei den Pflanzen", hottest: "Heißester Nachmittag", seasonal: "Jahreszeiten-Schwankung", diurnal: "Tag/Nacht-Schwankung",
       tipGh: (on) => on ? "Gewächshaus an (+5 °C)" : "Gewächshaus aus",
       tipFormula: "Formel, 4:00 / 16:00", tipNoise: "Mit Wetterrauschen (±4)", tipCheck: (m) => "Planer prüft (±" + m + ")",
-      tipAvg: "Tagesmittel",
+      tipAvg: "Tagesmittel", tipOffset: "Wetter-Abweichung eingerechnet",
+      mOut: (date, h, f, off) => "Formel am " + date + ", " + h + ":00 (draußen, ohne Abweichung): <b>" + f + " °C</b> → Abweichung <b>" + off + " °C</b>",
+      mNeed: "Trag die Temperatur aus /wgen ein, dann erscheint die Abweichung.",
       profDefault: (n) => "Standort " + n, profAskNew: "Name für den neuen Standort (er startet als Kopie des aktuellen):",
       profAskRename: "Neuer Name für diesen Standort:", profAskDelete: (n) => "Standort „" + n + "“ löschen? Das lässt sich nicht rückgängig machen.",
       open: "offen", chartSub: "bei den Pflanzen", chartAria: "Tägliche Temperaturspanne bei den Pflanzen über das Jahr",
@@ -371,6 +403,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       food: (v, how) => ' Etwa <b class="mono">' + v + "</b> Sättigung pro Block und Tag " + how + ".",
       fiberLine: (v) => " Dazu " + v + " Flachsfasern pro Block und Tag.",
       limits: (c, h) => "Grenzen: Schaden unter " + c + " °C oder über " + h + " °C.",
+      thSoil: "Boden", thDays: "Tage", thNut: "Nährst.", thDaysYour: "Tage (dein Boden)", ovFiber: (v) => "+ " + v + " Fasern/Tag",
       thCrop: "Pflanze", thOutcome: "Ergebnis", thRipe: "Reif", thFood: "Nahrung/Block/Tag", thPlant: "Pflanzen", thHarvestAll: "Alles ernten",
       house: (i) => "Haus " + i,
       chipFull: "Voll", chipDies: (c) => "Stirbt (" + c + ")", chipSlow: "Zu langsam", fiberUnit: " Fasern",
@@ -392,6 +425,11 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     h1: "Gewächshaus-Pflanzkalender",
     lede: "Welche Pflanzen in deinem Gewächshaus heil bis zur Ernte kommen, abhängig vom Pflanztag. Die Seite nutzt Vintage Storys eigene Temperaturformel und die Pflanzengrenzen aus den Spieldateien von 1.22: Kälte- und Hitzeschaden, den Gewächshausbonus von +5&nbsp;°C und langsameres Wachstum unter 10&nbsp;°C.",
     hClimate: "Dein Klima",
+    hOv: "Alle Pflanzen im Überblick",
+    ovHint: "Nahrung pro Block und Tag für eine Ernte auf voll erholtem Boden bei warmem Wetter (10 °C oder mehr, kein Schaden), mit deinem Wachstumstempo und deinen Tagen pro Monat. Jede Spalte ist eine Bodenfruchtbarkeit; deine ist hervorgehoben und bestimmt die Reihenfolge.",
+    lOffset: "Wetter-Abweichung °C", sOffset: "unten messen; 0 = nur Formel",
+    hMeasure: "Wetter-Abweichung messen", lMTemp: "Temperatur °C", lMHour: "Stunde", bApply: "Als Abweichung übernehmen",
+    measureHint: "Das Spiel legt zufälliges Wetterrauschen über die Formel: einen langsamen Teil (meist innerhalb ±4 °C), der viele Spielmonate bleibt, und einen schnellen Teil (etwa ±1 °C), der sich innerhalb von Stunden ändert. Gib <code>/wgen pos climate</code> ein und trag den ersten Wert (Temperature) und die Spielstunde ein. Das Datum kommt aus „Jetzt pflanzen“. Nimm zwei, drei Messungen zu verschiedenen Zeiten und den Mittelwert. Etwa einmal pro Spieljahr neu messen. Mit gesetzter Abweichung reicht ein Sicherheitspuffer von etwa 1,5 °C.",
     lProfile: "Standort", bNew: "Neu", bRename: "Umbenennen", bDelete: "Löschen",
     sProfile: "Ein Satz Einstellungen pro Hof-Standort. Alles hier wird in diesem Browser gespeichert und ist beim nächsten Besuch wieder da.",
     climateHint: "Stell dich ins Gewächshaus und gib <code>/wgen pos climate</code> und <code>/wgen pos latitude</code> ein. Die Werte unten sind eine Beispielwelt (Jahresmittel 7,6 °C, 45 % Regen, 47,32° N). Trag deine eigenen ein.",
@@ -413,10 +451,10 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     rotHint: "Alle vier Häuser werden am selben Tag bepflanzt. Du erntest sie zusammen, sobald die langsamste Pflanze reif ist. Danach rückt jedes Haus einen Schritt weiter: N → P → K → Brache. In der Brache erholt sich der Boden. Pflanzen, die früher reif sind, bleiben bis zum Erntetag stehen und werden auch in dieser Zeit auf Schaden geprüft. Für jede Runde wählt der Planer die Kombination mit der meisten Nahrung pro Tag, bei der jede Pflanze eine volle Ernte bringt. Die Zahl neben dem Nährstoff ist der Stand im Haus beim Pflanzen.",
     lRotN: "N-Haus", lRotP: "P-Haus", lRotK: "K-Haus", lRot4: "4. Haus", oRest: "Brache (leer)", oFlax: "Flachs für Fasern",
     hNow: "Jetzt pflanzen", lMonth: "Monat im Spiel", lDay: "Tag",
-    hPlan: "Jahresplan für eine Etage",
-    planHint: "Ab heute folgt auf jede Ernte die Pflanze mit der meisten Nahrung pro Block und Tag, die auf dem Boden, wie ihn die Pflanzen davor hinterlassen haben, eine volle Ernte bringt.",
+    hPlan: "Ein Feld, das ganze Jahr bepflanzt",
+    planHint: "Für ein einzelnes Feld außerhalb der Vier-Häuser-Rotation, das du am Tag der Reife neu bepflanzt. Ab dem Datum unter „Jetzt pflanzen“ ist jede Zeile die nächste Pflanze: die mit der meisten Nahrung pro Block und Tag, die noch eine volle Ernte bringt. „Boden“ ist der Stand ihres Nährstoffs beim Pflanzen, nach dem, was die Pflanzen davor verbraucht haben, und das Wachstumstempo, das er ergibt.",
     lFocus: "Etage für", oFood: "Beliebige Nahrung", oVeg: "Gemüse", oGrain: "Getreide", oProt: "Protein", oFiber: "Flachsfasern",
-    hTl: "Etagenplan im Kalender", tlN: "braucht N", tlP: "braucht P", tlK: "braucht K",
+    hTl: "Dasselbe Feld im Kalender", tlN: "braucht N", tlP: "braucht P", tlK: "braucht K",
     nTemp: "<b>Temperatur:</b> Jahresmittel, plus eine Jahreszeiten-Schwankung von Breitengrad/90 × 65 °C (im Norden am kältesten Mitte Januar), plus eine Tag/Nacht-Schwankung von 18 − 13 × Niederschlag °C (am kältesten um 4:00, am wärmsten um 16:00). Das ist die Formel des Spiels selbst, ohne sein zufälliges Wetterrauschen. Der Sicherheitspuffer steht für dieses Rauschen.",
     nDamage: "<b>Schaden:</b> Das Spiel prüft alle 3–4 Stunden. Liegt eine Prüfung unter der Kältegrenze oder über der Hitzegrenze, gilt die Pflanze als beschädigt: Die Ernte sinkt auf 50 % (75 % bei Karotten, Pastinaken, Roggen und Fenchel). Nach 48 Stunden Schaden stirbt die Pflanze. Bei passenden Temperaturen baut sich die Schadenszeit langsam wieder ab. Ernte zügig, denn auch reife Pflanzen können noch Frost- oder Hitzeschaden nehmen.",
     nSoil: "<b>Boden:</b> Jeder Wachstumsschritt verbraucht einen Teil des Nährstoffs der Pflanze (N, P oder K), und wie lange der nächste Schritt dauert, hängt vom Rest ab: über 75 wächst die Pflanze 10 % schneller, 51–75 normal, 36–50 mit 90 %, 21–35 mit 60 %, 6–20 mit 30 %, ab 5 und weniger mit 10 %. Mittlerer Boden startet bei genau 50 und liegt damit schon bei 90 %. Unreife Pflanzen und leerer Boden erholen sich bis zur Fruchtbarkeit des Bodens, etwa 1,7 pro Tag (der eigene Nährstoff der Pflanze nur ein Drittel so schnell). Eine reife Pflanze stoppt jede Erholung. Die Fruchtbarkeit ändert nicht die Erntemenge, nur das Tempo. Kalender und „Jetzt pflanzen“ gehen von erholtem Boden aus. Rotation und Beetplan rechnen den Nährstoffstand jedes Bodens von Pflanze zu Pflanze weiter. Dünger wird nicht berücksichtigt.",
@@ -426,7 +464,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   };
 
   const $ = (id) => document.getElementById(id);
-  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4"];
+  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "offset", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4"];
   // Months with the greenhouse bonus. Example default: roof open June–August.
   let GH = [true, true, true, true, true, false, false, false, true, true, true, true];
   let LANG = "en";
@@ -450,7 +488,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       const S = smootherstep(Math.min(1, Math.abs(cyc(ref, yearRel * 12, 12)) / 6));
       const D = smoothstep(Math.min(1, Math.abs(cyc(4, hour, 24)) / 12));
       const m = Math.min(11, Math.floor(yearRel * 12));
-      return s.avg - A / 2 + A * S + (D - 0.5) * diAmp + (s.ghMonths[m] ? 5 : 0);
+      return s.avg - A / 2 + A * S + (D - 0.5) * diAmp + (s.ghMonths[m] ? 5 : 0) + (s.offset || 0);
     };
   }
 
@@ -507,7 +545,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       avg: num("avg", 7.6), lat: Math.min(90, Math.max(0, Math.abs(num("lat", 47.32)))), hemi: $("hemi").value,
       rain: Math.min(100, Math.max(0, num("rain", 45))), ghMonths: GH.slice(), margin: Math.max(0, num("margin", 2)),
       dpm: Math.round(Math.min(30, Math.max(3, num("dpm", 9)))), speed: Math.min(150, Math.max(10, num("speed", 97))),
-      fert: Math.min(100, Math.max(0, num("fert", 50))),
+      fert: Math.min(100, Math.max(0, num("fert", 50))), offset: Math.min(15, Math.max(-15, num("offset", 0))),
     };
   }
   function dateLabel(day, dpm) {
@@ -594,6 +632,42 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     if (hoverDay != null) showTempTip(hoverDay);
   }
 
+  // ---- measuring the weather offset: /wgen temperature minus the plain formula (outside, no greenhouse) ----
+  function renderMeasure() {
+    const v = parseFloat($("mTemp").value);
+    let h = parseInt($("mHour").value, 10); if (!Number.isFinite(h)) h = 12; h = Math.min(23, Math.max(0, h));
+    const f = makeClimate(Object.assign({}, S, { ghMonths: new Array(12).fill(false), offset: 0 }))(todayIdx * 24 + h);
+    if (!Number.isFinite(v)) { $("mOut").innerHTML = t().mNeed; $("mApply").disabled = true; return; }
+    const off = Math.round((v - f) * 10) / 10;
+    $("mOut").innerHTML = t().mOut(dateLabel(todayIdx, S.dpm), h, fmt(f, 1), (off > 0 ? "+" : "") + fmt(off, 1));
+    $("mApply").disabled = false; $("mApply").dataset.off = off;
+  }
+  ["mTemp", "mHour"].forEach((k) => $(k).addEventListener("input", renderMeasure));
+  $("mApply").addEventListener("click", () => { $("offset").value = $("mApply").dataset.off; full(); });
+
+  // ---- overview: every crop at every fertility, warm weather ----
+  const FERTS = [5, 25, 50, 65, 80];
+  function renderOverview() {
+    const warm = () => 20, s = Object.assign({}, S, { margin: 0 });
+    const labels = Array.from($("fert").options).map((o) => o.textContent);
+    const rows = CROPS.map((c) => {
+      const res = FERTS.map((f) => simulate(c, 0, Object.assign({}, s, { fert: f }), warm));
+      return { c, res, mine: simulate(c, 0, s, warm) };
+    });
+    const selIdx = FERTS.indexOf(S.fert);
+    rows.sort((a, b) => (b.mine.perDay || 0) - (a.mine.perDay || 0));
+    let html = "<thead><tr><th>" + t().thCrop + "</th><th>" + t().thNut + '</th><th class="num">' + t().thDaysYour + "</th>";
+    FERTS.forEach((f, i) => { html += '<th class="num' + (i === selIdx ? " sel" : "") + '">' + labels[i] + "</th>"; });
+    html += "</tr></thead><tbody>";
+    for (const { c, res, mine } of rows) {
+      html += "<tr><td>" + cname(c) + ' <span class="hint">' + t().catOne[c.cat] + (c.fibers && mine.days ? ", " + t().ovFiber(fmt(c.fibers / mine.days, 2)) : "") + "</span></td>" +
+        '<td class="mono">' + c.nut + '</td><td class="num">' + (mine.days ? fmt(mine.days, 1) : "–") + "</td>";
+      res.forEach((r, i) => { html += '<td class="num' + (i === selIdx ? " sel" : "") + '">' + (r.perDay ? fmt(r.perDay) : "–") + "</td>"; });
+      html += "</tr>";
+    }
+    $("ovTable").innerHTML = html + "</tbody>";
+  }
+
   // ---- hover readout on the temperature strip ----
   const NOISE = 4; // game weather noise: yearly ±3 plus daily ±1 (Systems/Temperature.cs)
   let TG = null, hoverDay = null;
@@ -614,6 +688,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     tip.innerHTML = "<b>" + dateLabel(d, S.dpm) + '</b> <span class="sub">· ' + t().tipGh(S.ghMonths[m]) + "</span>" +
       '<div class="row"><span>' + t().tipFormula + "</span><span>" + range(lo, hi) + "</span></div>" +
       '<div class="row"><span>' + t().tipAvg + "</span><span>" + f1((lo + hi) / 2) + " °C</span></div>" +
+      (S.offset ? '<div class="row sub"><span>' + t().tipOffset + "</span><span>" + (S.offset > 0 ? "+" : "") + f1(S.offset) + " °C</span></div>" : "") +
       '<div class="row"><span>' + t().tipNoise + "</span><span>" + range(lo - NOISE, hi + NOISE) + "</span></div>" +
       '<div class="row sub"><span>' + t().tipCheck(fmt(S.margin, 1)) + "</span><span>" + range(lo - S.margin, hi + S.margin) + "</span></div>";
     tip.hidden = false;
@@ -717,21 +792,22 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
 
   function renderPlan() {
     const { steps, focus } = plan();
-    let html = "<thead><tr><th>" + t().thPlant + "</th><th>" + t().thCrop + "</th><th>" + t().thRipe + '</th><th class="num">' + t().thFood + "</th></tr></thead><tbody>";
+    let html = "<thead><tr><th>" + t().thPlant + "</th><th>" + t().thCrop + "</th><th>" + t().thSoil + "</th><th>" + t().thRipe + '</th><th class="num">' + t().thDays + '</th><th class="num">' + t().thFood + "</th></tr></thead><tbody>";
     let totalFood = 0, totalFiber = 0;
     for (const s of steps) {
       if (s.fallow) {
-        html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + '</td><td colspan="3" class="hint">' + t().fallow(dateLabel(s.end, S.dpm)) + "</td></tr>";
+        html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + '</td><td colspan="5" class="hint">' + t().fallow(dateLabel(s.end, S.dpm)) + "</td></tr>";
         continue;
       }
       totalFood += s.c.yield * s.c.sat * s.r.mul; totalFiber += (s.c.fibers || 0) * s.r.mul;
-      html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + "</td><td>" + cname(s.c) + ' <span class="hint">' + s.c.nut + " " + fmt(s.nut) + "</span></td>" +
-        '<td class="mono">' + dateLabel(s.r.harvestDay, S.dpm) + "</td>" +
+      html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + "</td><td>" + cname(s.c) + "</td>" +
+        '<td class="mono">' + s.c.nut + " " + fmt(s.nut) + ' <span class="hint">(' + Math.round(nutFactor(Math.round(s.nut)) * 100) + " %)</span></td>" +
+        '<td class="mono">' + dateLabel(s.r.harvestDay, S.dpm) + '</td><td class="num">' + fmt(s.r.days, 1) + "</td>" +
         '<td class="num">' + (focus === "Fiber" ? fmt(s.r.fibersPerDay, 2) + t().fiberUnit : fmt(s.r.perDay)) + "</td></tr>";
     }
     const last = steps[steps.length - 1];
     const tail = last && !last.fallow && last.end > todayIdx + YEAR ? t().pastYear : "";
-    html += '</tbody><tfoot><tr><td colspan="4" class="hint">' + (focus === "Fiber" ? t().planFiber(fmt(totalFiber, 1)) : t().planFood(fmt(totalFood))) + tail + "</td></tr></tfoot>";
+    html += '</tbody><tfoot><tr><td colspan="6" class="hint">' + (focus === "Fiber" ? t().planFiber(fmt(totalFiber, 1)) : t().planFood(fmt(totalFood))) + tail + "</td></tr></tfoot>";
     $("planTable").innerHTML = html;
 
     // timeline on the same day scale as the calendar
@@ -948,9 +1024,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     applySnapshot(activeProfile().data); renderProfiles(); full();
   });
 
-  function full() { compute(); readToday(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); refreshDetail(); save(); }
-  function light() { readToday(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); save(); }
-  function texts() { renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); refreshDetail(); save(); }
+  function full() { compute(); readToday(); renderMeasure(); renderOverview(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); refreshDetail(); save(); }
+  function light() { readToday(); renderMeasure(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); save(); }
+  function texts() { renderMeasure(); renderOverview(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); refreshDetail(); save(); }
   function refreshDetail() { if (selected && RES[selected.id] && selected.d < YEAR) $("detail").innerHTML = describe(selected.id, selected.d); }
 
   load();
@@ -961,7 +1037,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     const i = +b.dataset.m; GH[i] = !GH[i]; b.setAttribute("aria-pressed", String(GH[i])); full();
   });
   ["rotN", "rotP", "rotK", "rot4"].forEach((k) => $(k).addEventListener("change", () => { renderRotation(); save(); }));
-  ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert"].forEach((k) => $(k).addEventListener("change", full));
+  ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "offset"].forEach((k) => $(k).addEventListener("change", full));
   ["tmonth", "tday"].forEach((k) => $(k).addEventListener("change", light));
   $("focus").addEventListener("change", () => { renderPlan(); save(); });
 
