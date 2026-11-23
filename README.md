@@ -10,6 +10,7 @@ A planting calendar for greenhouses in [Vintage Story](https://www.vintagestory.
 - Lets you switch the greenhouse bonus (+5 °C) on or off per month, for when you open the roof in summer.
 - Plans a four-greenhouse rotation (N → P → K → rest) where all houses are harvested together once the slowest crop is ripe.
 - Lists what you can plant on a given in-game day, and plans a single shelf for a year.
+- Switches between English and German (EN/DE, top right). German crop names match the game's German language file.
 
 ## Using it with your world
 
