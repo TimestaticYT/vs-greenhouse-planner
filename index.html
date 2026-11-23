@@ -65,6 +65,8 @@ code { font-family: var(--f-mono); font-size: 12.5px; background: var(--accent-s
 .measure .controls .field { min-width: 120px; flex: 0 1 150px; }
 .measure .out { font-size: 13px; padding-bottom: 8px; }
 .measure .out b { font-family: var(--f-mono); }
+.rot-start { margin: 8px 0 0; font-size: 13.5px; }
+.rot-start:empty { display: none; }
 .climate-line b { color: var(--ink); font-family: var(--f-mono); font-weight: 600; }
 
 /* Shared day-scale grid */
@@ -230,7 +232,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <div class="field"><label for="rotP" data-i18n="lRotP">P house</label><select id="rotP"></select></div>
       <div class="field"><label for="rotK" data-i18n="lRotK">K house</label><select id="rotK"></select></div>
       <div class="field"><label for="rot4" data-i18n="lRot4">4th house</label><select id="rot4"><option value="rest" data-i18n="oRest">Rest (empty)</option><option value="flax" data-i18n="oFlax">Flax for fibers</option></select></div>
+      <div class="field"><label for="rotStart" data-i18n="lRotStart">Start</label><select id="rotStart"><option value="today" data-i18n="oStartToday">From the "Plant now" date</option><option value="best" data-i18n="oStartBest">Best start for a whole year</option></select></div>
     </div>
+    <p class="rot-start" id="rotStartInfo" aria-live="polite"></p>
     <div class="scroll"><table id="rotTable"></table></div>
   </section>
 
@@ -373,7 +377,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       rotGap: (d) => "Nothing gets a full harvest. Leave all houses empty until " + d + ".",
       days: (n) => n + " d",
       rest: "Rest", emptyRole: (n) => "Empty (" + n + ": nothing safe)", ripeOn: (d) => "ripe " + d,
-      rotTotal: (parts, fib) => "Per planted block over the year, all four houses together: " + parts + " satiety" + (fib ? ", plus <b>" + fib + "</b> flax fibers" : "") + ".",
+      rotBestStart: (d, v) => "Best start: <b>" + d + "</b>. Of every possible start day, this one gives the most food over the following year (" + v + " satiety per block for all four houses). Plant all houses then and follow the rows.",
+      rotToday: (d) => "Starting " + d + ", the \"Plant now\" date.",
+      rotTotal: (parts, fib) => "Per planted block over the year, all four houses together: " + parts + " satiety" + (fib ? ", plus <b>" + fib + "</b> flax fibers" : "") + ". A cycle that runs past the year counts only for its days inside it.",
     },
     de: {
       locale: "de-DE",
@@ -419,7 +425,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       rotGap: (d) => "Nichts bringt eine volle Ernte. Alle Häuser bis " + d + " leer lassen.",
       days: (n) => n + " T",
       rest: "Brache", emptyRole: (n) => "Leer (" + n + ": nichts sicher)", ripeOn: (d) => "reif am " + d,
-      rotTotal: (parts, fib) => "Pro bepflanztem Block über das Jahr, alle vier Häuser zusammen: " + parts + " Sättigung" + (fib ? ", dazu <b>" + fib + "</b> Flachsfasern" : "") + ".",
+      rotBestStart: (d, v) => "Bester Start: <b>" + d + "</b>. Von allen möglichen Starttagen bringt dieser im folgenden Jahr die meiste Nahrung (" + v + " Sättigung pro Block für alle vier Häuser). Bepflanze dann alle Häuser und folge den Zeilen.",
+      rotToday: (d) => "Start am " + d + ", dem Datum unter „Jetzt pflanzen“.",
+      rotTotal: (parts, fib) => "Pro bepflanztem Block über das Jahr, alle vier Häuser zusammen: " + parts + " Sättigung" + (fib ? ", dazu <b>" + fib + "</b> Flachsfasern" : "") + ". Eine Runde, die über das Jahr hinausgeht, zählt nur mit ihren Tagen innerhalb des Jahres.",
     },
   };
 
@@ -433,6 +441,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     lOffset: "Wetter-Abweichung °C", sOffset: "unten messen; 0 = nur Formel",
     hMeasure: "Wetter-Abweichung messen", lMTemp: "Temperatur °C", lMHour: "Stunde", bApply: "Als Abweichung übernehmen",
     measureHint: "Das Spiel legt zufälliges Wetterrauschen über die Formel: einen langsamen Teil (meist innerhalb ±4 °C), der viele Spielmonate bleibt, und einen schnellen Teil (etwa ±1 °C), der sich innerhalb von Stunden ändert. Gib <code>/wgen pos climate</code> ein und trag den ersten Wert (Temperature) und die Spielstunde ein. Das Datum kommt aus „Jetzt pflanzen“. Nimm zwei, drei Messungen zu verschiedenen Zeiten und den Mittelwert. Etwa einmal pro Spieljahr neu messen. Mit gesetzter Abweichung reicht ein Sicherheitspuffer von etwa 1,5 °C.",
+    lRotStart: "Start", oStartToday: "Ab dem Datum unter „Jetzt pflanzen“", oStartBest: "Bester Start für ein ganzes Jahr",
     lProfile: "Standort", bNew: "Neu", bRename: "Umbenennen", bDelete: "Löschen",
     sProfile: "Ein Satz Einstellungen pro Hof-Standort. Alles hier wird in diesem Browser gespeichert und ist beim nächsten Besuch wieder da.",
     climateHint: "Stell dich ins Gewächshaus und gib <code>/wgen pos climate</code> und <code>/wgen pos latitude</code> ein. Die Werte unten sind eine Beispielwelt (Jahresmittel 7,6 °C, 45 % Regen, 47,32° N). Trag deine eigenen ein.",
@@ -467,7 +476,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   };
 
   const $ = (id) => document.getElementById(id);
-  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "offset", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4"];
+  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "offset", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4", "rotStart"];
   // Months with the greenhouse bonus. Example default: roof open June–August.
   let GH = [true, true, true, true, true, false, false, false, true, true, true, true];
   let LANG = "en";
@@ -570,6 +579,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   function compute() {
     S = read();
     temp = makeClimate(S);
+    ROTCACHE = new Map(); BESTMEMO = null;
     YEAR = 12 * S.dpm;
     RES = {};
     for (const c of CROPS) {
@@ -842,20 +852,21 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     }
   }
 
-  function rotation() {
+  let ROTCACHE = new Map(), BESTMEMO = null;
+  function rotation(start) {
     const food = CROPS.filter((c) => c.cat !== "Fiber");
     const flaxCrop = CROPS.find((c) => c.id === "flax");
     const cands = {};
     for (const n of ROLE_NUT) { const v = $("rot" + n).value; cands[n] = v === "auto" ? food.filter((c) => c.nut === n) : food.filter((c) => c.id === v); }
     const useFlax = $("rot4").value === "flax";
-    const cache = new Map();
+    const cache = ROTCACHE; // shared across start days; cleared whenever the settings change
     const sim = (c, di, n, L) => { const k = c.id + "|" + di + "|" + Math.round(n) + "|" + L; if (!cache.has(k)) cache.set(k, simulate(c, di, S, temp, L, Math.round(n))); return cache.get(k); };
     // Each house keeps its own soil. In cycle n, the crop of role r goes into house (r - n) mod 4.
     let soils = [0, 1, 2, 3].map(() => ({ N: S.fert, P: S.fert, K: S.fert }));
     const houseOf = (role, n) => (((role - n) % 4) + 4) % 4;
     const cycles = [];
-    const end = todayIdx + YEAR;
-    let d = todayIdx, gapStart = null, n = 0;
+    const end = start + YEAR;
+    let d = start, gapStart = null, n = 0, gained = 0;
     while (d < end) {
       const di = d % YEAR;
       const nutFor = (c, role) => soils[houseOf(role, n)][c.nut];
@@ -887,14 +898,37 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
         return c ? soilAfter(so, c, best.res[role], S.fert) : soilRest(so, best.L, S.fert);
       });
       cycles.push({ start: d, L: best.L, picks: best.picks, res: best.res, startNut });
+      gained += best.score * best.L * Math.min(1, (end - d) / best.L); // a last cycle that runs past the year counts in part
       d += best.L; n++;
     }
     if (gapStart !== null) cycles.push({ gap: true, start: gapStart, end: end });
+    cycles.food = gained; cycles.start = start;
     return cycles;
   }
 
+  // The start day (0 = 1 Jan) whose following year of rotation gives the most food. Ties go to the earliest day.
+  function bestRotationStart() {
+    const key = ["rotN", "rotP", "rotK", "rot4"].map((k) => $(k).value).join("|");
+    if (BESTMEMO && BESTMEMO.key === key) return BESTMEMO;
+    let best = null;
+    for (let d0 = 0; d0 < YEAR; d0++) {
+      const cy = rotation(d0);
+      if (!best || cy.food > best.food + 1e-6) best = { start: d0, food: cy.food, cycles: cy };
+    }
+    BESTMEMO = Object.assign({ key }, best);
+    return BESTMEMO;
+  }
+
   function renderRotation() {
-    const cycles = rotation();
+    let cycles;
+    if ($("rotStart").value === "best") {
+      const b = bestRotationStart();
+      cycles = b.cycles;
+      $("rotStartInfo").innerHTML = t().rotBestStart(dateLabel(b.start, S.dpm), fmt(b.food));
+    } else {
+      cycles = rotation(todayIdx);
+      $("rotStartInfo").innerHTML = t().rotToday(dateLabel(todayIdx, S.dpm));
+    }
     let html = "<thead><tr><th>" + t().thPlant + "</th><th>" + t().thHarvestAll + "</th>";
     for (let h = 1; h <= 4; h++) html += "<th>" + t().house(h) + "</th>";
     html += "</tr></thead><tbody>";
@@ -914,7 +948,8 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
           continue;
         }
         html += "<td>" + cname(c) + ' <span class="nut-tag">' + c.nut + " " + fmt(cy.startNut[role]) + '</span><br><span class="hint">' + t().ripeOn(dateLabel(r.harvestDay, S.dpm)) + "</span></td>";
-        if (c.cat === "Fiber") fibers += c.fibers; else totals[c.cat] += c.yield * c.sat;
+        const share = Math.min(1, (cycles.start + YEAR - cy.start) / cy.L); // a cycle running past the year counts in part
+        if (c.cat === "Fiber") fibers += c.fibers * share; else totals[c.cat] += c.yield * c.sat * share;
       }
       html += "</tr>";
       n++;
@@ -1039,7 +1074,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     const b = e.target.closest(".mbtn"); if (!b) return;
     const i = +b.dataset.m; GH[i] = !GH[i]; b.setAttribute("aria-pressed", String(GH[i])); full();
   });
-  ["rotN", "rotP", "rotK", "rot4"].forEach((k) => $(k).addEventListener("change", () => { renderRotation(); save(); }));
+  ["rotN", "rotP", "rotK", "rot4", "rotStart"].forEach((k) => $(k).addEventListener("change", () => { renderRotation(); save(); }));
   ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "offset"].forEach((k) => $(k).addEventListener("change", full));
   ["tmonth", "tday"].forEach((k) => $(k).addEventListener("change", light));
   $("focus").addEventListener("change", () => { renderPlan(); save(); });
