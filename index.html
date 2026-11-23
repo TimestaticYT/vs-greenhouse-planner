@@ -84,6 +84,16 @@ code { font-family: var(--f-mono); font-size: 12.5px; background: var(--accent-s
 /* Temperature strip */
 #tempsvg { display: block; }
 #tempsvg text { font-family: var(--f-mono); font-size: 10px; fill: var(--muted); }
+#tempsvg { touch-action: pan-y; }
+.chartwrap { position: relative; width: max-content; }
+.ttip { position: absolute; top: 4px; z-index: 5; pointer-events: none; min-width: 260px; max-width: 320px; padding: 8px 10px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.14); font-size: 12.5px; line-height: 1.45; }
+.ttip[hidden] { display: none; }
+.ttip b { font-family: var(--f-display); font-size: 13.5px; }
+.ttip .row { display: flex; justify-content: space-between; gap: 12px; }
+.ttip .row span:last-child { font-family: var(--f-mono); white-space: nowrap; }
+.ttip .sub { color: var(--muted); }
 
 /* Plant-now and plan */
 .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 22px; }
@@ -112,6 +122,11 @@ td.num, th.num { text-align: right; font-family: var(--f-mono); font-variant-num
 .lang button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
 .notes { color: var(--muted); font-size: 13px; display: flex; flex-direction: column; gap: 6px; max-width: 80ch; }
 .notes b { color: var(--ink); }
+.profiles { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 10px; margin: 4px 0 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.profiles .field { min-width: 200px; flex: 0 1 260px; }
+.profiles .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.profiles small { flex-basis: 100%; color: var(--muted); font-size: 11.5px; }
+button.reset:disabled { opacity: .45; cursor: default; }
 button.reset { font: inherit; font-size: 13px; color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
 @media (prefers-reduced-motion: no-preference) { .c { transition: filter .1s; } .c:hover { filter: brightness(1.15); } }
 </style>
@@ -132,6 +147,15 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     <div class="panel-head">
       <h2 id="h-climate" data-i18n="hClimate">Your climate</h2>
       <span class="hint" data-i18n="climateHint">Stand inside the greenhouse and run <code>/wgen pos climate</code> and <code>/wgen pos latitude</code>. The values below are an example world (year avg 7.6 °C, 45 % rain, 47.32° N). Put in your own.</span>
+    </div>
+    <div class="profiles">
+      <div class="field"><label for="profile" data-i18n="lProfile">Location</label><select id="profile"></select></div>
+      <div class="btns">
+        <button type="button" class="reset" id="profNew" data-i18n="bNew">New</button>
+        <button type="button" class="reset" id="profRename" data-i18n="bRename">Rename</button>
+        <button type="button" class="reset" id="profDelete" data-i18n="bDelete">Delete</button>
+      </div>
+      <small data-i18n="sProfile">One set of settings per farm location. Everything below is saved in this browser and comes back when you return.</small>
     </div>
     <div class="settings">
       <div class="field"><label for="avg" data-i18n="lAvg">Yearly avg temp °C</label><input id="avg" type="number" step="0.1" value="7.6"><small data-i18n="sAvg">"Year avg" in /wgen pos climate</small></div>
@@ -160,7 +184,8 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <span><i class="sw" style="outline:2px solid var(--ink);outline-offset:-1px;background:transparent"></i><span data-i18n="lgToday">Today</span></span>
     </div>
     <div class="scroll">
-      <div style="width:max-content">
+      <div class="chartwrap" id="chartwrap">
+        <div class="ttip" id="ttip" hidden></div>
         <svg id="tempsvg" role="img" aria-label="Daily temperature range inside the greenhouse over the year"></svg>
         <div class="grid" id="grid"></div>
       </div>
@@ -291,6 +316,11 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       dies: (cause, days) => "Dies from " + cause + " after " + days + " days",
       slow: "Doesn't ripen within a year",
       coldest: "Coldest night at the crops", hottest: "Hottest afternoon", seasonal: "Seasonal swing", diurnal: "Day/night swing",
+      tipGh: (on) => on ? "greenhouse on (+5 °C)" : "greenhouse off",
+      tipFormula: "Formula, 4:00 / 16:00", tipNoise: "With weather noise (±4)", tipCheck: (m) => "Planner checks (±" + m + ")",
+      tipAvg: "Day average",
+      profDefault: (n) => "Location " + n, profAskNew: "Name for the new location (it starts as a copy of the current one):",
+      profAskRename: "New name for this location:", profAskDelete: (n) => "Delete the location \"" + n + "\"? This can't be undone.",
       open: "open", chartSub: "at the crops", chartAria: "Daily temperature range at the crops over the year",
       limitsTitle: (n, c, h) => n + ": damaged below " + c + " °C / above " + h + " °C",
       planted: (n, d) => "<b>" + n + "</b> planted " + d + ": ",
@@ -328,6 +358,11 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       dies: (cause, days) => "Stirbt nach " + days + " Tagen an " + cause,
       slow: "Reift nicht innerhalb eines Jahres",
       coldest: "Kälteste Nacht bei den Pflanzen", hottest: "Heißester Nachmittag", seasonal: "Jahreszeiten-Schwankung", diurnal: "Tag/Nacht-Schwankung",
+      tipGh: (on) => on ? "Gewächshaus an (+5 °C)" : "Gewächshaus aus",
+      tipFormula: "Formel, 4:00 / 16:00", tipNoise: "Mit Wetterrauschen (±4)", tipCheck: (m) => "Planer prüft (±" + m + ")",
+      tipAvg: "Tagesmittel",
+      profDefault: (n) => "Standort " + n, profAskNew: "Name für den neuen Standort (er startet als Kopie des aktuellen):",
+      profAskRename: "Neuer Name für diesen Standort:", profAskDelete: (n) => "Standort „" + n + "“ löschen? Das lässt sich nicht rückgängig machen.",
       open: "offen", chartSub: "bei den Pflanzen", chartAria: "Tägliche Temperaturspanne bei den Pflanzen über das Jahr",
       limitsTitle: (n, c, h) => n + ": Schaden unter " + c + " °C / über " + h + " °C",
       planted: (n, d) => "<b>" + n + "</b> gepflanzt am " + d + ": ",
@@ -357,6 +392,8 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     h1: "Gewächshaus-Pflanzkalender",
     lede: "Welche Pflanzen in deinem Gewächshaus heil bis zur Ernte kommen, abhängig vom Pflanztag. Die Seite nutzt Vintage Storys eigene Temperaturformel und die Pflanzengrenzen aus den Spieldateien von 1.22: Kälte- und Hitzeschaden, den Gewächshausbonus von +5&nbsp;°C und langsameres Wachstum unter 10&nbsp;°C.",
     hClimate: "Dein Klima",
+    lProfile: "Standort", bNew: "Neu", bRename: "Umbenennen", bDelete: "Löschen",
+    sProfile: "Ein Satz Einstellungen pro Hof-Standort. Alles hier wird in diesem Browser gespeichert und ist beim nächsten Besuch wieder da.",
     climateHint: "Stell dich ins Gewächshaus und gib <code>/wgen pos climate</code> und <code>/wgen pos latitude</code> ein. Die Werte unten sind eine Beispielwelt (Jahresmittel 7,6 °C, 45 % Regen, 47,32° N). Trag deine eigenen ein.",
     lAvg: "Jahresmittel °C", sAvg: "„Year avg“ in /wgen pos climate",
     lLat: "Breitengrad °", sLat: "0 Äquator, 90 Pol",
@@ -540,6 +577,12 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       if (!S.ghMonths[m]) open += '<rect x="' + (labelW + m * S.dpm * cw) + '" y="' + top + '" width="' + (S.dpm * cw) + '" height="' + (h - top - bottom) + '" fill="var(--accent-soft)"/>' +
         '<text x="' + (labelW + m * S.dpm * cw + 2) + '" y="' + (top + 10) + '" style="fill:var(--accent)">' + t().open + "</text>";
     }
+    TG = { labelW, cw, w, top, bottom, h, y, mins, maxs };
+    const hover = '<g id="thov" style="display:none;pointer-events:none">' +
+      '<line id="thLine" y1="' + top + '" y2="' + (h - bottom) + '" stroke="var(--ink)" stroke-width="1" stroke-dasharray="3 3" opacity="0.6"/>' +
+      '<line id="thNoise" stroke="var(--muted)" stroke-width="5" stroke-linecap="round" opacity="0.35"/>' +
+      '<circle id="thHi" r="4" fill="var(--warm)" stroke="var(--surface)" stroke-width="1.5"/>' +
+      '<circle id="thLo" r="4" fill="var(--cold)" stroke="var(--surface)" stroke-width="1.5"/></g>';
     const svg = $("tempsvg");
     svg.setAttribute("width", w); svg.setAttribute("height", h); svg.setAttribute("viewBox", "0 0 " + w + " " + h);
     svg.setAttribute("aria-label", t().chartAria);
@@ -547,8 +590,46 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       '<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--warm)"/><stop offset="1" stop-color="var(--cold)"/></linearGradient></defs>' +
       open + grid + '<path d="' + band + '" fill="url(#tg)" fill-opacity="0.55" stroke="none"/>' + todayLine + mlabels +
       '<text x="4" y="' + (top + 10) + '" style="fill:var(--ink);font-weight:600">°C, 4:00–16:00</text>' +
-      '<text x="4" y="' + (top + 24) + '">' + t().chartSub + "</text>";
+      '<text x="4" y="' + (top + 24) + '">' + t().chartSub + "</text>" + hover;
+    if (hoverDay != null) showTempTip(hoverDay);
   }
+
+  // ---- hover readout on the temperature strip ----
+  const NOISE = 4; // game weather noise: yearly ±3 plus daily ±1 (Systems/Temperature.cs)
+  let TG = null, hoverDay = null;
+  function showTempTip(d) {
+    if (!TG) return;
+    const g = $("thov"); if (!g) return;
+    const x = TG.labelW + d * TG.cw + TG.cw / 2, lo = TG.mins[d], hi = TG.maxs[d];
+    const clampY = (T) => Math.min(TG.h - TG.bottom, Math.max(TG.top, TG.y(T)));
+    g.style.display = "";
+    $("thLine").setAttribute("x1", x); $("thLine").setAttribute("x2", x);
+    $("thNoise").setAttribute("x1", x); $("thNoise").setAttribute("x2", x);
+    $("thNoise").setAttribute("y1", clampY(hi + NOISE)); $("thNoise").setAttribute("y2", clampY(lo - NOISE));
+    $("thHi").setAttribute("cx", x); $("thHi").setAttribute("cy", TG.y(hi));
+    $("thLo").setAttribute("cx", x); $("thLo").setAttribute("cy", TG.y(lo));
+    const m = Math.floor(d / S.dpm), f1 = (v) => fmt(v, 1);
+    const range = (a, b) => f1(a) + " … " + f1(b) + " °C";
+    const tip = $("ttip");
+    tip.innerHTML = "<b>" + dateLabel(d, S.dpm) + '</b> <span class="sub">· ' + t().tipGh(S.ghMonths[m]) + "</span>" +
+      '<div class="row"><span>' + t().tipFormula + "</span><span>" + range(lo, hi) + "</span></div>" +
+      '<div class="row"><span>' + t().tipAvg + "</span><span>" + f1((lo + hi) / 2) + " °C</span></div>" +
+      '<div class="row"><span>' + t().tipNoise + "</span><span>" + range(lo - NOISE, hi + NOISE) + "</span></div>" +
+      '<div class="row sub"><span>' + t().tipCheck(fmt(S.margin, 1)) + "</span><span>" + range(lo - S.margin, hi + S.margin) + "</span></div>";
+    tip.hidden = false;
+    const tw = tip.offsetWidth;
+    tip.style.left = (x + 14 + tw > TG.w ? x - 14 - tw : x + 14) + "px";
+  }
+  function hideTempTip() { hoverDay = null; const g = $("thov"); if (g) g.style.display = "none"; $("ttip").hidden = true; }
+  $("tempsvg").addEventListener("pointermove", (e) => {
+    if (!TG) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = (e.clientX - r.left) * TG.w / r.width;
+    if (px < TG.labelW) { hideTempTip(); return; }
+    const d = Math.min(YEAR - 1, Math.max(0, Math.floor((px - TG.labelW) / TG.cw)));
+    if (d !== hoverDay) { hoverDay = d; showTempTip(d); }
+  });
+  $("tempsvg").addEventListener("pointerleave", hideTempTip);
 
   function renderGrid() {
     const cw = cellPx();
@@ -797,25 +878,75 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     fillMonths(); fillRotSelects(); renderGhMonths();
   }
 
+  // ---- saved settings: one profile per farm location, kept in this browser ----
+  const STORE = "gh-cal-v3";
+  let PROFILES = [], ACTIVE = null; // PROFILES: [{ id, name, data }]
+  function snapshot() {
+    const o = {}; ids.forEach((k) => (o[k] = $(k).value));
+    o.ghm = GH.map((x) => (x ? "1" : "0")).join("");
+    return o;
+  }
+  function applySnapshot(o) {
+    if (!o) return;
+    ids.forEach((k) => { if (o[k] != null && $(k)) $(k).value = o[k]; });
+    if (typeof o.ghm === "string" && o.ghm.length === 12) GH = o.ghm.split("").map((c) => c === "1");
+    renderGhMonths();
+  }
+  const activeProfile = () => PROFILES.find((p) => p.id === ACTIVE);
   function save() {
-    try {
-      const o = {}; ids.forEach((k) => (o[k] = $(k).value));
-      o.ghm = GH.map((x) => (x ? "1" : "0")).join(""); o.lang = LANG;
-      localStorage.setItem("gh-cal-v2", JSON.stringify(o));
-    } catch (e) {}
+    const p = activeProfile(); if (p) p.data = snapshot();
+    try { localStorage.setItem(STORE, JSON.stringify({ lang: LANG, active: ACTIVE, profiles: PROFILES })); } catch (e) {}
+  }
+  function newId() { return "p" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36); }
+  function renderProfiles() {
+    const sel = $("profile");
+    sel.innerHTML = PROFILES.map((p) => "<option></option>").join("");
+    PROFILES.forEach((p, i) => { sel.options[i].value = p.id; sel.options[i].textContent = p.name; });
+    sel.value = ACTIVE;
+    $("profDelete").disabled = PROFILES.length < 2;
   }
   function load() {
-    let o = null;
-    try { o = JSON.parse(localStorage.getItem("gh-cal-v2") || "null"); } catch (e) {}
-    if (o && (o.lang === "de" || o.lang === "en")) LANG = o.lang;
+    let st = null, old = null;
+    try { st = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) {}
+    if (!st) { try { old = JSON.parse(localStorage.getItem("gh-cal-v2") || "null"); } catch (e) {} }
+    const lang = (st || old || {}).lang;
+    if (lang === "de" || lang === "en") LANG = lang;
     else if ((navigator.language || "").toLowerCase().startsWith("de")) LANG = "de";
     applyLang(); // builds the selects, so stored values can be set afterwards
-    if (o) {
-      ids.forEach((k) => { if (o[k] != null && $(k)) $(k).value = o[k]; });
-      if (typeof o.ghm === "string" && o.ghm.length === 12) GH = o.ghm.split("").map((c) => c === "1");
-      renderGhMonths();
+    if (st && Array.isArray(st.profiles) && st.profiles.length) {
+      PROFILES = st.profiles.filter((p) => p && p.id && typeof p.name === "string");
+      ACTIVE = PROFILES.some((p) => p.id === st.active) ? st.active : PROFILES[0].id;
     }
+    if (!PROFILES.length) { // first visit, or settings from the single-profile version
+      PROFILES = [{ id: newId(), name: t().profDefault(1), data: old || snapshot() }];
+      ACTIVE = PROFILES[0].id;
+    }
+    applySnapshot(activeProfile().data);
+    renderProfiles();
   }
+  $("profile").addEventListener("change", (e) => {
+    save(); // keep the edits of the profile we leave
+    ACTIVE = e.target.value; applySnapshot(activeProfile().data); full();
+  });
+  $("profNew").addEventListener("click", () => {
+    const name = (prompt(t().profAskNew, t().profDefault(PROFILES.length + 1)) || "").trim();
+    if (!name) return;
+    save();
+    const p = { id: newId(), name: name.slice(0, 60), data: snapshot() };
+    PROFILES.push(p); ACTIVE = p.id; renderProfiles(); full();
+  });
+  $("profRename").addEventListener("click", () => {
+    const p = activeProfile(); if (!p) return;
+    const name = (prompt(t().profAskRename, p.name) || "").trim();
+    if (!name) return;
+    p.name = name.slice(0, 60); renderProfiles(); save();
+  });
+  $("profDelete").addEventListener("click", () => {
+    const p = activeProfile(); if (!p || PROFILES.length < 2) return;
+    if (!confirm(t().profAskDelete(p.name))) return;
+    PROFILES = PROFILES.filter((x) => x.id !== p.id); ACTIVE = PROFILES[0].id;
+    applySnapshot(activeProfile().data); renderProfiles(); full();
+  });
 
   function full() { compute(); readToday(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); refreshDetail(); save(); }
   function light() { readToday(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); save(); }

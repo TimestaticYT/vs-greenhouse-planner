@@ -21,7 +21,7 @@ Stand where your crops are and run:
 /wgen pos latitude
 ```
 
-Enter the **Year avg** temperature, **Avg. Rainfall** and the latitude. Everything updates right away. Your settings are saved in your browser.
+Enter the **Year avg** temperature, **Avg. Rainfall** and the latitude. Everything updates right away. Your settings are saved in your browser and are still there when you come back. If you farm in more than one place, add a location with **New** and switch between them with the **Location** menu; each location keeps its own settings.
 
 ## How it works
 
