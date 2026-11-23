@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Vintage Story greenhouse planner: which crops survive each planting day in your climate, plus a four-greenhouse N/P/K rotation.">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Greenhouse Crop Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one working column — settings bar, temperature strip, planting grid on the same day scale, then the shelf plan. */
+:root {
+  --bg: #eef2ee; --surface: #ffffff; --ink: #18221d; --muted: #5a6860; --line: #d5ddd6;
+  --accent: #1d7466; --accent-soft: #d6ebe6;
+  --ok: #3b9a5c; --warn: #d8962a; --bad: #c4463c; --slow: #b9c2bb; --none: #e4e9e5;
+  --cold: #3d78d6; --warm: #e0643a;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --cell: 9px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111714; --surface: #19211d; --ink: #e3eae5; --muted: #93a198; --line: #2c3832;
+  --accent: #4fc2aa; --accent-soft: #1d3a33;
+  --ok: #4fb874; --warn: #e6ae47; --bad: #e0675c; --slow: #4d5952; --none: #222b26;
+  --cold: #6b9cf0; --warm: #f08a5f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111714; --surface: #19211d; --ink: #e3eae5; --muted: #93a198; --line: #2c3832;
+  --accent: #4fc2aa; --accent-soft: #1d3a33;
+  --ok: #4fb874; --warn: #e6ae47; --bad: #e0675c; --slow: #4d5952; --none: #222b26;
+  --cold: #6b9cf0; --warm: #f08a5f; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px; }
+h1, h2 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(26px, 4vw, 36px); font-weight: 700; }
+h2 { font-size: 19px; font-weight: 700; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 68ch; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.hint { color: var(--muted); font-size: 13px; }
+code { font-family: var(--f-mono); font-size: 12.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+
+/* Settings */
+.settings { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px 14px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.field input, .field select { font: inherit; font-family: var(--f-mono); font-size: 14px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; width: 100%; }
+.field input:focus-visible, .field select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.field small { color: var(--muted); font-size: 11.5px; }
+.field.wide { grid-column: 1 / -1; }
+.months { display: flex; flex-wrap: wrap; gap: 6px; }
+.mbtn { font: inherit; font-family: var(--f-mono); font-size: 12.5px; padding: 5px 9px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); cursor: pointer; text-decoration: line-through; }
+.mbtn[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); border-color: var(--accent); text-decoration: none; }
+.climate-line { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--muted); }
+.climate-line b { color: var(--ink); font-family: var(--f-mono); font-weight: 600; }
+
+/* Shared day-scale grid */
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.grid { display: grid; grid-template-columns: 112px repeat(var(--days), var(--cell)); row-gap: 3px; width: max-content; }
+.rowlabel { position: sticky; left: 0; z-index: 2; background: var(--surface); padding-right: 8px; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+.rowlabel .nut { font-family: var(--f-mono); font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; }
+.month { grid-row: 1; font-size: 11px; font-weight: 600; color: var(--muted); border-left: 1px solid var(--line); padding-left: 3px; white-space: nowrap; overflow: hidden; }
+.catlabel { grid-column: 1 / -1; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); padding-top: 8px; position: sticky; left: 0; }
+.c { height: 18px; background: var(--none); cursor: pointer; }
+.c.ok { background: var(--ok); }
+.c.warn { background: var(--warn); }
+.c.bad { background: var(--bad); }
+.c.slow { background: var(--slow); }
+.c.mstart { box-shadow: inset 1px 0 0 var(--surface); }
+.c.today { outline: 2px solid var(--ink); outline-offset: -1px; position: relative; z-index: 1; }
+.c.sel { outline: 2px solid var(--accent); outline-offset: -1px; position: relative; z-index: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+.detail { min-height: 44px; border-left: 3px solid var(--accent); padding: 6px 12px; background: var(--accent-soft); border-radius: 0 6px 6px 0; font-size: 13.5px; }
+
+/* Temperature strip */
+#tempsvg { display: block; }
+#tempsvg text { font-family: var(--f-mono); font-size: 10px; fill: var(--muted); }
+
+/* Plant-now and plan */
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 22px; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num, th.num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.chip { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 7px; border-radius: 99px; white-space: nowrap; }
+.chip.ok { background: color-mix(in srgb, var(--ok) 20%, transparent); color: var(--ink); }
+.chip.warn { background: color-mix(in srgb, var(--warn) 25%, transparent); color: var(--ink); }
+.chip.bad { background: color-mix(in srgb, var(--bad) 22%, transparent); color: var(--ink); }
+.chip.slow { background: color-mix(in srgb, var(--slow) 40%, transparent); color: var(--ink); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; }
+.controls .field { min-width: 130px; }
+.timeline { display: grid; grid-template-columns: repeat(var(--days), var(--cell)); width: max-content; margin-left: 112px; }
+.seg { height: 26px; border-radius: 3px; margin-right: 1px; font-size: 10.5px; font-weight: 600; color: #fff; display: flex; align-items: center; padding-left: 4px; overflow: hidden; white-space: nowrap; }
+.seg.fallow { background: repeating-linear-gradient(135deg, var(--none) 0 4px, transparent 4px 8px); color: var(--muted); }
+.seg.N { background: #4e7fc4; } .seg.P { background: #9a62b8; } .seg.K { background: #c27a2c; }
+.nut-tag { font-family: var(--f-mono); font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; }
+#rotTable td { min-width: 96px; }
+.notes { color: var(--muted); font-size: 13px; display: flex; flex-direction: column; gap: 6px; max-width: 80ch; }
+.notes b { color: var(--ink); }
+button.reset { font: inherit; font-size: 13px; color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+@media (prefers-reduced-motion: no-preference) { .c { transition: filter .1s; } .c:hover { filter: brightness(1.15); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <h1>Greenhouse Crop Calendar</h1>
+    <p class="lede">Which crops survive a full grow in your greenhouse, depending on the planting day. It uses Vintage Story's own temperature formula and the crop limits from the 1.22 game files: cold and heat damage, the +5&nbsp;°C greenhouse bonus, and slower growth below 10&nbsp;°C.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="h-climate">
+    <div class="panel-head">
+      <h2 id="h-climate">Your climate</h2>
+      <span class="hint">Stand inside the greenhouse and run <code>/wgen pos climate</code> and <code>/wgen pos latitude</code>. The values below are an example world (year avg 7.6 °C, 45 % rain, 47.32° N). Put in your own.</span>
+    </div>
+    <div class="settings">
+      <div class="field"><label for="avg">Yearly avg temp °C</label><input id="avg" type="number" step="0.1" value="7.6"><small>"Year avg" in /wgen pos climate</small></div>
+      <div class="field"><label for="lat">Latitude °</label><input id="lat" type="number" step="0.01" min="0" max="90" value="47.32"><small>0 equator, 90 pole</small></div>
+      <div class="field"><label for="hemi">Hemisphere</label><select id="hemi"><option value="N">North</option><option value="S">South</option></select><small>south flips the seasons</small></div>
+      <div class="field"><label for="rain">Rainfall %</label><input id="rain" type="number" step="1" min="0" max="100" value="45"><small>drier = bigger day/night swing</small></div>
+      <div class="field"><label for="margin">Safety margin °C</label><input id="margin" type="number" step="0.5" min="0" max="10" value="2"><small>covers weather noise (±3, ±1)</small></div>
+      <div class="field"><label for="dpm">Days per month</label><input id="dpm" type="number" step="1" min="3" max="30" value="9"><small>world setting, default 9</small></div>
+      <div class="field"><label for="speed">Growth speed %</label><input id="speed" type="number" step="1" min="10" max="150" value="97"><small>97 at 75 % moisture</small></div>
+      <div class="field wide"><label id="ghLabel">Greenhouse active (+5 °C)</label><div class="months" id="ghMonths" role="group" aria-labelledby="ghLabel"></div><small>Switch a month off for the months you open the roof. One missing roof block is enough to stop the greenhouse bonus.</small></div>
+    </div>
+    <div class="climate-line" id="climateLine"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-grid">
+    <div class="panel-head">
+      <h2 id="h-grid">Planting calendar</h2>
+      <span class="hint">Each square is a planting day. The colour tells you how that grow ends. Hover or tap a square for details.</span>
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--ok)"></i>Full harvest</span>
+      <span><i class="sw" style="background:var(--warn)"></i>Damaged, reduced harvest</span>
+      <span><i class="sw" style="background:var(--bad)"></i>Dies (48 h of damage)</span>
+      <span><i class="sw" style="background:var(--slow)"></i>Doesn't ripen within a year</span>
+      <span><i class="sw" style="outline:2px solid var(--ink);outline-offset:-1px;background:transparent"></i>Today</span>
+    </div>
+    <div class="scroll">
+      <div style="width:max-content">
+        <svg id="tempsvg" role="img" aria-label="Daily temperature range inside the greenhouse over the year"></svg>
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+    <div class="detail" id="detail">Hover over a square to see planting date, harvest date, yield and food per block.</div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-rot">
+    <div class="panel-head">
+      <h2 id="h-rot">Four-greenhouse rotation</h2>
+    </div>
+    <p class="hint">All four houses are planted on the same day. You harvest them together once the slowest crop is ripe, then every house moves one step along N → P → K → rest. The rest step lets the soil recover. Crops that ripen early stay in the ground until harvest day and are checked for damage while they wait. For each cycle the planner picks the combination with the most food per day where every crop gets a full harvest.</p>
+    <div class="controls">
+      <div class="field"><label for="rotN">N house</label><select id="rotN"></select></div>
+      <div class="field"><label for="rotP">P house</label><select id="rotP"></select></div>
+      <div class="field"><label for="rotK">K house</label><select id="rotK"></select></div>
+      <div class="field"><label for="rot4">4th house</label><select id="rot4"><option value="rest">Rest (empty)</option><option value="flax">Flax for fibers</option></select></div>
+    </div>
+    <div class="scroll"><table id="rotTable"></table></div>
+  </section>
+
+  <div class="two">
+    <section class="panel" aria-labelledby="h-now">
+      <div class="panel-head">
+        <h2 id="h-now">Plant now</h2>
+      </div>
+      <div class="controls">
+        <div class="field"><label for="tmonth">In-game month</label><select id="tmonth"></select></div>
+        <div class="field" style="min-width:90px"><label for="tday">Day</label><input id="tday" type="number" min="1" value="3"></div>
+      </div>
+      <div class="scroll"><table id="nowTable"></table></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-plan">
+      <div class="panel-head">
+        <h2 id="h-plan">Shelf plan for one year</h2>
+      </div>
+      <p class="hint">Starting today, each harvest is followed by the crop with the most food per block per day that gets a full harvest. Planting the same nutrient twice in a row counts 20 % less, so the soil gets to recover.</p>
+      <div class="controls">
+        <div class="field"><label for="focus">Shelf for</label>
+          <select id="focus">
+            <option value="food">Any food</option>
+            <option value="Vegetable">Vegetables</option>
+            <option value="Grain">Grain</option>
+            <option value="Protein">Protein</option>
+            <option value="Fiber">Flax fibers</option>
+          </select></div>
+      </div>
+      <div class="scroll"><table id="planTable"></table></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="h-tl">
+    <div class="panel-head">
+      <h2 id="h-tl">Shelf plan on the calendar</h2>
+      <span class="legend"><span><i class="sw" style="background:#4e7fc4"></i>uses N</span><span><i class="sw" style="background:#9a62b8"></i>uses P</span><span><i class="sw" style="background:#c27a2c"></i>uses K</span></span>
+    </div>
+    <div class="scroll"><div id="timeline" class="timeline"></div></div>
+  </section>
+
+  <section class="notes" aria-label="How it is calculated">
+    <p><b>Temperature:</b> yearly average, plus a seasonal swing of latitude/90 × 65 °C (coldest mid-January in the north), plus a day/night swing of 18 − 13 × rainfall °C (coldest 4:00, warmest 16:00). This is the game's own formula, without its random weather noise. The safety margin stands in for that noise.</p>
+    <p><b>Damage:</b> the game checks every 3–4 hours. A check below the cold limit or above the heat limit marks the crop as damaged: the harvest drops to 50 % (75 % for carrot, parsnip, rye and fennel). After 48 hours of damage, the crop dies. Damage time slowly heals while temperatures are fine. Harvest promptly, because a ripe crop can still take frost or heat damage.</p>
+    <p><b>Growth:</b> below 10 °C, each degree makes a growth step 10 % less likely. At 0 °C growth stops. "Food per block per day" is yield × satiety per item (best of raw, meal or bread) × harvest share ÷ actual days.</p>
+    <p><b>Opening the roof:</b> the greenhouse bonus only applies while the room is fully closed and mostly glass on top. One missing roof block lets the room leak, so the +5 °C stops. Farmland rechecks this at most every 12 in-game hours, so the switch can lag by up to half a day. With the roof open, rain also waters the crops, which this page doesn't count.</p>
+    <p><b>Not modelled:</b> soil nutrient levels, light and watering. If the world setting "harsh winters" is off, damage doesn't reduce the harvest.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  // Crop data from the 1.22 game files. sat = best satiety per item (raw, cooking-pot meal or bread).
+  const CROPS = [
+    { id: "carrot",   name: "Carrot",    cat: "Vegetable", nut: "K", months: 1.03,  cold: -10, heat: 32, stunt: 0.75, yield: 11,  sat: 150, how: "meal" },
+    { id: "turnip",   name: "Turnip",    cat: "Vegetable", nut: "N", months: 0.8,   cold: -5,  heat: 27, stunt: 0.5,  yield: 7,   sat: 150, how: "meal" },
+    { id: "onion",    name: "Onion",     cat: "Vegetable", nut: "P", months: 1.54,  cold: -1,  heat: 40, stunt: 0.5,  yield: 12,  sat: 150, how: "meal" },
+    { id: "parsnip",  name: "Parsnip",   cat: "Vegetable", nut: "P", months: 1.75,  cold: -10, heat: 32, stunt: 0.75, yield: 12,  sat: 150, how: "meal" },
+    { id: "cabbage",  name: "Cabbage",   cat: "Vegetable", nut: "N", months: 1.375, cold: -5,  heat: 35, stunt: 0.5,  yield: 2,   sat: 450, how: "meal" },
+    { id: "fennel",   name: "Fennel",    cat: "Vegetable", nut: "N", months: 2.67,  cold: -8,  heat: 35, stunt: 0.75, yield: 11,  sat: 60,  how: "meal" },
+    { id: "cassava",  name: "Cassava",   cat: "Vegetable", nut: "K", months: 4.4,   cold: 4,   heat: 44, stunt: 0.5,  yield: 16,  sat: 300, how: "bread" },
+    { id: "sunflower",name: "Sunflower", cat: "Grain",     nut: "N", months: 1.7,   cold: -5,  heat: 40, stunt: 0.5,  yield: 6.5, sat: 300, how: "bread" },
+    { id: "spelt",    name: "Spelt",     cat: "Grain",     nut: "N", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 300, how: "bread" },
+    { id: "rice",     name: "Rice",      cat: "Grain",     nut: "K", months: 2.0,   cold: 8,   heat: 46, stunt: 0.5,  yield: 6.5, sat: 330, how: "bread" },
+    { id: "rye",      name: "Rye",       cat: "Grain",     nut: "N", months: 1.78,  cold: -12, heat: 27, stunt: 0.75, yield: 5.5, sat: 300, how: "bread" },
+    { id: "amaranth", name: "Amaranth",  cat: "Grain",     nut: "N", months: 1.78,  cold: 6,   heat: 42, stunt: 0.5,  yield: 3,   sat: 300, how: "bread" },
+    { id: "soybean",  name: "Soybean",   cat: "Protein",   nut: "K", months: 1.14,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 240, how: "meal" },
+    { id: "peanut",   name: "Peanut",    cat: "Protein",   nut: "P", months: 2.2,   cold: 10,  heat: 42, stunt: 0.5,  yield: 10,  sat: 210, how: "meal" },
+    { id: "flax",     name: "Flax",      cat: "Fiber",     nut: "K", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 3,   sat: 160, how: "bread", fibers: 4 },
+    { id: "pineapple",name: "Pineapple", cat: "Fruit",     nut: "N", months: 5.6,   cold: 6,   heat: 48, stunt: 0.5,  yield: 1,   sat: 960, how: "meal" },
+  ];
+  const CATS = ["Vegetable", "Grain", "Protein", "Fiber", "Fruit"];
+  const CAT_LABEL = { Vegetable: "Vegetables", Grain: "Grain", Protein: "Protein", Fiber: "Fiber", Fruit: "Fruit" };
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const DT = 2; // simulation step in hours (the game checks every 3–4 h at random times)
+
+  const $ = (id) => document.getElementById(id);
+  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4"];
+  // Months with the greenhouse bonus. Example default: roof open June–August.
+  let GH = [true, true, true, true, true, false, false, false, true, true, true, true];
+
+  // ---- the game's temperature formula (vssurvivalmod Systems/Temperature.cs) ----
+  const smoothstep = (x) => x * x * (3 - 2 * x);
+  const smootherstep = (x) => x * x * x * (x * (x * 6 - 15) + 10);
+  function cyc(a, b, p) { let d = (((b - a) % p) + p) % p; return d > p / 2 ? d - p : d; }
+
+  function makeClimate(s) {
+    const A = Math.abs(s.lat) / 90 * 65;
+    const diAmp = 18 - (s.rain / 100) * 13;
+    const ref = s.hemi === "N" ? 0.5 : 6.5;
+    const year = 12 * s.dpm;
+    return function temp(absHours) {
+      const day = absHours / 24;
+      const yearRel = ((day / year) % 1 + 1) % 1;
+      const hour = ((absHours % 24) + 24) % 24;
+      const S = smootherstep(Math.min(1, Math.abs(cyc(ref, yearRel * 12, 12)) / 6));
+      const D = smoothstep(Math.min(1, Math.abs(cyc(4, hour, 24)) / 12));
+      const m = Math.min(11, Math.floor(yearRel * 12));
+      return s.avg - A / 2 + A * S + (D - 0.5) * diAmp + (s.ghMonths[m] ? 5 : 0);
+    };
+  }
+
+  // ---- one grow, from planting day to ripe ----
+  function simulate(crop, startDay, s, temp, holdDays) {
+    const year = 12 * s.dpm;
+    const total = crop.months * s.dpm * 24 / (s.speed / 100);
+    let prog = 0, t = 0, cold = false, heat = false, accC = 0, accH = 0;
+    const t0 = startDay * 24 + 8; // planted at 08:00
+    while (prog < total) {
+      if (t > year * 24) return { status: "slow" };
+      const T = temp(t0 + t);
+      if (T - s.margin < crop.cold) { cold = true; accC += DT; } else accC = Math.max(0, accC - DT / 10);
+      if (T + s.margin > crop.heat) { heat = true; accH += DT; } else accH = Math.max(0, accH - DT / 10);
+      if (accC > 48) return { status: "bad", cause: "cold", after: t / 24 };
+      if (accH > 48) return { status: "bad", cause: "heat", after: t / 24 };
+      const g = Math.min(1, Math.max(0, 1 + (T - 10) * 0.1));
+      prog += DT * g;
+      t += DT;
+    }
+    const days = t / 24;
+    // Optional: crop stays in the ground after ripening until the whole house is harvested.
+    let ripeCold = false;
+    if (holdDays && holdDays * 24 > t) {
+      while (t < holdDays * 24) {
+        const T = temp(t0 + t);
+        if (T - s.margin < crop.cold) { ripeCold = true; accC += DT; } else accC = Math.max(0, accC - DT / 10);
+        if (T + s.margin > crop.heat) { heat = true; accH += DT; } else accH = Math.max(0, accH - DT / 10);
+        if (accC > 48) return { status: "bad", cause: "cold", after: t / 24, waiting: true };
+        if (accH > 48) return { status: "bad", cause: "heat", after: t / 24, waiting: true };
+        t += DT;
+      }
+    }
+    let mul = ripeCold ? 0.5 : 1;
+    if (cold || heat) mul = crop.stunt;
+    const perDay = crop.yield * crop.sat * mul / days;
+    const fibersPerDay = crop.fibers ? crop.fibers * mul / days : 0;
+    return { status: mul < 1 ? "warn" : "ok", cold, heat, ripeCold, days, mul, perDay, fibersPerDay, harvestDay: startDay + days };
+  }
+
+  // ---- helpers ----
+  function read() {
+    const num = (id, d) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : d; };
+    const s = {
+      avg: num("avg", 10), lat: Math.min(90, Math.max(0, Math.abs(num("lat", 47.5)))), hemi: $("hemi").value,
+      rain: Math.min(100, Math.max(0, num("rain", 50))), ghMonths: GH.slice(), margin: Math.max(0, num("margin", 2)),
+      dpm: Math.round(Math.min(30, Math.max(3, num("dpm", 9)))), speed: Math.min(150, Math.max(10, num("speed", 97))),
+    };
+    return s;
+  }
+  function dateLabel(day, dpm) {
+    const year = 12 * dpm;
+    const d = ((Math.floor(day) % year) + year) % year;
+    return MONTHS[Math.floor(d / dpm)] + " " + (d % dpm + 1);
+  }
+  const fmt = (x, n = 0) => x.toLocaleString("en-US", { maximumFractionDigits: n, minimumFractionDigits: n });
+  function statusText(r, crop) {
+    if (r.status === "ok") return "Full harvest";
+    if (r.status === "warn") return (r.cold && r.heat ? "Cold + heat damage" : r.cold ? "Cold damage" : "Heat damage") + ", " + Math.round(r.mul * 100) + " % harvest";
+    if (r.status === "bad") return "Dies from " + r.cause + " after " + fmt(r.after, 1) + " days";
+    return "Doesn't ripen within a year";
+  }
+
+  // ---- state ----
+  let S, temp, RES, YEAR, todayIdx = 0, selected = null;
+
+  function compute() {
+    S = read();
+    temp = makeClimate(S);
+    YEAR = 12 * S.dpm;
+    RES = {};
+    for (const c of CROPS) {
+      RES[c.id] = [];
+      for (let d = 0; d < YEAR; d++) RES[c.id].push(simulate(c, d, S, temp));
+    }
+  }
+
+  function renderClimateLine() {
+    let lo = Infinity, hi = -Infinity, loD = 0, hiD = 0;
+    for (let d = 0; d < YEAR; d++) {
+      const a = temp(d * 24 + 4), b = temp(d * 24 + 16);
+      if (a < lo) { lo = a; loD = d; }
+      if (b > hi) { hi = b; hiD = d; }
+    }
+    $("climateLine").innerHTML =
+      "<span>Coldest night at the crops: <b>" + fmt(lo, 1) + " °C</b> (" + dateLabel(loD, S.dpm) + ")</span>" +
+      "<span>Hottest afternoon: <b>" + fmt(hi, 1) + " °C</b> (" + dateLabel(hiD, S.dpm) + ")</span>" +
+      "<span>Seasonal swing: <b>±" + fmt(Math.abs(S.lat) / 90 * 65 / 2, 1) + " °C</b></span>" +
+      "<span>Day/night swing: <b>±" + fmt((18 - S.rain / 100 * 13) / 2, 1) + " °C</b></span>";
+  }
+
+  function cellPx() { return S.dpm > 15 ? 4 : S.dpm > 10 ? 6 : 9; }
+
+  function renderTemp() {
+    const cw = cellPx(), labelW = 112, w = labelW + YEAR * cw, h = 120, top = 8, bottom = 18;
+    let lo = Infinity, hi = -Infinity; const mins = [], maxs = [];
+    for (let d = 0; d < YEAR; d++) { const a = temp(d * 24 + 4), b = temp(d * 24 + 16); mins.push(a); maxs.push(b); lo = Math.min(lo, a); hi = Math.max(hi, b); }
+    lo = Math.floor(Math.min(lo, 0) / 10) * 10; hi = Math.ceil(Math.max(hi, 10) / 10) * 10;
+    const y = (T) => top + (hi - T) / (hi - lo) * (h - top - bottom);
+    const x = (d) => labelW + d * cw + cw / 2;
+    let band = "";
+    for (let d = 0; d < YEAR; d++) band += (d ? "L" : "M") + x(d).toFixed(1) + " " + y(maxs[d]).toFixed(1);
+    for (let d = YEAR - 1; d >= 0; d--) band += "L" + x(d).toFixed(1) + " " + y(mins[d]).toFixed(1);
+    band += "Z";
+    let grid = "";
+    for (let T = lo; T <= hi; T += 10) {
+      const special = T === 0 || T === 10;
+      grid += '<line x1="' + labelW + '" x2="' + w + '" y1="' + y(T) + '" y2="' + y(T) + '" stroke="var(--line)" stroke-width="1"' + (special ? "" : ' stroke-dasharray="2 3"') + "/>";
+      grid += '<text x="' + (labelW - 6) + '" y="' + (y(T) + 3) + '" text-anchor="end">' + T + "°</text>";
+    }
+    const tIdx = todayIdx;
+    const todayLine = '<line x1="' + x(tIdx) + '" x2="' + x(tIdx) + '" y1="' + top + '" y2="' + (h - bottom) + '" stroke="var(--ink)" stroke-width="1.5"/>';
+    let mlabels = "", open = "";
+    for (let m = 0; m < 12; m++) {
+      mlabels += '<text x="' + (labelW + m * S.dpm * cw + 2) + '" y="' + (h - 4) + '">' + MONTHS[m] + "</text>";
+      if (!S.ghMonths[m]) open += '<rect x="' + (labelW + m * S.dpm * cw) + '" y="' + top + '" width="' + (S.dpm * cw) + '" height="' + (h - top - bottom) + '" fill="var(--accent-soft)"/>' +
+        '<text x="' + (labelW + m * S.dpm * cw + 2) + '" y="' + (top + 10) + '" style="fill:var(--accent)">open</text>';
+    }
+    const svg = $("tempsvg");
+    svg.setAttribute("width", w); svg.setAttribute("height", h); svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+    svg.innerHTML =
+      '<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--warm)"/><stop offset="1" stop-color="var(--cold)"/></linearGradient></defs>' +
+      open + grid + '<path d="' + band + '" fill="url(#tg)" fill-opacity="0.55" stroke="none"/>' + todayLine + mlabels +
+      '<text x="4" y="' + (top + 10) + '" style="fill:var(--ink);font-weight:600">°C, 4:00–16:00</text>' +
+      '<text x="4" y="' + (top + 24) + '">at the crops</text>';
+  }
+
+  function renderGrid() {
+    const cw = cellPx();
+    const g = $("grid");
+    g.style.setProperty("--days", YEAR); g.style.setProperty("--cell", cw + "px");
+    $("timeline").style.setProperty("--days", YEAR); $("timeline").style.setProperty("--cell", cw + "px");
+    const parts = ['<div class="rowlabel" style="grid-row:1"></div>'];
+    for (let m = 0; m < 12; m++) parts.push('<div class="month" style="grid-column:' + (2 + m * S.dpm) + " / span " + S.dpm + '">' + MONTHS[m] + "</div>");
+    let row = 2;
+    for (const cat of CATS) {
+      parts.push('<div class="catlabel" style="grid-row:' + row++ + '">' + CAT_LABEL[cat] + "</div>");
+      for (const c of CROPS.filter((x) => x.cat === cat)) {
+        parts.push('<div class="rowlabel" style="grid-row:' + row + '" title="' + c.name + ": damaged below " + c.cold + " °C / above " + c.heat + ' °C">' + c.name + ' <span class="nut">' + c.nut + "</span></div>");
+        const r = RES[c.id];
+        for (let d = 0; d < YEAR; d++) {
+          const cls = ["c", r[d].status];
+          if (d % S.dpm === 0) cls.push("mstart");
+          if (d === todayIdx) cls.push("today");
+          if (selected && selected.id === c.id && selected.d === d) cls.push("sel");
+          parts.push('<div class="' + cls.join(" ") + '" style="grid-row:' + row + '" data-c="' + c.id + '" data-d="' + d + '"></div>');
+        }
+        row++;
+      }
+    }
+    g.innerHTML = parts.join("");
+  }
+
+  function describe(cid, d) {
+    const c = CROPS.find((x) => x.id === cid), r = RES[cid][d];
+    let html = "<b>" + c.name + "</b> planted " + dateLabel(d, S.dpm) + ": " + statusText(r, c) + ".";
+    if (r.status === "ok" || r.status === "warn") {
+      html += " Ripe " + dateLabel(r.harvestDay, S.dpm) + " after " + fmt(r.days, 1) + " days (nominal " + fmt(c.months * S.dpm / (S.speed / 100), 1) + ").";
+      html += " About <b class=\"mono\">" + fmt(r.perDay) + "</b> satiety per block per day as " + c.how + ".";
+      if (c.fibers) html += " Plus " + fmt(r.fibersPerDay, 2) + " flax fibers per block per day.";
+    }
+    html += ' <span class="hint">Limits: damaged below ' + c.cold + " °C or above " + c.heat + " °C.</span>";
+    return html;
+  }
+
+  function renderNow() {
+    const rows = CROPS.map((c) => ({ c, r: RES[c.id][todayIdx] }));
+    const rank = { ok: 0, warn: 1, slow: 2, bad: 3 };
+    rows.sort((a, b) => rank[a.r.status] - rank[b.r.status] || (b.r.perDay || 0) - (a.r.perDay || 0));
+    let html = '<thead><tr><th>Crop</th><th>Outcome</th><th>Ripe</th><th class="num">Food/block/day</th></tr></thead><tbody>';
+    for (const { c, r } of rows) {
+      const grows = r.status === "ok" || r.status === "warn";
+      const outcome = r.status === "ok" ? "Full" : r.status === "warn" ? Math.round(r.mul * 100) + " %" : r.status === "bad" ? "Dies (" + r.cause + ")" : "Too slow";
+      html += "<tr><td>" + c.name + ' <span class="hint">' + c.cat.toLowerCase() + "</span></td>" +
+        '<td><span class="chip ' + r.status + '">' + outcome + "</span></td>" +
+        '<td class="mono">' + (grows ? dateLabel(r.harvestDay, S.dpm) : "–") + "</td>" +
+        '<td class="num">' + (grows ? (c.cat === "Fiber" ? fmt(r.fibersPerDay, 2) + " fiber" : fmt(r.perDay)) : "–") + "</td></tr>";
+    }
+    $("nowTable").innerHTML = html + "</tbody>";
+  }
+
+  function plan() {
+    const focus = $("focus").value;
+    const pool = CROPS.filter((c) => focus === "food" ? c.cat !== "Fiber" : c.cat === focus);
+    const steps = [];
+    let d = todayIdx, prevNut = null, fallowStart = null;
+    const end = todayIdx + YEAR;
+    while (d < end) {
+      const di = d % YEAR;
+      let best = null, bestScore = 0;
+      for (const c of pool) {
+        const r = RES[c.id][di];
+        if (r.status !== "ok") continue;
+        const value = focus === "Fiber" ? r.fibersPerDay : r.perDay;
+        const score = value * (c.nut === prevNut ? 0.8 : 1);
+        if (score > bestScore) { bestScore = score; best = { c, r }; }
+      }
+      if (!best) { if (fallowStart === null) fallowStart = d; d += 1; continue; }
+      if (fallowStart !== null) { steps.push({ fallow: true, start: fallowStart, end: d }); fallowStart = null; }
+      const len = Math.max(1, Math.ceil(best.r.days));
+      steps.push({ c: best.c, r: best.r, start: d, end: d + len });
+      prevNut = best.c.nut;
+      d += len;
+    }
+    if (fallowStart !== null) steps.push({ fallow: true, start: fallowStart, end: end });
+    return { steps, focus };
+  }
+
+  function renderPlan() {
+    const { steps, focus } = plan();
+    let html = '<thead><tr><th>Plant</th><th>Crop</th><th>Ripe</th><th class="num">Food/block/day</th></tr></thead><tbody>';
+    let totalFood = 0, totalFiber = 0;
+    for (const s of steps) {
+      if (s.fallow) {
+        html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + '</td><td colspan="3" class="hint">Leave empty until ' + dateLabel(s.end, S.dpm) + " (nothing gets a full harvest). The soil recovers faster while empty.</td></tr>";
+        continue;
+      }
+      totalFood += s.c.yield * s.c.sat * s.r.mul; totalFiber += (s.c.fibers || 0) * s.r.mul;
+      html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + "</td><td>" + s.c.name + ' <span class="hint">' + s.c.nut + "</span></td>" +
+        '<td class="mono">' + dateLabel(s.r.harvestDay, S.dpm) + "</td>" +
+        '<td class="num">' + (focus === "Fiber" ? fmt(s.r.fibersPerDay, 2) + " fiber" : fmt(s.r.perDay)) + "</td></tr>";
+    }
+    const tail = steps.length && !steps[steps.length - 1].fallow && steps[steps.length - 1].end > todayIdx + YEAR ? " The last crop runs past the year." : "";
+    html += '</tbody><tfoot><tr><td colspan="4" class="hint">Per block over the year: ' +
+      (focus === "Fiber" ? "<b>" + fmt(totalFiber, 1) + "</b> flax fibers" : "<b>" + fmt(totalFood) + "</b> satiety") + "." + tail + "</td></tr></tfoot>";
+    $("planTable").innerHTML = html;
+
+    // timeline on the same day scale as the calendar
+    const parts = [];
+    for (const s of steps) {
+      const a = s.start - todayIdx, b = Math.min(s.end, todayIdx + YEAR) - todayIdx;
+      // place in calendar columns, wrapping around the year end
+      const segs = [];
+      const sa = (todayIdx + a) % YEAR, len = b - a;
+      if (sa + len <= YEAR) segs.push([sa, len]); else { segs.push([sa, YEAR - sa]); segs.push([0, len - (YEAR - sa)]); }
+      for (const [col, l] of segs) {
+        if (l <= 0) continue;
+        const label = s.fallow ? "empty" : s.c.name;
+        const cls = s.fallow ? "seg fallow" : "seg " + s.c.nut;
+        parts.push('<div class="' + cls + '" style="grid-column:' + (col + 1) + " / span " + l + '" title="' + label + ": " + dateLabel(s.start, S.dpm) + " – " + dateLabel(s.end, S.dpm) + '">' + label + "</div>");
+      }
+    }
+    $("timeline").innerHTML = parts.join("");
+  }
+
+  // ---- four-house rotation ----
+  const ROLE_NUT = ["N", "P", "K"];
+  function fillRotSelects() {
+    for (const n of ROLE_NUT) {
+      const sel = $("rot" + n);
+      if (sel.options.length) continue;
+      sel.innerHTML = '<option value="auto">Best per season</option>' +
+        CROPS.filter((c) => c.nut === n && c.cat !== "Fiber").map((c) => '<option value="' + c.id + '">' + c.name + " only</option>").join("");
+    }
+  }
+
+  function rotation() {
+    const food = CROPS.filter((c) => c.cat !== "Fiber");
+    const flaxCrop = CROPS.find((c) => c.id === "flax");
+    const cands = {};
+    for (const n of ROLE_NUT) { const v = $("rot" + n).value; cands[n] = v === "auto" ? food.filter((c) => c.nut === n) : food.filter((c) => c.id === v); }
+    const useFlax = $("rot4").value === "flax";
+    const cache = new Map();
+    const held = (c, di, L) => { const k = c.id + "|" + di + "|" + L; if (!cache.has(k)) cache.set(k, simulate(c, di, S, temp, L)); return cache.get(k); };
+    const cycles = [];
+    const end = todayIdx + YEAR;
+    let d = todayIdx, gapStart = null;
+    while (d < end) {
+      const di = d % YEAR;
+      const opts = ROLE_NUT.map((n) => [null].concat(cands[n].filter((c) => RES[c.id][di].status === "ok")));
+      const flax = useFlax && RES.flax[di].status === "ok" ? flaxCrop : null;
+      let best = null;
+      for (const a of opts[0]) for (const b of opts[1]) for (const k of opts[2]) {
+        if (!a && !b && !k) continue;
+        const picks = [a, b, k, flax];
+        const L = Math.max(...picks.filter(Boolean).map((c) => Math.ceil(RES[c.id][di].days)));
+        let total = 0, ok = true; const res = [];
+        for (const c of picks) {
+          if (!c) { res.push(null); continue; }
+          const r = held(c, di, L);
+          if (r.status !== "ok") { ok = false; break; }
+          res.push(r);
+          if (c.cat !== "Fiber") total += c.yield * c.sat;
+        }
+        if (!ok) continue;
+        const score = total / L;
+        if (!best || score > best.score) best = { score, L, picks, res };
+      }
+      if (!best) { if (gapStart === null) gapStart = d; d += 1; continue; }
+      if (gapStart !== null) { cycles.push({ gap: true, start: gapStart, end: d }); gapStart = null; }
+      cycles.push({ start: d, L: best.L, picks: best.picks, res: best.res });
+      d += best.L;
+    }
+    if (gapStart !== null) cycles.push({ gap: true, start: gapStart, end: end });
+    return cycles;
+  }
+
+  function renderRotation() {
+    const cycles = rotation();
+    let html = '<thead><tr><th>Plant</th><th>Harvest all</th><th>House 1</th><th>House 2</th><th>House 3</th><th>House 4</th></tr></thead><tbody>';
+    const totals = { Vegetable: 0, Grain: 0, Protein: 0, Fruit: 0 };
+    let fibers = 0, n = 0;
+    for (const cy of cycles) {
+      if (cy.gap) {
+        html += '<tr><td class="mono">' + dateLabel(cy.start, S.dpm) + '</td><td colspan="5" class="hint">Nothing gets a full harvest. Leave all houses empty until ' + dateLabel(cy.end, S.dpm) + ".</td></tr>";
+        continue;
+      }
+      html += '<tr><td class="mono">' + dateLabel(cy.start, S.dpm) + '</td><td class="mono">' + dateLabel(cy.start + cy.L, S.dpm) + ' <span class="hint">(' + cy.L + " d)</span></td>";
+      for (let h = 0; h < 4; h++) {
+        const role = (h + n) % 4; // each house moves one step per cycle
+        const c = cy.picks[role], r = cy.res[role];
+        if (!c) {
+          html += "<td>" + (role === 3 ? '<span class="hint">Rest</span>' : '<span class="hint">Empty (' + ROLE_NUT[role] + ": nothing safe)</span>") + "</td>";
+          continue;
+        }
+        html += "<td>" + c.name + ' <span class="nut-tag">' + c.nut + '</span><br><span class="hint">ripe ' + dateLabel(r.harvestDay, S.dpm) + "</span></td>";
+        if (c.cat === "Fiber") fibers += c.fibers; else totals[c.cat] += c.yield * c.sat;
+      }
+      html += "</tr>";
+      n++;
+    }
+    const parts = Object.entries(totals).filter(([, v]) => v > 0).map(([k, v]) => k.toLowerCase() + " <b>" + fmt(v) + "</b>");
+    html += '</tbody><tfoot><tr><td colspan="6" class="hint">Per planted block over the year, all four houses together: ' + parts.join(", ") + " satiety" + (fibers ? ", plus <b>" + fmt(fibers, 0) + "</b> flax fibers" : "") + ".</td></tr></tfoot>";
+    $("rotTable").innerHTML = html;
+  }
+
+  function fillMonths() {
+    const sel = $("tmonth");
+    if (sel.options.length) return;
+    MONTHS_LONG.forEach((m, i) => { const o = document.createElement("option"); o.value = i; o.textContent = m; sel.appendChild(o); });
+    sel.value = "5"; // June
+  }
+
+  function readToday() {
+    const m = parseInt($("tmonth").value, 10) || 0;
+    let d = parseInt($("tday").value, 10); if (!Number.isFinite(d)) d = 1;
+    d = Math.min(S.dpm, Math.max(1, d));
+    $("tday").max = S.dpm;
+    todayIdx = m * S.dpm + d - 1;
+  }
+
+  function save() { try { const o = {}; ids.forEach((k) => (o[k] = $(k).value)); o.ghm = GH.map((x) => (x ? "1" : "0")).join(""); localStorage.setItem("gh-cal-v2", JSON.stringify(o)); } catch (e) {} }
+  function load() { try { const o = JSON.parse(localStorage.getItem("gh-cal-v2") || "null"); if (o) { ids.forEach((k) => { if (o[k] != null && $(k)) $(k).value = o[k]; }); if (typeof o.ghm === "string" && o.ghm.length === 12) GH = o.ghm.split("").map((c) => c === "1"); } } catch (e) {} }
+
+  function renderGhMonths() {
+    $("ghMonths").innerHTML = MONTHS.map((m, i) => '<button type="button" class="mbtn" id="ghm-' + i + '" data-m="' + i + '" aria-pressed="' + GH[i] + '">' + m + "</button>").join("");
+  }
+
+  function full() { compute(); readToday(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); refreshDetail(); save(); }
+  function light() { readToday(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); save(); }
+  function refreshDetail() { if (selected && RES[selected.id] && selected.d < YEAR) $("detail").innerHTML = describe(selected.id, selected.d); }
+
+  fillMonths();
+  fillRotSelects();
+  load();
+  ["rotN", "rotP", "rotK", "rot4"].forEach((k) => $(k).addEventListener("change", () => { renderRotation(); save(); }));
+  renderGhMonths();
+  $("ghMonths").addEventListener("click", (e) => {
+    const b = e.target.closest(".mbtn"); if (!b) return;
+    const i = +b.dataset.m; GH[i] = !GH[i]; b.setAttribute("aria-pressed", String(GH[i])); full();
+  });
+  ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed"].forEach((k) => $(k).addEventListener("change", full));
+  ["tmonth", "tday"].forEach((k) => $(k).addEventListener("change", light));
+  $("focus").addEventListener("change", () => { renderPlan(); save(); });
+
+  const grid = $("grid");
+  grid.addEventListener("mouseover", (e) => { const t = e.target.closest(".c"); if (t) $("detail").innerHTML = describe(t.dataset.c, +t.dataset.d); });
+  grid.addEventListener("click", (e) => {
+    const t = e.target.closest(".c"); if (!t) return;
+    grid.querySelectorAll(".c.sel").forEach((x) => x.classList.remove("sel"));
+    t.classList.add("sel");
+    selected = { id: t.dataset.c, d: +t.dataset.d };
+    $("detail").innerHTML = describe(selected.id, selected.d);
+  });
+  grid.addEventListener("mouseleave", () => { if (selected) refreshDetail(); });
+
+  full();
+})();
+</script>
+
+</body>
+</html>
