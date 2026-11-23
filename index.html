@@ -216,7 +216,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     <div class="panel-head">
       <h2 id="h-ov" data-i18n="hOv">All crops at a glance</h2>
     </div>
-    <p class="hint" data-i18n="ovHint">Food per block per day for one grow on fully recovered soil, in warm weather (10 °C or more, no damage), with your growth speed and days per month. Each column is one soil fertility; yours is highlighted and sets the order.</p>
+    <p class="hint" data-i18n="ovHint">Food per block per day for one grow on fully recovered soil, in warm weather (10 °C or more, no damage), with your growth speed and days per month. Each item counts in its best form: a cooking-pot meal, or perfectly baked bread for grains and cassava (part-baked is half, charred 70 %). Each column is one soil fertility; yours is highlighted and sets the order.</p>
     <div class="scroll"><table id="ovTable"></table></div>
   </section>
 
@@ -287,25 +287,26 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
 (function () {
   "use strict";
   // Crop data from the 1.22 game files. sat = best satiety per item (raw, cooking-pot meal or bread).
+  // raw = satiety when eaten raw (null: not edible raw). Pineapple: one fruit cuts into 12 slices (80 raw, 120 in a meal).
   // nc = nutrient consumed over the whole growth, stages = growth stages.
   // de = the crop's name in the game's German language file (de.json, block-crop-*).
   const CROPS = [
-    { id: "carrot",   name: "Carrot",    de: "Karotten",     cat: "Vegetable", nut: "K", months: 1.03,  cold: -10, heat: 32, stunt: 0.75, yield: 11,  sat: 150, how: "meal", nc: 34.3, stages: 7 },
-    { id: "turnip",   name: "Turnip",    de: "Steckrüben",   cat: "Vegetable", nut: "N", months: 0.8,   cold: -5,  heat: 27, stunt: 0.5,  yield: 7,   sat: 150, how: "meal", nc: 24, stages: 5 },
-    { id: "onion",    name: "Onion",     de: "Zwiebeln",     cat: "Vegetable", nut: "P", months: 1.54,  cold: -1,  heat: 40, stunt: 0.5,  yield: 12,  sat: 150, how: "meal", nc: 30, stages: 7 },
-    { id: "parsnip",  name: "Parsnip",   de: "Pastinaken",   cat: "Vegetable", nut: "P", months: 1.75,  cold: -10, heat: 32, stunt: 0.75, yield: 12,  sat: 150, how: "meal", nc: 17.5, stages: 8 },
-    { id: "cabbage",  name: "Cabbage",   de: "Kohl",         cat: "Vegetable", nut: "N", months: 1.375, cold: -5,  heat: 35, stunt: 0.5,  yield: 2,   sat: 450, how: "meal", nc: 36.67, stages: 12 },
-    { id: "fennel",   name: "Fennel",    de: "Fenchel",      cat: "Vegetable", nut: "N", months: 2.67,  cold: -8,  heat: 35, stunt: 0.75, yield: 11,  sat: 60,  how: "meal", nc: 35, stages: 9 },
-    { id: "cassava",  name: "Cassava",   de: "Maniok",       cat: "Vegetable", nut: "K", months: 4.4,   cold: 4,   heat: 44, stunt: 0.5,  yield: 16,  sat: 300, how: "bread", nc: 22.2, stages: 9 },
-    { id: "sunflower",name: "Sunflower", de: "Sonnenblumen", cat: "Grain",     nut: "N", months: 1.7,   cold: -5,  heat: 40, stunt: 0.5,  yield: 6.5, sat: 300, how: "bread", nc: 36, stages: 12 },
-    { id: "spelt",    name: "Spelt",     de: "Dinkel",       cat: "Grain",     nut: "N", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 300, how: "bread", nc: 35, stages: 9 },
-    { id: "rice",     name: "Rice",      de: "Reis",         cat: "Grain",     nut: "K", months: 2.0,   cold: 8,   heat: 46, stunt: 0.5,  yield: 6.5, sat: 330, how: "bread", nc: 45, stages: 10 },
-    { id: "rye",      name: "Rye",       de: "Roggen",       cat: "Grain",     nut: "N", months: 1.78,  cold: -12, heat: 27, stunt: 0.75, yield: 5.5, sat: 300, how: "bread", nc: 35, stages: 9 },
-    { id: "amaranth", name: "Amaranth",  de: "Amarant",      cat: "Grain",     nut: "N", months: 1.78,  cold: 6,   heat: 42, stunt: 0.5,  yield: 3,   sat: 300, how: "bread", nc: 13.33, stages: 9 },
-    { id: "soybean",  name: "Soybean",   de: "Sojabohnen",   cat: "Protein",   nut: "K", months: 1.14,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 240, how: "meal", nc: 32, stages: 11 },
-    { id: "peanut",   name: "Peanut",    de: "Erdnüsse",     cat: "Protein",   nut: "P", months: 2.2,   cold: 10,  heat: 42, stunt: 0.5,  yield: 10,  sat: 210, how: "meal", nc: 40, stages: 9 },
-    { id: "flax",     name: "Flax",      de: "Flachs",       cat: "Fiber",     nut: "K", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 3,   sat: 160, how: "bread", fibers: 4, nc: 44.4, stages: 9 },
-    { id: "pineapple",name: "Pineapple", de: "Ananas",       cat: "Fruit",     nut: "N", months: 5.6,   cold: 6,   heat: 48, stunt: 0.5,  yield: 1,   sat: 960, how: "meal", nc: 14, stages: 16 },
+    { id: "carrot",   name: "Carrot",    de: "Karotten",     cat: "Vegetable", nut: "K", months: 1.03,  cold: -10, heat: 32, stunt: 0.75, yield: 11,  sat: 150, how: "meal", nc: 34.3, stages: 7, raw: 100 },
+    { id: "turnip",   name: "Turnip",    de: "Steckrüben",   cat: "Vegetable", nut: "N", months: 0.8,   cold: -5,  heat: 27, stunt: 0.5,  yield: 7,   sat: 150, how: "meal", nc: 24, stages: 5, raw: 100 },
+    { id: "onion",    name: "Onion",     de: "Zwiebeln",     cat: "Vegetable", nut: "P", months: 1.54,  cold: -1,  heat: 40, stunt: 0.5,  yield: 12,  sat: 150, how: "meal", nc: 30, stages: 7, raw: 100 },
+    { id: "parsnip",  name: "Parsnip",   de: "Pastinaken",   cat: "Vegetable", nut: "P", months: 1.75,  cold: -10, heat: 32, stunt: 0.75, yield: 12,  sat: 150, how: "meal", nc: 17.5, stages: 8, raw: 100 },
+    { id: "cabbage",  name: "Cabbage",   de: "Kohl",         cat: "Vegetable", nut: "N", months: 1.375, cold: -5,  heat: 35, stunt: 0.5,  yield: 2,   sat: 450, how: "meal", nc: 36.67, stages: 12, raw: 300 },
+    { id: "fennel",   name: "Fennel",    de: "Fenchel",      cat: "Vegetable", nut: "N", months: 2.67,  cold: -8,  heat: 35, stunt: 0.75, yield: 11,  sat: 60,  how: "meal", nc: 35, stages: 9, raw: 50 },
+    { id: "cassava",  name: "Cassava",   de: "Maniok",       cat: "Vegetable", nut: "K", months: 4.4,   cold: 4,   heat: 44, stunt: 0.5,  yield: 16,  sat: 300, how: "bread", nc: 22.2, stages: 9, raw: null },
+    { id: "sunflower",name: "Sunflower", de: "Sonnenblumen", cat: "Grain",     nut: "N", months: 1.7,   cold: -5,  heat: 40, stunt: 0.5,  yield: 6.5, sat: 300, how: "bread", nc: 36, stages: 12, raw: 60 },
+    { id: "spelt",    name: "Spelt",     de: "Dinkel",       cat: "Grain",     nut: "N", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 300, how: "bread", nc: 35, stages: 9, raw: 60 },
+    { id: "rice",     name: "Rice",      de: "Reis",         cat: "Grain",     nut: "K", months: 2.0,   cold: 8,   heat: 46, stunt: 0.5,  yield: 6.5, sat: 330, how: "bread", nc: 45, stages: 10, raw: 75 },
+    { id: "rye",      name: "Rye",       de: "Roggen",       cat: "Grain",     nut: "N", months: 1.78,  cold: -12, heat: 27, stunt: 0.75, yield: 5.5, sat: 300, how: "bread", nc: 35, stages: 9, raw: 60 },
+    { id: "amaranth", name: "Amaranth",  de: "Amarant",      cat: "Grain",     nut: "N", months: 1.78,  cold: 6,   heat: 42, stunt: 0.5,  yield: 3,   sat: 300, how: "bread", nc: 13.33, stages: 9, raw: 60 },
+    { id: "soybean",  name: "Soybean",   de: "Sojabohnen",   cat: "Protein",   nut: "K", months: 1.14,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 240, how: "meal", nc: 32, stages: 11, raw: null },
+    { id: "peanut",   name: "Peanut",    de: "Erdnüsse",     cat: "Protein",   nut: "P", months: 2.2,   cold: 10,  heat: 42, stunt: 0.5,  yield: 10,  sat: 210, how: "meal", nc: 40, stages: 9, raw: 160 },
+    { id: "flax",     name: "Flax",      de: "Flachs",       cat: "Fiber",     nut: "K", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 3,   sat: 160, how: "bread", fibers: 4, nc: 44.4, stages: 9, raw: 30 },
+    { id: "pineapple",name: "Pineapple", de: "Ananas",       cat: "Fruit",     nut: "N", months: 5.6,   cold: 6,   heat: 48, stunt: 0.5,  yield: 1,   sat: 1440, how: "meal", nc: 14, stages: 16, raw: 960 },
   ];
   const CATS = ["Vegetable", "Grain", "Protein", "Fiber", "Fruit"];
   const DT = 2; // simulation step in hours (the game checks every 3–4 h at random times)
@@ -358,6 +359,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       food: (v, how) => ' About <b class="mono">' + v + "</b> satiety per block per day " + how + ".",
       fiberLine: (v) => " Plus " + v + " flax fibers per block per day.",
       limits: (c, h) => "Limits: damaged below " + c + " °C or above " + h + " °C.",
+      thBest: "Best as (per item)", rawWord: "raw", notRaw: "not edible raw", howShort: { meal: "meal", bread: "bread" },
       thSoil: "Soil", thDays: "Days", thNut: "Nutr.", thDaysYour: "Days (your soil)", ovFiber: (v) => "+ " + v + " fibers/day",
       thCrop: "Crop", thOutcome: "Outcome", thRipe: "Ripe", thFood: "Food/block/day", thPlant: "Plant", thHarvestAll: "Harvest all",
       house: (i) => "House " + i,
@@ -403,6 +405,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       food: (v, how) => ' Etwa <b class="mono">' + v + "</b> Sättigung pro Block und Tag " + how + ".",
       fiberLine: (v) => " Dazu " + v + " Flachsfasern pro Block und Tag.",
       limits: (c, h) => "Grenzen: Schaden unter " + c + " °C oder über " + h + " °C.",
+      thBest: "Am besten als (pro Stück)", rawWord: "roh", notRaw: "roh nicht essbar", howShort: { meal: "Mahlzeit", bread: "Brot" },
       thSoil: "Boden", thDays: "Tage", thNut: "Nährst.", thDaysYour: "Tage (dein Boden)", ovFiber: (v) => "+ " + v + " Fasern/Tag",
       thCrop: "Pflanze", thOutcome: "Ergebnis", thRipe: "Reif", thFood: "Nahrung/Block/Tag", thPlant: "Pflanzen", thHarvestAll: "Alles ernten",
       house: (i) => "Haus " + i,
@@ -426,7 +429,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     lede: "Welche Pflanzen in deinem Gewächshaus heil bis zur Ernte kommen, abhängig vom Pflanztag. Die Seite nutzt Vintage Storys eigene Temperaturformel und die Pflanzengrenzen aus den Spieldateien von 1.22: Kälte- und Hitzeschaden, den Gewächshausbonus von +5&nbsp;°C und langsameres Wachstum unter 10&nbsp;°C.",
     hClimate: "Dein Klima",
     hOv: "Alle Pflanzen im Überblick",
-    ovHint: "Nahrung pro Block und Tag für eine Ernte auf voll erholtem Boden bei warmem Wetter (10 °C oder mehr, kein Schaden), mit deinem Wachstumstempo und deinen Tagen pro Monat. Jede Spalte ist eine Bodenfruchtbarkeit; deine ist hervorgehoben und bestimmt die Reihenfolge.",
+    ovHint: "Nahrung pro Block und Tag für eine Ernte auf voll erholtem Boden bei warmem Wetter (10 °C oder mehr, kein Schaden), mit deinem Wachstumstempo und deinen Tagen pro Monat. Jedes Stück zählt in seiner besten Form: als Kochtopf-Mahlzeit oder, bei Getreide und Maniok, als perfekt gebackenes Brot (halb gebacken die Hälfte, verkohlt 70 %). Jede Spalte ist eine Bodenfruchtbarkeit; deine ist hervorgehoben und bestimmt die Reihenfolge.",
     lOffset: "Wetter-Abweichung °C", sOffset: "unten messen; 0 = nur Formel",
     hMeasure: "Wetter-Abweichung messen", lMTemp: "Temperatur °C", lMHour: "Stunde", bApply: "Als Abweichung übernehmen",
     measureHint: "Das Spiel legt zufälliges Wetterrauschen über die Formel: einen langsamen Teil (meist innerhalb ±4 °C), der viele Spielmonate bleibt, und einen schnellen Teil (etwa ±1 °C), der sich innerhalb von Stunden ändert. Gib <code>/wgen pos climate</code> ein und trag den ersten Wert (Temperature) und die Spielstunde ein. Das Datum kommt aus „Jetzt pflanzen“. Nimm zwei, drei Messungen zu verschiedenen Zeiten und den Mittelwert. Etwa einmal pro Spieljahr neu messen. Mit gesetzter Abweichung reicht ein Sicherheitspuffer von etwa 1,5 °C.",
@@ -656,12 +659,12 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     });
     const selIdx = FERTS.indexOf(S.fert);
     rows.sort((a, b) => (b.mine.perDay || 0) - (a.mine.perDay || 0));
-    let html = "<thead><tr><th>" + t().thCrop + "</th><th>" + t().thNut + '</th><th class="num">' + t().thDaysYour + "</th>";
+    let html = "<thead><tr><th>" + t().thCrop + "</th><th>" + t().thNut + "</th><th>" + t().thBest + '</th><th class="num">' + t().thDaysYour + "</th>";
     FERTS.forEach((f, i) => { html += '<th class="num' + (i === selIdx ? " sel" : "") + '">' + labels[i] + "</th>"; });
     html += "</tr></thead><tbody>";
     for (const { c, res, mine } of rows) {
       html += "<tr><td>" + cname(c) + ' <span class="hint">' + t().catOne[c.cat] + (c.fibers && mine.days ? ", " + t().ovFiber(fmt(c.fibers / mine.days, 2)) : "") + "</span></td>" +
-        '<td class="mono">' + c.nut + '</td><td class="num">' + (mine.days ? fmt(mine.days, 1) : "–") + "</td>";
+        '<td class="mono">' + c.nut + "</td><td>" + t().howShort[c.how] + " <b>" + fmt(c.sat / (c.id === "pineapple" ? 12 : 1)) + '</b>' + (c.id === "pineapple" ? " × 12" : "") + ' <span class="hint">(' + (c.raw == null ? t().notRaw : t().rawWord + " " + fmt(c.raw / (c.id === "pineapple" ? 12 : 1))) + ')</span></td><td class="num">' + (mine.days ? fmt(mine.days, 1) : "–") + "</td>";
       res.forEach((r, i) => { html += '<td class="num' + (i === selIdx ? " sel" : "") + '">' + (r.perDay ? fmt(r.perDay) : "–") + "</td>"; });
       html += "</tr>";
     }
