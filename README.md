@@ -27,8 +27,10 @@ Enter the **Year avg** temperature, **Avg. Rainfall** and the latitude. Everythi
 
 The temperature model is the game's own formula from `Systems/Temperature.cs` in vssurvivalmod: a seasonal swing of latitude/90 × 65 °C, coldest in mid-January in the north, and a day/night swing of 18 − 13 × rainfall °C, coldest at 4:00. The game's random weather noise is not simulated; the safety margin setting stands in for it.
 
-Crop limits, growth times and yields come from the 1.22 game assets. Damage and growth follow the farmland code. Each check below the cold limit or above the heat limit cuts the harvest to 50 % (75 % for carrot, parsnip, rye and fennel), 48 hours of damage kills the crop, and growth slows by 10 % per degree below 10 °C.
+Crop limits, growth times, nutrient use and yields come from the 1.22 game assets. Damage and growth follow the farmland code. Each check below the cold limit or above the heat limit cuts the harvest to 50 % (75 % for carrot, parsnip, rye and fennel), 48 hours of damage kills the crop, and growth slows by 10 % per degree below 10 °C.
 
-Not modelled: soil nutrient levels, light and watering.
+Soil fertility (very low to high) is a setting: it changes how fast crops grow, and the rotation and shelf plan track each soil's nutrient levels from one crop to the next.
+
+Not modelled: fertilizer, light and watering.
 
 It's a single static `index.html` with no build step.

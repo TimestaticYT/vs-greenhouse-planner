@@ -141,6 +141,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <div class="field"><label for="margin" data-i18n="lMargin">Safety margin °C</label><input id="margin" type="number" step="0.5" min="0" max="10" value="2"><small data-i18n="sMargin">covers weather noise (±3, ±1)</small></div>
       <div class="field"><label for="dpm" data-i18n="lDpm">Days per month</label><input id="dpm" type="number" step="1" min="3" max="30" value="9"><small data-i18n="sDpm">world setting, default 9</small></div>
       <div class="field"><label for="speed" data-i18n="lSpeed">Growth speed %</label><input id="speed" type="number" step="1" min="10" max="150" value="97"><small data-i18n="sSpeed">97 at 75 % moisture</small></div>
+      <div class="field"><label for="fert" data-i18n="lFert">Soil fertility</label><select id="fert"><option value="5" data-i18n="oF5">Very low (5)</option><option value="25" data-i18n="oF25">Low (25)</option><option value="50" data-i18n="oF50" selected>Medium (50)</option><option value="65" data-i18n="oF65">Compost (65)</option><option value="80" data-i18n="oF80">High (80)</option></select><small data-i18n="sFert">what the soil was before you tilled it</small></div>
       <div class="field wide"><label id="ghLabel" data-i18n="lGh">Greenhouse active (+5 °C)</label><div class="months" id="ghMonths" role="group" aria-labelledby="ghLabel"></div><small data-i18n="sGh">Switch a month off for the months you open the roof. One missing roof block is enough to stop the greenhouse bonus.</small></div>
     </div>
     <div class="climate-line" id="climateLine"></div>
@@ -171,7 +172,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     <div class="panel-head">
       <h2 id="h-rot" data-i18n="hRot">Four-greenhouse rotation</h2>
     </div>
-    <p class="hint" data-i18n="rotHint">All four houses are planted on the same day. You harvest them together once the slowest crop is ripe, then every house moves one step along N → P → K → rest. The rest step lets the soil recover. Crops that ripen early stay in the ground until harvest day and are checked for damage while they wait. For each cycle the planner picks the combination with the most food per day where every crop gets a full harvest.</p>
+    <p class="hint" data-i18n="rotHint">All four houses are planted on the same day. You harvest them together once the slowest crop is ripe, then every house moves one step along N → P → K → rest. The rest step lets the soil recover. Crops that ripen early stay in the ground until harvest day and are checked for damage while they wait. For each cycle the planner picks the combination with the most food per day where every crop gets a full harvest. The number next to the nutrient is that house's level at planting.</p>
     <div class="controls">
       <div class="field"><label for="rotN" data-i18n="lRotN">N house</label><select id="rotN"></select></div>
       <div class="field"><label for="rotP" data-i18n="lRotP">P house</label><select id="rotP"></select></div>
@@ -197,7 +198,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <div class="panel-head">
         <h2 id="h-plan" data-i18n="hPlan">Shelf plan for one year</h2>
       </div>
-      <p class="hint" data-i18n="planHint">Starting today, each harvest is followed by the crop with the most food per block per day that gets a full harvest. Planting the same nutrient twice in a row counts 20 % less, so the soil gets to recover.</p>
+      <p class="hint" data-i18n="planHint">Starting today, each harvest is followed by the crop with the most food per block per day that gets a full harvest on the soil as the previous crops left it.</p>
       <div class="controls">
         <div class="field"><label for="focus" data-i18n="lFocus">Shelf for</label>
           <select id="focus">
@@ -224,8 +225,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     <p data-i18n="nTemp"><b>Temperature:</b> yearly average, plus a seasonal swing of latitude/90 × 65 °C (coldest mid-January in the north), plus a day/night swing of 18 − 13 × rainfall °C (coldest 4:00, warmest 16:00). This is the game's own formula, without its random weather noise. The safety margin stands in for that noise.</p>
     <p data-i18n="nDamage"><b>Damage:</b> the game checks every 3–4 hours. A check below the cold limit or above the heat limit marks the crop as damaged: the harvest drops to 50 % (75 % for carrot, parsnip, rye and fennel). After 48 hours of damage, the crop dies. Damage time slowly heals while temperatures are fine. Harvest promptly, because a ripe crop can still take frost or heat damage.</p>
     <p data-i18n="nGrowth"><b>Growth:</b> below 10 °C, each degree makes a growth step 10 % less likely. At 0 °C growth stops. "Food per block per day" is yield × satiety per item (best of raw, meal or bread) × harvest share ÷ actual days.</p>
+    <p data-i18n="nSoil"><b>Soil:</b> each growth step uses up part of the crop's nutrient (N, P or K), and the next step's length depends on what is left: above 75 the crop grows 10 % faster, 51–75 normal speed, 36–50 at 90 %, 21–35 at 60 %, 6–20 at 30 %, 5 or less at 10 %. Medium soil starts at exactly 50, so it is already in the 90 % band. Unripe crops and empty soil recover nutrients up to the soil's fertility, about 1.7 per day (the crop's own nutrient a third as fast). A ripe crop stops all recovery. Fertility doesn't change the harvest amount, only the speed. The calendar grid and "Plant now" assume freshly recovered soil. The rotation and the shelf plan carry each soil's levels from one crop to the next. Fertilizer is not counted.</p>
     <p data-i18n="nRoof"><b>Opening the roof:</b> the greenhouse bonus only applies while the room is fully closed and mostly glass on top. One missing roof block lets the room leak, so the +5 °C stops. Farmland rechecks this at most every 12 in-game hours, so the switch can lag by up to half a day. With the roof open, rain also waters the crops, which this page doesn't count.</p>
-    <p data-i18n="nNot"><b>Not modelled:</b> soil nutrient levels, light and watering. If the world setting "harsh winters" is off, damage doesn't reduce the harvest.</p>
+    <p data-i18n="nNot"><b>Not modelled:</b> fertilizer, light and watering. If the world setting "harsh winters" is off, damage doesn't reduce the harvest.</p>
   </section>
 </div>
 
@@ -233,27 +235,44 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
 (function () {
   "use strict";
   // Crop data from the 1.22 game files. sat = best satiety per item (raw, cooking-pot meal or bread).
+  // nc = nutrient consumed over the whole growth, stages = growth stages.
   // de = the crop's name in the game's German language file (de.json, block-crop-*).
   const CROPS = [
-    { id: "carrot",   name: "Carrot",    de: "Karotten",     cat: "Vegetable", nut: "K", months: 1.03,  cold: -10, heat: 32, stunt: 0.75, yield: 11,  sat: 150, how: "meal" },
-    { id: "turnip",   name: "Turnip",    de: "Steckrüben",   cat: "Vegetable", nut: "N", months: 0.8,   cold: -5,  heat: 27, stunt: 0.5,  yield: 7,   sat: 150, how: "meal" },
-    { id: "onion",    name: "Onion",     de: "Zwiebeln",     cat: "Vegetable", nut: "P", months: 1.54,  cold: -1,  heat: 40, stunt: 0.5,  yield: 12,  sat: 150, how: "meal" },
-    { id: "parsnip",  name: "Parsnip",   de: "Pastinaken",   cat: "Vegetable", nut: "P", months: 1.75,  cold: -10, heat: 32, stunt: 0.75, yield: 12,  sat: 150, how: "meal" },
-    { id: "cabbage",  name: "Cabbage",   de: "Kohl",         cat: "Vegetable", nut: "N", months: 1.375, cold: -5,  heat: 35, stunt: 0.5,  yield: 2,   sat: 450, how: "meal" },
-    { id: "fennel",   name: "Fennel",    de: "Fenchel",      cat: "Vegetable", nut: "N", months: 2.67,  cold: -8,  heat: 35, stunt: 0.75, yield: 11,  sat: 60,  how: "meal" },
-    { id: "cassava",  name: "Cassava",   de: "Maniok",       cat: "Vegetable", nut: "K", months: 4.4,   cold: 4,   heat: 44, stunt: 0.5,  yield: 16,  sat: 300, how: "bread" },
-    { id: "sunflower",name: "Sunflower", de: "Sonnenblumen", cat: "Grain",     nut: "N", months: 1.7,   cold: -5,  heat: 40, stunt: 0.5,  yield: 6.5, sat: 300, how: "bread" },
-    { id: "spelt",    name: "Spelt",     de: "Dinkel",       cat: "Grain",     nut: "N", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 300, how: "bread" },
-    { id: "rice",     name: "Rice",      de: "Reis",         cat: "Grain",     nut: "K", months: 2.0,   cold: 8,   heat: 46, stunt: 0.5,  yield: 6.5, sat: 330, how: "bread" },
-    { id: "rye",      name: "Rye",       de: "Roggen",       cat: "Grain",     nut: "N", months: 1.78,  cold: -12, heat: 27, stunt: 0.75, yield: 5.5, sat: 300, how: "bread" },
-    { id: "amaranth", name: "Amaranth",  de: "Amarant",      cat: "Grain",     nut: "N", months: 1.78,  cold: 6,   heat: 42, stunt: 0.5,  yield: 3,   sat: 300, how: "bread" },
-    { id: "soybean",  name: "Soybean",   de: "Sojabohnen",   cat: "Protein",   nut: "K", months: 1.14,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 240, how: "meal" },
-    { id: "peanut",   name: "Peanut",    de: "Erdnüsse",     cat: "Protein",   nut: "P", months: 2.2,   cold: 10,  heat: 42, stunt: 0.5,  yield: 10,  sat: 210, how: "meal" },
-    { id: "flax",     name: "Flax",      de: "Flachs",       cat: "Fiber",     nut: "K", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 3,   sat: 160, how: "bread", fibers: 4 },
-    { id: "pineapple",name: "Pineapple", de: "Ananas",       cat: "Fruit",     nut: "N", months: 5.6,   cold: 6,   heat: 48, stunt: 0.5,  yield: 1,   sat: 960, how: "meal" },
+    { id: "carrot",   name: "Carrot",    de: "Karotten",     cat: "Vegetable", nut: "K", months: 1.03,  cold: -10, heat: 32, stunt: 0.75, yield: 11,  sat: 150, how: "meal", nc: 34.3, stages: 7 },
+    { id: "turnip",   name: "Turnip",    de: "Steckrüben",   cat: "Vegetable", nut: "N", months: 0.8,   cold: -5,  heat: 27, stunt: 0.5,  yield: 7,   sat: 150, how: "meal", nc: 24, stages: 5 },
+    { id: "onion",    name: "Onion",     de: "Zwiebeln",     cat: "Vegetable", nut: "P", months: 1.54,  cold: -1,  heat: 40, stunt: 0.5,  yield: 12,  sat: 150, how: "meal", nc: 30, stages: 7 },
+    { id: "parsnip",  name: "Parsnip",   de: "Pastinaken",   cat: "Vegetable", nut: "P", months: 1.75,  cold: -10, heat: 32, stunt: 0.75, yield: 12,  sat: 150, how: "meal", nc: 17.5, stages: 8 },
+    { id: "cabbage",  name: "Cabbage",   de: "Kohl",         cat: "Vegetable", nut: "N", months: 1.375, cold: -5,  heat: 35, stunt: 0.5,  yield: 2,   sat: 450, how: "meal", nc: 36.67, stages: 12 },
+    { id: "fennel",   name: "Fennel",    de: "Fenchel",      cat: "Vegetable", nut: "N", months: 2.67,  cold: -8,  heat: 35, stunt: 0.75, yield: 11,  sat: 60,  how: "meal", nc: 35, stages: 9 },
+    { id: "cassava",  name: "Cassava",   de: "Maniok",       cat: "Vegetable", nut: "K", months: 4.4,   cold: 4,   heat: 44, stunt: 0.5,  yield: 16,  sat: 300, how: "bread", nc: 22.2, stages: 9 },
+    { id: "sunflower",name: "Sunflower", de: "Sonnenblumen", cat: "Grain",     nut: "N", months: 1.7,   cold: -5,  heat: 40, stunt: 0.5,  yield: 6.5, sat: 300, how: "bread", nc: 36, stages: 12 },
+    { id: "spelt",    name: "Spelt",     de: "Dinkel",       cat: "Grain",     nut: "N", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 300, how: "bread", nc: 35, stages: 9 },
+    { id: "rice",     name: "Rice",      de: "Reis",         cat: "Grain",     nut: "K", months: 2.0,   cold: 8,   heat: 46, stunt: 0.5,  yield: 6.5, sat: 330, how: "bread", nc: 45, stages: 10 },
+    { id: "rye",      name: "Rye",       de: "Roggen",       cat: "Grain",     nut: "N", months: 1.78,  cold: -12, heat: 27, stunt: 0.75, yield: 5.5, sat: 300, how: "bread", nc: 35, stages: 9 },
+    { id: "amaranth", name: "Amaranth",  de: "Amarant",      cat: "Grain",     nut: "N", months: 1.78,  cold: 6,   heat: 42, stunt: 0.5,  yield: 3,   sat: 300, how: "bread", nc: 13.33, stages: 9 },
+    { id: "soybean",  name: "Soybean",   de: "Sojabohnen",   cat: "Protein",   nut: "K", months: 1.14,  cold: -5,  heat: 40, stunt: 0.5,  yield: 6,   sat: 240, how: "meal", nc: 32, stages: 11 },
+    { id: "peanut",   name: "Peanut",    de: "Erdnüsse",     cat: "Protein",   nut: "P", months: 2.2,   cold: 10,  heat: 42, stunt: 0.5,  yield: 10,  sat: 210, how: "meal", nc: 40, stages: 9 },
+    { id: "flax",     name: "Flax",      de: "Flachs",       cat: "Fiber",     nut: "K", months: 1.78,  cold: -5,  heat: 40, stunt: 0.5,  yield: 3,   sat: 160, how: "bread", fibers: 4, nc: 44.4, stages: 9 },
+    { id: "pineapple",name: "Pineapple", de: "Ananas",       cat: "Fruit",     nut: "N", months: 5.6,   cold: 6,   heat: 48, stunt: 0.5,  yield: 1,   sat: 960, how: "meal", nc: 14, stages: 16 },
   ];
   const CATS = ["Vegetable", "Grain", "Protein", "Fiber", "Fruit"];
   const DT = 2; // simulation step in hours (the game checks every 3–4 h at random times)
+  const REGAIN = 0.25 / 3.5; // nutrient points per hour that unused soil recovers (fertilityRecoverySpeed per 3–4 h check)
+  // Growth speed by the level of the crop's nutrient (BESoilNutrition.GetGrowthRate). Exactly 50 is already in the 90 % band.
+  const NUTS = ["N", "P", "K"];
+  // Soil after a crop: its own nutrient is where the simulation left it, the other two recovered while it grew
+  // (a ripe crop stops all recovery, so the waiting time after ripening adds nothing).
+  function soilAfter(soil, c, r, fert) {
+    const out = {};
+    for (const k of NUTS) out[k] = k === c.nut ? r.endNut : Math.min(fert, soil[k] + REGAIN * 24 * r.days);
+    return out;
+  }
+  function soilRest(soil, days, fert) {
+    const out = {};
+    for (const k of NUTS) out[k] = Math.min(fert, soil[k] + REGAIN * 24 * days);
+    return out;
+  }
+  function nutFactor(n) { return n > 75 ? 1.1 : n > 50 ? 1 : n > 35 ? 0.9 : n > 20 ? 0.6 : n > 5 ? 0.3 : 0.1; }
 
   // ---- texts that the script writes ----
   const TXT = {
@@ -276,6 +295,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       limitsTitle: (n, c, h) => n + ": damaged below " + c + " °C / above " + h + " °C",
       planted: (n, d) => "<b>" + n + "</b> planted " + d + ": ",
       ripe: (d, days, nominal) => " Ripe " + d + " after " + days + " days (nominal " + nominal + ").",
+      soilLine: (n, a, b) => " Soil " + n + ": " + a + " → " + b + ".",
       food: (v, how) => ' About <b class="mono">' + v + "</b> satiety per block per day " + how + ".",
       fiberLine: (v) => " Plus " + v + " flax fibers per block per day.",
       limits: (c, h) => "Limits: damaged below " + c + " °C or above " + h + " °C.",
@@ -312,6 +332,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       limitsTitle: (n, c, h) => n + ": Schaden unter " + c + " °C / über " + h + " °C",
       planted: (n, d) => "<b>" + n + "</b> gepflanzt am " + d + ": ",
       ripe: (d, days, nominal) => " Reif am " + d + " nach " + days + " Tagen (normal " + nominal + ").",
+      soilLine: (n, a, b) => " Boden " + n + ": " + a + " → " + b + ".",
       food: (v, how) => ' Etwa <b class="mono">' + v + "</b> Sättigung pro Block und Tag " + how + ".",
       fiberLine: (v) => " Dazu " + v + " Flachsfasern pro Block und Tag.",
       limits: (c, h) => "Grenzen: Schaden unter " + c + " °C oder über " + h + " °C.",
@@ -344,28 +365,31 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     lMargin: "Sicherheitspuffer °C", sMargin: "deckt Wetterrauschen ab (±3, ±1)",
     lDpm: "Tage pro Monat", sDpm: "Welteinstellung, Standard 9",
     lSpeed: "Wachstumstempo %", sSpeed: "97 bei 75 % Feuchtigkeit",
+    lFert: "Bodenfruchtbarkeit", sFert: "wie fruchtbar der Boden vor dem Pflügen war",
+    oF5: "Sehr gering (5)", oF25: "Gering (25)", oF50: "Mittel (50)", oF65: "Kompost (65)", oF80: "Hoch (80)",
     lGh: "Gewächshaus aktiv (+5 °C)", sGh: "Schalte die Monate aus, in denen du das Dach öffnest. Ein fehlender Dachblock reicht, damit der Gewächshausbonus wegfällt.",
     hGrid: "Pflanzkalender",
     gridHint: "Jedes Feld ist ein Pflanztag. Die Farbe zeigt, wie die Pflanzung endet. Fahre über ein Feld oder tippe darauf, um Details zu sehen.",
     lgFull: "Volle Ernte", lgWarn: "Beschädigt, weniger Ernte", lgBad: "Stirbt (48 h Schaden)", lgSlow: "Reift nicht innerhalb eines Jahres", lgToday: "Heute",
     detail: "Fahre über ein Feld, um Pflanz- und Erntedatum, Ertrag und Nahrung pro Block zu sehen.",
     hRot: "Rotation mit vier Gewächshäusern",
-    rotHint: "Alle vier Häuser werden am selben Tag bepflanzt. Du erntest sie zusammen, sobald die langsamste Pflanze reif ist. Danach rückt jedes Haus einen Schritt weiter: N → P → K → Brache. In der Brache erholt sich der Boden. Pflanzen, die früher reif sind, bleiben bis zum Erntetag stehen und werden auch in dieser Zeit auf Schaden geprüft. Für jede Runde wählt der Planer die Kombination mit der meisten Nahrung pro Tag, bei der jede Pflanze eine volle Ernte bringt.",
+    rotHint: "Alle vier Häuser werden am selben Tag bepflanzt. Du erntest sie zusammen, sobald die langsamste Pflanze reif ist. Danach rückt jedes Haus einen Schritt weiter: N → P → K → Brache. In der Brache erholt sich der Boden. Pflanzen, die früher reif sind, bleiben bis zum Erntetag stehen und werden auch in dieser Zeit auf Schaden geprüft. Für jede Runde wählt der Planer die Kombination mit der meisten Nahrung pro Tag, bei der jede Pflanze eine volle Ernte bringt. Die Zahl neben dem Nährstoff ist der Stand im Haus beim Pflanzen.",
     lRotN: "N-Haus", lRotP: "P-Haus", lRotK: "K-Haus", lRot4: "4. Haus", oRest: "Brache (leer)", oFlax: "Flachs für Fasern",
     hNow: "Jetzt pflanzen", lMonth: "Monat im Spiel", lDay: "Tag",
     hPlan: "Jahresplan für eine Etage",
-    planHint: "Ab heute folgt auf jede Ernte die Pflanze mit der meisten Nahrung pro Block und Tag, die eine volle Ernte bringt. Zweimal hintereinander derselbe Nährstoff zählt 20 % weniger, damit sich der Boden erholen kann.",
+    planHint: "Ab heute folgt auf jede Ernte die Pflanze mit der meisten Nahrung pro Block und Tag, die auf dem Boden, wie ihn die Pflanzen davor hinterlassen haben, eine volle Ernte bringt.",
     lFocus: "Etage für", oFood: "Beliebige Nahrung", oVeg: "Gemüse", oGrain: "Getreide", oProt: "Protein", oFiber: "Flachsfasern",
     hTl: "Etagenplan im Kalender", tlN: "braucht N", tlP: "braucht P", tlK: "braucht K",
     nTemp: "<b>Temperatur:</b> Jahresmittel, plus eine Jahreszeiten-Schwankung von Breitengrad/90 × 65 °C (im Norden am kältesten Mitte Januar), plus eine Tag/Nacht-Schwankung von 18 − 13 × Niederschlag °C (am kältesten um 4:00, am wärmsten um 16:00). Das ist die Formel des Spiels selbst, ohne sein zufälliges Wetterrauschen. Der Sicherheitspuffer steht für dieses Rauschen.",
     nDamage: "<b>Schaden:</b> Das Spiel prüft alle 3–4 Stunden. Liegt eine Prüfung unter der Kältegrenze oder über der Hitzegrenze, gilt die Pflanze als beschädigt: Die Ernte sinkt auf 50 % (75 % bei Karotten, Pastinaken, Roggen und Fenchel). Nach 48 Stunden Schaden stirbt die Pflanze. Bei passenden Temperaturen baut sich die Schadenszeit langsam wieder ab. Ernte zügig, denn auch reife Pflanzen können noch Frost- oder Hitzeschaden nehmen.",
+    nSoil: "<b>Boden:</b> Jeder Wachstumsschritt verbraucht einen Teil des Nährstoffs der Pflanze (N, P oder K), und wie lange der nächste Schritt dauert, hängt vom Rest ab: über 75 wächst die Pflanze 10 % schneller, 51–75 normal, 36–50 mit 90 %, 21–35 mit 60 %, 6–20 mit 30 %, ab 5 und weniger mit 10 %. Mittlerer Boden startet bei genau 50 und liegt damit schon bei 90 %. Unreife Pflanzen und leerer Boden erholen sich bis zur Fruchtbarkeit des Bodens, etwa 1,7 pro Tag (der eigene Nährstoff der Pflanze nur ein Drittel so schnell). Eine reife Pflanze stoppt jede Erholung. Die Fruchtbarkeit ändert nicht die Erntemenge, nur das Tempo. Kalender und „Jetzt pflanzen“ gehen von erholtem Boden aus. Rotation und Beetplan rechnen den Nährstoffstand jedes Bodens von Pflanze zu Pflanze weiter. Dünger wird nicht berücksichtigt.",
     nGrowth: "<b>Wachstum:</b> Unter 10 °C wird jeder Wachstumsschritt pro Grad um 10 % unwahrscheinlicher. Bei 0 °C stoppt das Wachstum. „Nahrung pro Block und Tag“ ist Ertrag × Sättigung pro Stück (das Beste aus roh, Mahlzeit oder Brot) × Ernteanteil ÷ tatsächliche Tage.",
     nRoof: "<b>Dach öffnen:</b> Der Gewächshausbonus gilt nur, solange der Raum ganz geschlossen und oben überwiegend aus Glas ist. Ein fehlender Dachblock lässt den Raum offen, dann fallen die +5 °C weg. Ackerboden prüft das höchstens alle 12 Spielstunden, die Umstellung kann also bis zu einem halben Tag dauern. Bei offenem Dach gießt außerdem der Regen, das rechnet die Seite nicht mit ein.",
-    nNot: "<b>Nicht berücksichtigt:</b> Nährstoffgehalt des Bodens, Licht und Gießen. Ist die Welteinstellung „Harte Winter“ aus, verringert Schaden die Ernte nicht.",
+    nNot: "<b>Nicht berücksichtigt:</b> Dünger, Licht und Gießen. Ist die Welteinstellung „Harte Winter“ aus, verringert Schaden die Ernte nicht.",
   };
 
   const $ = (id) => document.getElementById(id);
-  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4"];
+  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4"];
   // Months with the greenhouse bonus. Example default: roof open June–August.
   let GH = [true, true, true, true, true, false, false, false, true, true, true, true];
   let LANG = "en";
@@ -394,12 +418,16 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   }
 
   // ---- one grow, from planting day to ripe (optionally held until harvest day) ----
-  function simulate(crop, startDay, s, temp, holdDays) {
+  function simulate(crop, startDay, s, temp, holdDays, startNut) {
     const year = 12 * s.dpm;
-    const total = crop.months * s.dpm * 24 / (s.speed / 100);
-    let prog = 0, t = 0, cold = false, heat = false, accC = 0, accH = 0;
+    // Each stage takes an equal share of the growth time, divided by the soil's speed factor at the moment the stage
+    // starts (BEFarmland.GetHoursForNextStage). Every stage step eats nc/(stages-1) of the crop's nutrient; while the
+    // crop is unripe that nutrient comes back at 0.25/3 per 3.5 h, up to the soil's own fertility.
+    const steps = crop.stages - 1, perStep = crop.months * s.dpm * 24 / steps / (s.speed / 100), use = crop.nc / steps;
+    let nut = startNut == null ? s.fert : startNut, stage = 0, prog = 0, need = perStep / nutFactor(nut), minNut = nut;
+    let t = 0, cold = false, heat = false, accC = 0, accH = 0;
     const t0 = startDay * 24 + 8; // planted at 08:00
-    while (prog < total) {
+    while (stage < steps) {
       if (t > year * 24) return { status: "slow" };
       const T = temp(t0 + t);
       if (T - s.margin < crop.cold) { cold = true; accC += DT; } else accC = Math.max(0, accC - DT / 10);
@@ -408,7 +436,13 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       if (accH > 48) return { status: "bad", cause: "heat", after: t / 24 };
       const g = Math.min(1, Math.max(0, 1 + (T - 10) * 0.1));
       prog += DT * g;
+      nut = Math.min(Math.max(nut, s.fert), nut + DT * g * REGAIN / 3);
       t += DT;
+      if (prog >= need) {
+        prog -= need; stage++;
+        nut = Math.max(0, nut - use); minNut = Math.min(minNut, nut);
+        need = perStep / nutFactor(nut);
+      }
     }
     const days = t / 24;
     let ripeCold = false;
@@ -426,7 +460,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     if (cold || heat) mul = crop.stunt;
     const perDay = crop.yield * crop.sat * mul / days;
     const fibersPerDay = crop.fibers ? crop.fibers * mul / days : 0;
-    return { status: mul < 1 ? "warn" : "ok", cold, heat, ripeCold, days, mul, perDay, fibersPerDay, harvestDay: startDay + days };
+    return { status: mul < 1 ? "warn" : "ok", cold, heat, ripeCold, days, mul, perDay, fibersPerDay, harvestDay: startDay + days, endNut: nut, minNut };
   }
 
   // ---- helpers ----
@@ -436,6 +470,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       avg: num("avg", 7.6), lat: Math.min(90, Math.max(0, Math.abs(num("lat", 47.32)))), hemi: $("hemi").value,
       rain: Math.min(100, Math.max(0, num("rain", 45))), ghMonths: GH.slice(), margin: Math.max(0, num("margin", 2)),
       dpm: Math.round(Math.min(30, Math.max(3, num("dpm", 9)))), speed: Math.min(150, Math.max(10, num("speed", 97))),
+      fert: Math.min(100, Math.max(0, num("fert", 50))),
     };
   }
   function dateLabel(day, dpm) {
@@ -546,6 +581,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     let html = t().planted(cname(c), dateLabel(d, S.dpm)) + statusText(r) + ".";
     if (r.status === "ok" || r.status === "warn") {
       html += t().ripe(dateLabel(r.harvestDay, S.dpm), fmt(r.days, 1), fmt(c.months * S.dpm / (S.speed / 100), 1));
+      html += t().soilLine(c.nut, fmt(S.fert), fmt(r.endNut));
       html += t().food(fmt(r.perDay), t().how[c.how]);
       if (c.fibers) html += t().fiberLine(fmt(r.fibersPerDay, 2));
     }
@@ -573,23 +609,25 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     const focus = $("focus").value;
     const pool = CROPS.filter((c) => focus === "food" ? c.cat !== "Fiber" : c.cat === focus);
     const steps = [];
-    let d = todayIdx, prevNut = null, fallowStart = null;
+    const cache = new Map();
+    const sim = (c, di, n) => { const k = c.id + "|" + di + "|" + Math.round(n); if (!cache.has(k)) cache.set(k, simulate(c, di, S, temp, 0, Math.round(n))); return cache.get(k); };
+    let d = todayIdx, fallowStart = null, soil = { N: S.fert, P: S.fert, K: S.fert };
     const end = todayIdx + YEAR;
     while (d < end) {
       const di = d % YEAR;
       let best = null, bestScore = 0;
       for (const c of pool) {
-        const r = RES[c.id][di];
+        if (RES[c.id][di].status !== "ok") continue;
+        const r = sim(c, di, soil[c.nut]);
         if (r.status !== "ok") continue;
-        const value = focus === "Fiber" ? r.fibersPerDay : r.perDay;
-        const score = value * (c.nut === prevNut ? 0.8 : 1);
+        const score = focus === "Fiber" ? r.fibersPerDay : r.perDay;
         if (score > bestScore) { bestScore = score; best = { c, r }; }
       }
-      if (!best) { if (fallowStart === null) fallowStart = d; d += 1; continue; }
+      if (!best) { if (fallowStart === null) fallowStart = d; soil = soilRest(soil, 1, S.fert); d += 1; continue; }
       if (fallowStart !== null) { steps.push({ fallow: true, start: fallowStart, end: d }); fallowStart = null; }
       const len = Math.max(1, Math.ceil(best.r.days));
-      steps.push({ c: best.c, r: best.r, start: d, end: d + len });
-      prevNut = best.c.nut;
+      steps.push({ c: best.c, r: best.r, start: d, end: d + len, nut: soil[best.c.nut] });
+      soil = soilAfter(soil, best.c, best.r, S.fert);
       d += len;
     }
     if (fallowStart !== null) steps.push({ fallow: true, start: fallowStart, end: end });
@@ -606,7 +644,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
         continue;
       }
       totalFood += s.c.yield * s.c.sat * s.r.mul; totalFiber += (s.c.fibers || 0) * s.r.mul;
-      html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + "</td><td>" + cname(s.c) + ' <span class="hint">' + s.c.nut + "</span></td>" +
+      html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + "</td><td>" + cname(s.c) + ' <span class="hint">' + s.c.nut + " " + fmt(s.nut) + "</span></td>" +
         '<td class="mono">' + dateLabel(s.r.harvestDay, S.dpm) + "</td>" +
         '<td class="num">' + (focus === "Fiber" ? fmt(s.r.fibersPerDay, 2) + t().fiberUnit : fmt(s.r.perDay)) + "</td></tr>";
     }
@@ -651,23 +689,28 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     for (const n of ROLE_NUT) { const v = $("rot" + n).value; cands[n] = v === "auto" ? food.filter((c) => c.nut === n) : food.filter((c) => c.id === v); }
     const useFlax = $("rot4").value === "flax";
     const cache = new Map();
-    const held = (c, di, L) => { const k = c.id + "|" + di + "|" + L; if (!cache.has(k)) cache.set(k, simulate(c, di, S, temp, L)); return cache.get(k); };
+    const sim = (c, di, n, L) => { const k = c.id + "|" + di + "|" + Math.round(n) + "|" + L; if (!cache.has(k)) cache.set(k, simulate(c, di, S, temp, L, Math.round(n))); return cache.get(k); };
+    // Each house keeps its own soil. In cycle n, the crop of role r goes into house (r - n) mod 4.
+    let soils = [0, 1, 2, 3].map(() => ({ N: S.fert, P: S.fert, K: S.fert }));
+    const houseOf = (role, n) => (((role - n) % 4) + 4) % 4;
     const cycles = [];
     const end = todayIdx + YEAR;
-    let d = todayIdx, gapStart = null;
+    let d = todayIdx, gapStart = null, n = 0;
     while (d < end) {
       const di = d % YEAR;
-      const opts = ROLE_NUT.map((n) => [null].concat(cands[n].filter((c) => RES[c.id][di].status === "ok")));
-      const flax = useFlax && RES.flax[di].status === "ok" ? flaxCrop : null;
+      const nutFor = (c, role) => soils[houseOf(role, n)][c.nut];
+      const opts = ROLE_NUT.map((nu, role) => [null].concat(cands[nu].filter((c) => RES[c.id][di].status === "ok" && sim(c, di, nutFor(c, role), 0).status === "ok")));
+      const flax = useFlax && RES.flax[di].status === "ok" && sim(flaxCrop, di, nutFor(flaxCrop, 3), 0).status === "ok" ? flaxCrop : null;
       let best = null;
       for (const a of opts[0]) for (const b of opts[1]) for (const k of opts[2]) {
         if (!a && !b && !k) continue;
         const picks = [a, b, k, flax];
-        const L = Math.max(...picks.filter(Boolean).map((c) => Math.ceil(RES[c.id][di].days)));
+        const L = Math.max(...picks.map((c, role) => c ? Math.ceil(sim(c, di, nutFor(c, role), 0).days) : 0));
         let total = 0, ok = true; const res = [];
-        for (const c of picks) {
+        for (let role = 0; role < 4; role++) {
+          const c = picks[role];
           if (!c) { res.push(null); continue; }
-          const r = held(c, di, L);
+          const r = sim(c, di, nutFor(c, role), L);
           if (r.status !== "ok") { ok = false; break; }
           res.push(r);
           if (c.cat !== "Fiber") total += c.yield * c.sat;
@@ -676,10 +719,15 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
         const score = total / L;
         if (!best || score > best.score) best = { score, L, picks, res };
       }
-      if (!best) { if (gapStart === null) gapStart = d; d += 1; continue; }
+      if (!best) { if (gapStart === null) gapStart = d; soils = soils.map((so) => soilRest(so, 1, S.fert)); d += 1; continue; }
       if (gapStart !== null) { cycles.push({ gap: true, start: gapStart, end: d }); gapStart = null; }
-      cycles.push({ start: d, L: best.L, picks: best.picks, res: best.res });
-      d += best.L;
+      const startNut = best.picks.map((c, role) => c ? nutFor(c, role) : null);
+      soils = soils.map((so, h) => {
+        const role = (h + n) % 4, c = best.picks[role];
+        return c ? soilAfter(so, c, best.res[role], S.fert) : soilRest(so, best.L, S.fert);
+      });
+      cycles.push({ start: d, L: best.L, picks: best.picks, res: best.res, startNut });
+      d += best.L; n++;
     }
     if (gapStart !== null) cycles.push({ gap: true, start: gapStart, end: end });
     return cycles;
@@ -705,7 +753,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
           html += "<td>" + (role === 3 ? '<span class="hint">' + t().rest + "</span>" : '<span class="hint">' + t().emptyRole(ROLE_NUT[role]) + "</span>") + "</td>";
           continue;
         }
-        html += "<td>" + cname(c) + ' <span class="nut-tag">' + c.nut + '</span><br><span class="hint">' + t().ripeOn(dateLabel(r.harvestDay, S.dpm)) + "</span></td>";
+        html += "<td>" + cname(c) + ' <span class="nut-tag">' + c.nut + " " + fmt(cy.startNut[role]) + '</span><br><span class="hint">' + t().ripeOn(dateLabel(r.harvestDay, S.dpm)) + "</span></td>";
         if (c.cat === "Fiber") fibers += c.fibers; else totals[c.cat] += c.yield * c.sat;
       }
       html += "</tr>";
@@ -782,7 +830,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     const i = +b.dataset.m; GH[i] = !GH[i]; b.setAttribute("aria-pressed", String(GH[i])); full();
   });
   ["rotN", "rotP", "rotK", "rot4"].forEach((k) => $(k).addEventListener("change", () => { renderRotation(); save(); }));
-  ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed"].forEach((k) => $(k).addEventListener("change", full));
+  ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert"].forEach((k) => $(k).addEventListener("change", full));
   ["tmonth", "tday"].forEach((k) => $(k).addEventListener("change", light));
   $("focus").addEventListener("change", () => { renderPlan(); save(); });
 
