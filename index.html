@@ -354,6 +354,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <div class="field hsize"><label for="house3" id="lh3">House 3</label><input id="house3" type="number" min="0" step="1" value="171"></div>
       <div class="field hsize"><label for="house4" id="lh4">House 4</label><input id="house4" type="number" min="0" step="1" value="171"></div>
     </div>
+    <p class="hint" data-i18n="blocksHint">The default of 684 is four houses of 171 farmland blocks: a 14 × 14 house (196 blocks, the largest room the game allows) minus 25 water blocks, with water every third block (rows and columns 1, 4, 7, 10 and 13), which keeps all farmland at 75 % moisture. Enter your own count if you lay out water differently.</p>
     <div class="track-box" id="trackBox" hidden>
       <p class="hint" data-i18n="trackHint">Type how many seeds you have next to each crop. The rotation then plants only as many blocks as you have seeds, fills spare blocks with another crop of the same nutrient that is ripe in time, and counts the seeds you get back. Update the seed counts whenever your real stock differs, for example after a frost or a bad harvest.</p>
       <div class="controls">
@@ -801,6 +802,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     cropsHint: "Entferne den Haken bei Pflanzen, für die du keine Samen hast. Rotation, Einzelfeld-Plan und „Jetzt pflanzen“ planen nur mit angehakten Pflanzen. Der Kalender und „Alle Pflanzen im Überblick“ zeigen weiter alle, damit du siehst, was dir fehlt.",
     bAll: "Alle anhaken", bNone: "Alle abwählen", lTrack: "Auch Samen verfolgen (optional)",
     trackHint: "Trag neben jeder Pflanze ein, wie viele Samen du hast. Die Rotation bepflanzt dann nur so viele Blöcke, wie du Samen hast, füllt freie Blöcke mit einer anderen Pflanze desselben Nährstoffs, die rechtzeitig reif ist, und rechnet die Samen mit, die du zurückbekommst. Pass die Samenzahl an, wenn dein echter Vorrat abweicht, zum Beispiel nach Frost oder einer schlechten Ernte.",
+    blocksHint: "Der Standardwert 684 sind vier Häuser mit je 171 Ackerblöcken: ein 14 × 14-Haus (196 Blöcke, der größte Raum, den das Spiel erlaubt) minus 25 Wasserblöcke, mit Wasser auf jedem dritten Block (Reihen und Spalten 1, 4, 7, 10 und 13), sodass jeder Ackerblock 75 % Feuchtigkeit hat. Trag deine eigene Zahl ein, wenn dein Wasser anders liegt.",
     lBlocksTotal: "Blöcke, alle Häuser", lHousesManual: "Jedes Haus einzeln", lSeedRet: "Samen zurück pro Block", sSeedRet: "Spieldurchschnitt 1,2 bei Reife",
     hNeed: "Nahrungsbedarf deiner Gruppe",
     needHint: "Wie viel Sättigung deine Spieler in einem Spieljahr verbrauchen, nach dem Hunger-Code des Spiels. Allein online zu sein kostet 691 Sättigung pro Spieltag; Gehen oder Schwimmen kostet in der Zeit zusätzlich das Dreifache, Sprinten das Neunfache. Das Spiel skaliert Hunger mit der Zeitgeschwindigkeit, pro Spieltag bleibt es also gleich. Blackguards (Eigenschaft „ravenous“) werden 30 % schneller hungrig. Im Kreativmodus gibt es keinen Hunger.",
