@@ -15,6 +15,7 @@
   --accent: #1d7466; --accent-soft: #d6ebe6;
   --ok: #3b9a5c; --warn: #d8962a; --bad: #c4463c; --slow: #b9c2bb; --none: #e4e9e5;
   --cold: #3d78d6; --warm: #e0643a;
+  --hunger: #9a6f12; --hunger-bar: #e3b55a; --hunger-soft: #f8efd9; --hunger-line: #ecdfbf;
   --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -24,12 +25,12 @@
   --bg: #111714; --surface: #19211d; --ink: #e3eae5; --muted: #93a198; --line: #2c3832;
   --accent: #4fc2aa; --accent-soft: #1d3a33;
   --ok: #4fb874; --warn: #e6ae47; --bad: #e0675c; --slow: #4d5952; --none: #222b26;
-  --cold: #6b9cf0; --warm: #f08a5f; color-scheme: dark } }
+  --cold: #6b9cf0; --warm: #f08a5f; --hunger: #ecc874; --hunger-bar: #e2bc68; --hunger-soft: #2b2c22; --hunger-line: #3b3b2b; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #111714; --surface: #19211d; --ink: #e3eae5; --muted: #93a198; --line: #2c3832;
   --accent: #4fc2aa; --accent-soft: #1d3a33;
   --ok: #4fb874; --warn: #e6ae47; --bad: #e0675c; --slow: #4d5952; --none: #222b26;
-  --cold: #6b9cf0; --warm: #f08a5f; color-scheme: dark }
+  --cold: #6b9cf0; --warm: #f08a5f; --hunger: #ecc874; --hunger-bar: #e2bc68; --hunger-soft: #2b2c22; --hunger-line: #3b3b2b; color-scheme: dark }
 
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; }
@@ -43,7 +44,7 @@ p { margin: 0; }
 .lede { color: var(--muted); max-width: 68ch; }
 .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.panel-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
 .hint { color: var(--muted); font-size: 13px; }
 code { font-family: var(--f-mono); font-size: 12.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
 
@@ -66,7 +67,99 @@ code { font-family: var(--f-mono); font-size: 12.5px; background: var(--accent-s
 .measure .out { font-size: 13px; padding-bottom: 8px; }
 .measure .out b { font-family: var(--f-mono); }
 .rot-start { margin: 8px 0 0; font-size: 13.5px; }
+.houses-row .field { min-width: 210px; flex: 0 1 230px; }
+.ghd-note { color: var(--accent) !important; }
+.ghd-note:empty { display: none; }
+.roofbox { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 8px; }
+.roof-out { flex-basis: 100%; font-size: 13.5px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.roof-out:empty { display: none; }
 .rot-start:empty { display: none; }
+.crop-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 10px 0; }
+.check { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; cursor: pointer; }
+.check input[type="checkbox"], .cchip input[type="checkbox"] { appearance: none; -webkit-appearance: none; flex: none; width: 14px; height: 14px; margin: 0; border: 1.5px solid var(--muted); border-radius: 4px; background: var(--bg); display: inline-grid; place-content: center; cursor: pointer; transition: background .12s, border-color .12s; }
+.check input[type="checkbox"]::after, .cchip input[type="checkbox"]::after { content: ""; width: 7px; height: 4px; border: solid var(--surface); border-width: 0 0 2px 2px; transform: rotate(-45deg) translate(0.5px, -1px); opacity: 0; transition: opacity .12s; }
+.check input[type="checkbox"]:checked, .cchip input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
+.check input[type="checkbox"]:checked::after, .cchip input[type="checkbox"]:checked::after { opacity: 1; }
+.check input[type="checkbox"]:hover, .cchip input[type="checkbox"]:hover { border-color: var(--accent); }
+.check input[type="checkbox"]:focus-visible, .cchip input[type="checkbox"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cchip { cursor: pointer; transition: border-color .12s, background .12s; }
+.cchip:has(input[data-own]:checked) { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.crop-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 10px; }
+.cchip { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+.cchip.off { opacity: .55; }
+.cchip .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cchip .nut { font-family: var(--f-mono); font-size: 10.5px; color: var(--muted); }
+.cchip .seedin { width: 68px; font: inherit; font-family: var(--f-mono); font-size: 12.5px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 3px 5px; display: none; }
+.tracking .cchip .seedin { display: block; }
+.track-box { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.track-box[hidden] { display: none; }
+.track-box .controls .field, .fieldsize .field { min-width: 110px; flex: 0 1 150px; }
+.fieldsize { margin-top: 12px; }
+.rowlabel.notown { opacity: .45; }
+tr.notown td { opacity: .55; }
+.miss { font-size: 10.5px; font-weight: 600; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 0 4px; margin-left: 4px; white-space: nowrap; }
+.blk { font-family: var(--f-mono); font-size: 11.5px; }
+.tabs { display: flex; gap: 4px; margin: 0 0 16px; border-bottom: 1px solid var(--line); }
+.tabs button { font: inherit; font-size: 14.5px; font-weight: 600; padding: 9px 16px; border: 0; border-bottom: 3px solid transparent; background: none; color: var(--muted); cursor: pointer; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+.tabs #tab-need[aria-selected="true"] { color: var(--hunger); border-bottom-color: var(--hunger); }
+.wrap[data-tab="need"] > section:not(#needPanel), .wrap[data-tab="need"] > .two { display: none; }
+.wrap[data-tab="plan"] > #needPanel { display: none; }
+#needPanel { border-top: 3px solid var(--hunger-bar); }
+#needPanel h2 { color: var(--hunger); }
+#needPanel th, #needPanel td { border-bottom-color: var(--hunger-line); }
+#needPanel input, #needPanel select { border-color: var(--hunger-line); }
+#needPanel input:focus-visible, #needPanel select:focus-visible, #needPanel button:focus-visible { outline-color: var(--hunger); }
+#needPanel button.reset { color: var(--hunger); border-color: var(--hunger-line); }
+.pl-table input, .pl-table select { font: inherit; font-family: var(--f-mono); font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 5px 7px; width: 100%; }
+.pl-table input[type="text"] { font-family: var(--f-body); min-width: 110px; }
+.pl-table td { vertical-align: middle; padding: 5px 6px; }
+.pl-table .num-in { max-width: 90px; }
+.pl-table .yr { font-family: var(--f-mono); text-align: right; white-space: nowrap; }
+#needTable tr.est td { background: var(--hunger-soft); font-weight: 600; }
+.meter { margin: 18px 0 6px; }
+.sub-h { font-size: 15px; font-weight: 700; margin: 6px 0 0; color: var(--hunger); }
+.ext-box { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; border-top: 1px solid var(--hunger-line); }
+.ext-box .controls { align-items: flex-end; }
+.ext-box .controls .field { min-width: 100px; flex: 0 0 auto; }
+.ext-box .controls .field label { white-space: nowrap; }
+.ext-box .controls .field input { width: 130px; }
+.flaxroom { font-size: 13.5px; padding: 10px 12px; border: 1px dashed var(--hunger-line); border-radius: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.flaxroom:empty { display: none; }
+.gbar { display: grid; grid-template-columns: 110px 1fr 190px; align-items: center; gap: 10px; font-size: 13px; padding: 5px 0; }
+.gbar .track { position: relative; height: 14px; background: var(--hunger-soft); border-radius: 4px; }
+.gbar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--hunger-bar); }
+.gbar .fill.short { background: var(--bad); }
+.gbar .goal { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--hunger); }
+.gbar .val { font-family: var(--f-mono); font-size: 12px; text-align: right; }
+@media (max-width: 560px) { .gbar { grid-template-columns: 80px 1fr; } .gbar .val { grid-column: 1 / -1; text-align: left; } }
+.meter-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; font-size: 13.5px; margin-bottom: 8px; }
+.meter-head b { font-family: var(--f-mono); }
+.meter-track { position: relative; height: 34px; background: var(--none); border-radius: 6px; overflow: visible; }
+.meter-track { background: var(--hunger-soft); }
+.meter-bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: var(--hunger-bar); }
+.meter-bar.under { background: repeating-linear-gradient(135deg, var(--hunger-bar) 0 10px, color-mix(in srgb, var(--hunger-bar) 60%, transparent) 10px 20px); }
+.meter-bar.low { background: var(--bad); }
+.meter-mark { position: absolute; top: -6px; bottom: -6px; width: 0; border-left: 2px dashed var(--hunger); opacity: .6; }
+.meter-mark.goal { border-left: 3px solid var(--hunger); opacity: 1; }
+.meter-labels { position: relative; height: 34px; font-size: 11.5px; color: var(--hunger); }
+.meter-labels span { position: absolute; top: 4px; transform: translateX(-50%); white-space: nowrap; font-family: var(--f-mono); }
+.meter-labels span.lane1 { top: 18px; }
+.meter-labels span.goal { font-weight: 700; }
+.meter-verdict { font-size: 13.5px; margin: 2px 0 0; }
+details.readings { margin-top: 12px; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 8px; }
+details.readings summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
+.rd-table td, .rd-table th { padding: 4px 6px; }
+.rd-table input, .rd-table select { font: inherit; font-family: var(--f-mono); font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; width: 100%; min-width: 60px; }
+.rd-out { font-size: 13.5px; margin: 8px 0; }
+.controls > .check, .controls > button.reset, .controls > .out { margin-top: 22px; }
+.controls { align-items: flex-start; }
+.panel-head h2 { cursor: pointer; }
+.panel-head > .collapse { align-self: center; }
+.panel-head > .collapse + h2 { margin-right: auto; }
+.collapse { font: inherit; font-size: 13px; line-height: 1; width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 5px; background: none; color: var(--muted); cursor: pointer; flex: none; display: inline-flex; align-items: center; justify-content: center; transition: transform .15s; }
+.panel.collapsed .collapse { transform: rotate(-90deg); }
+.panel.collapsed > :not(.panel-head), .panel.collapsed .panel-head > :not(h2):not(.collapse) { display: none; }
 .climate-line b { color: var(--ink); font-family: var(--f-mono); font-weight: 600; }
 
 /* Shared day-scale grid */
@@ -117,7 +210,7 @@ td.num, th.num { text-align: right; font-family: var(--f-mono); font-variant-num
 .chip.warn { background: color-mix(in srgb, var(--warn) 25%, transparent); color: var(--ink); }
 .chip.bad { background: color-mix(in srgb, var(--bad) 22%, transparent); color: var(--ink); }
 .chip.slow { background: color-mix(in srgb, var(--slow) 40%, transparent); color: var(--ink); }
-.controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 14px; }
 .controls .field { min-width: 130px; }
 .timeline { display: grid; grid-template-columns: repeat(var(--days), var(--cell)); width: max-content; margin-left: 112px; }
 .seg { height: 26px; border-radius: 3px; margin-right: 1px; font-size: 10.5px; font-weight: 600; color: #fff; display: flex; align-items: center; padding-left: 4px; overflow: hidden; white-space: nowrap; }
@@ -132,9 +225,22 @@ td.num, th.num { text-align: right; font-family: var(--f-mono); font-variant-num
 .lang button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
 .notes { color: var(--muted); font-size: 13px; display: flex; flex-direction: column; gap: 6px; max-width: 80ch; }
 .notes b { color: var(--ink); }
+.toolbar { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 0 0 16px; }
 .profiles { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 10px; margin: 4px 0 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
 .profiles .field { min-width: 200px; flex: 0 1 260px; }
 .profiles .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.exportbox { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 8px; }
+.exportbox[hidden] { display: none; }
+.exportbox { align-items: flex-start; }
+.ex-col { display: flex; flex-direction: column; gap: 6px; min-width: 200px; }
+.ex-col.wide { flex: 1 1 100%; }
+.ex-col > b { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.ex-list { display: flex; flex-direction: column; gap: 6px; padding-left: 2px; }
+.ex-list .im-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.ex-list select { font: inherit; font-size: 12.5px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px; }
+.ex-actions { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.cfg-msg { flex-basis: 100%; margin: 0; font-size: 13px; }
+.cfg-msg:empty { display: none; }
 .profiles small { flex-basis: 100%; color: var(--muted); font-size: 11.5px; }
 button.reset:disabled { opacity: .45; cursor: default; }
 button.reset { font: inherit; font-size: 13px; color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
@@ -142,7 +248,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" data-tab="plan">
   <header class="top">
     <div class="top-text">
     <h1 data-i18n="h1">Greenhouse Crop Calendar</h1>
@@ -152,20 +258,47 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <button type="button" id="lang-en" aria-pressed="true">EN</button><button type="button" id="lang-de" aria-pressed="false">DE</button>
     </div>
   </header>
-
-  <section class="panel" aria-labelledby="h-climate">
-    <div class="panel-head">
-      <h2 id="h-climate" data-i18n="hClimate">Your climate</h2>
-      <span class="hint" data-i18n="climateHint">Stand inside the greenhouse and run <code>/wgen pos climate</code> and <code>/wgen pos latitude</code>. The values below are an example world (year avg 7.6 °C, 45 % rain, 47.32° N). Put in your own.</span>
-    </div>
-    <div class="profiles">
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tab-plan" aria-selected="true" aria-controls="cropsPanel" data-i18n="tabPlan">Planting</button>
+    <button type="button" role="tab" id="tab-need" aria-selected="false" aria-controls="needPanel" data-i18n="tabNeed">Hunger</button>
+  </nav>
+  <div class="profiles toolbar">
       <div class="field"><label for="profile" data-i18n="lProfile">Location</label><select id="profile"></select></div>
       <div class="btns">
         <button type="button" class="reset" id="profNew" data-i18n="bNew">New</button>
         <button type="button" class="reset" id="profRename" data-i18n="bRename">Rename</button>
         <button type="button" class="reset" id="profDelete" data-i18n="bDelete">Delete</button>
+        <button type="button" class="reset" id="cfgExport" aria-expanded="false" aria-controls="exportBox" data-i18n="bExport">Export</button>
+        <button type="button" class="reset" id="cfgImport" data-i18n="bImport">Import</button>
+        <input type="file" id="cfgFile" accept=".json,application/json" hidden>
       </div>
-      <small data-i18n="sProfile">One set of settings per farm location. Everything below is saved in this browser and comes back when you return.</small>
+      <div class="exportbox" id="exportBox" hidden>
+        <div class="ex-col">
+          <b data-i18n="lExLocs">Locations</b>
+          <label class="check"><input type="checkbox" id="exAll"> <span data-i18n="lExAll">All locations</span></label>
+          <div class="ex-list" id="exList"></div>
+        </div>
+        <div class="ex-col">
+          <b data-i18n="lExOther">Group</b>
+          <label class="check"><input type="checkbox" id="exGroup" checked> <span data-i18n="lExGroup">Group hunger settings</span></label>
+        </div>
+        <div class="ex-actions"><span class="hint" id="exSummary"></span><button type="button" class="reset" id="exDo" data-i18n="bExDo">Download file</button></div>
+      </div>
+      <div class="exportbox" id="importBox" hidden>
+        <div class="ex-col wide">
+          <b data-i18n="lImFile">In this file</b>
+          <div class="ex-list" id="imList"></div>
+        </div>
+        <div class="ex-actions"><button type="button" class="reset" id="imDo" data-i18n="bImDo">Import selected</button><button type="button" class="reset" id="imCancel" data-i18n="bImCancel">Cancel</button></div>
+      </div>
+      <p class="cfg-msg" id="cfgMsg" aria-live="polite"></p>
+      <small data-i18n="sProfile">One set of settings per farm location. Everything is saved in this browser and comes back when you return. Export puts any of your locations and your group settings into one file to share or back up; Import shows what a file holds and lets you pick what to take.</small>
+    </div>
+
+  <section class="panel" aria-labelledby="h-climate">
+    <div class="panel-head">
+      <h2 id="h-climate" data-i18n="hClimate">Your climate</h2>
+      <span class="hint" data-i18n="climateHint">Stand inside the greenhouse and run <code>/wgen pos climate</code> and <code>/wgen pos latitude</code>. The values below are an example world (year avg 7.6 °C, 45 % rain, 47.32° N). Put in your own.</span>
     </div>
     <div class="settings">
       <div class="field"><label for="avg" data-i18n="lAvg">Yearly avg temp °C</label><input id="avg" type="number" step="0.1" value="7.6"><small data-i18n="sAvg">"Year avg" in /wgen pos climate</small></div>
@@ -177,17 +310,54 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <div class="field"><label for="speed" data-i18n="lSpeed">Growth speed %</label><input id="speed" type="number" step="1" min="10" max="150" value="97"><small data-i18n="sSpeed">97 at 75 % moisture</small></div>
       <div class="field"><label for="fert" data-i18n="lFert">Soil fertility</label><select id="fert"><option value="5" data-i18n="oF5">Very low (5)</option><option value="25" data-i18n="oF25">Low (25)</option><option value="50" data-i18n="oF50" selected>Medium (50)</option><option value="65" data-i18n="oF65">Compost (65)</option><option value="80" data-i18n="oF80">High (80)</option></select><small data-i18n="sFert">what the soil was before you tilled it</small></div>
       <div class="field"><label for="offset" data-i18n="lOffset">Weather offset °C</label><input id="offset" type="number" step="0.1" min="-15" max="15" value="0"><small data-i18n="sOffset">measured below; 0 = formula only</small></div>
-      <div class="field wide"><label id="ghLabel" data-i18n="lGh">Greenhouse active (+5 °C)</label><div class="months" id="ghMonths" role="group" aria-labelledby="ghLabel"></div><small data-i18n="sGh">Switch a month off for the months you open the roof. One missing roof block is enough to stop the greenhouse bonus.</small></div>
+      <div class="field wide"><label id="ghLabel" data-i18n="lGh">Greenhouse active (+5 °C)</label><div class="months" id="ghMonths" role="group" aria-labelledby="ghLabel"></div><small data-i18n="sGh">Switch a month off for the months you open the roof. One missing roof block is enough to stop the greenhouse bonus.</small><small class="ghd-note" id="ghdNote"></small></div>
     </div>
     <div class="climate-line" id="climateLine"></div>
     <div class="measure">
       <h3 data-i18n="hMeasure">Measure the weather offset</h3>
-      <p class="hint" data-i18n="measureHint">The game adds random weather noise to the formula: a slow part (usually within ±4 °C) that stays for many in-game months, and a fast part (about ±1 °C) that changes within hours. Run <code>/wgen pos climate</code>, type its first value (Temperature) and the in-game hour. The date comes from "Plant now". Take two or three readings at different times and use the average. Measure again about once per in-game year. With an offset set, a safety margin of about 1.5 °C is enough.</p>
+      <p class="hint" data-i18n="measureHint">The game adds random weather noise to the formula: a slow part (usually within ±4 °C) that stays for many in-game months, and a fast part (about ±1 °C) that changes within hours. Run <code>/wgen pos climate</code> and type its first value (Temperature), or the temperature your game shows you outside, and the in-game hour. The date comes from "Plant now". Take two or three readings at different times and use the average. Measure again about once per in-game year. With an offset set, a safety margin of about 1.5 °C is enough.</p>
       <div class="controls">
         <div class="field"><label for="mTemp" data-i18n="lMTemp">Temperature °C</label><input id="mTemp" type="number" step="0.1"></div>
         <div class="field"><label for="mHour" data-i18n="lMHour">Hour</label><input id="mHour" type="number" step="1" min="0" max="23" value="12"></div>
         <div class="out" id="mOut" aria-live="polite"></div>
         <button type="button" class="reset" id="mApply" data-i18n="bApply" disabled>Use as offset</button>
+      </div>
+    </div>
+    <details class="readings" id="rdBox">
+      <summary data-i18n="rdSum">No admin rights? Set up the climate from temperature readings</summary>
+      <p class="hint" data-i18n="rdHint">The /wgen commands need admin rights. Instead, note the temperature your game shows you a few times, outside and not inside the greenhouse, with the in-game date and hour. (1) On one day, take a reading around 4:00 (coldest) and one around 16:00 (warmest): that gives the day/night swing, which sets the rainfall. (2) In another season, take two more readings; mid-winter and mid-summer work best. That separates the yearly average from the latitude. The planner fits the game's temperature formula to your readings. With readings from only one season it keeps the latitude you entered and works out the yearly average and rainfall, so that average is only right if the latitude is about right. The weather noise ends up in the yearly average, so the weather offset goes back to 0.</p>
+      <div class="scroll"><table class="rd-table" id="rdTable"></table></div>
+      <div class="crop-actions">
+        <button type="button" class="reset" id="rdAdd" data-i18n="bRdAdd">Add reading</button>
+      </div>
+      <p class="rd-out" id="rdOut" aria-live="polite"></p>
+      <button type="button" class="reset" id="rdApply" data-i18n="bRdApply" disabled>Use these values</button>
+    </details>
+  </section>
+
+  <section class="panel" aria-labelledby="h-crops" id="cropsPanel">
+    <div class="panel-head">
+      <h2 id="h-crops" data-i18n="hCrops">Your crops and fields</h2>
+    </div>
+    <p class="hint" data-i18n="cropsHint">Untick the crops you have no seeds for. The rotation, the single-field plan and "Plant now" only plan with ticked crops. The calendar and "All crops at a glance" still show every crop, so you can see what you are missing.</p>
+    <div class="crop-actions">
+      <button type="button" class="reset" id="ownAll" data-i18n="bAll">Tick all</button>
+      <button type="button" class="reset" id="ownNone" data-i18n="bNone">Untick all</button>
+      <label class="check"><input type="checkbox" id="track"> <span data-i18n="lTrack">Also track seeds (optional)</span></label>
+    </div>
+    <div class="crop-list" id="cropList"></div>
+    <div class="controls fieldsize">
+      <div class="field"><label for="blocksTotal" data-i18n="lBlocksTotal">Blocks, all houses</label><input id="blocksTotal" type="number" min="0" step="1" value="684"><small id="blocksEach"></small></div>
+      <label class="check"><input type="checkbox" id="housesManual"> <span data-i18n="lHousesManual">Set each house</span></label>
+      <div class="field hsize"><label for="house1" id="lh1">House 1</label><input id="house1" type="number" min="0" step="1" value="171"></div>
+      <div class="field hsize"><label for="house2" id="lh2">House 2</label><input id="house2" type="number" min="0" step="1" value="171"></div>
+      <div class="field hsize"><label for="house3" id="lh3">House 3</label><input id="house3" type="number" min="0" step="1" value="171"></div>
+      <div class="field hsize"><label for="house4" id="lh4">House 4</label><input id="house4" type="number" min="0" step="1" value="171"></div>
+    </div>
+    <div class="track-box" id="trackBox" hidden>
+      <p class="hint" data-i18n="trackHint">Type how many seeds you have next to each crop. The rotation then plants only as many blocks as you have seeds, fills spare blocks with another crop of the same nutrient that is ripe in time, and counts the seeds you get back. Update the seed counts whenever your real stock differs, for example after a frost or a bad harvest.</p>
+      <div class="controls">
+        <div class="field"><label for="seedRet" data-i18n="lSeedRet">Seeds back per block</label><input id="seedRet" type="number" step="0.05" min="0" max="3" value="1.2"><small data-i18n="sSeedRet">game average 1.2 when ripe</small></div>
       </div>
     </div>
   </section>
@@ -226,16 +396,61 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     <div class="panel-head">
       <h2 id="h-rot" data-i18n="hRot">Four-greenhouse rotation</h2>
     </div>
-    <p class="hint" data-i18n="rotHint">All four houses are planted on the same day. You harvest them together once the slowest crop is ripe, then every house moves one step along N → P → K → rest. The rest step lets the soil recover. Crops that ripen early stay in the ground until harvest day and are checked for damage while they wait. For each cycle the planner picks the combination with the most food per day where every crop gets a full harvest. The number next to the nutrient is that house's level at planting.</p>
+    <p class="hint" data-i18n="rotHint">All four houses are planted on the same day. You harvest them together once the slowest crop is ripe, then every house moves one step along N → P → K → rest. The rest step lets the soil recover. Crops that ripen early stay in the ground until harvest day and are checked for damage while they wait. For each cycle the planner picks the combination with the most food per day. With "Also damaged harvests", a crop that takes frost or heat damage but survives is planted too, because 50–75 % of a harvest (and the seeds back) beats an empty house; its share shows as an orange chip. Flax can take the K house: its grain makes bread and its fibers come on top. "Flax in the K house" grows that share of the K house as flax instead of food, for linen and windmill sails, up to the whole house; the rest house always rests. The Hunger tab recommends how much flax your group can afford while keeping spare food. The number next to the nutrient is that house's level at planting.</p>
     <div class="controls">
       <div class="field"><label for="rotN" data-i18n="lRotN">N house</label><select id="rotN"></select></div>
       <div class="field"><label for="rotP" data-i18n="lRotP">P house</label><select id="rotP"></select></div>
       <div class="field"><label for="rotK" data-i18n="lRotK">K house</label><select id="rotK"></select></div>
-      <div class="field"><label for="rot4" data-i18n="lRot4">4th house</label><select id="rot4"><option value="rest" data-i18n="oRest">Rest (empty)</option><option value="flax" data-i18n="oFlax">Flax for fibers</option></select></div>
+      <div class="field" hidden><label for="rot4" data-i18n="lRot4">4th house</label><select id="rot4"><option value="rest" data-i18n="oRest">Rest (empty)</option></select></div>
+      <div class="field"><label for="goal" data-i18n="lGoal">Goal</label><select id="goal"><option value="food" data-i18n="oGoalFood">Most food</option><option value="balance" data-i18n="oGoalBal">Fill every food group first</option></select></div>
+      <div class="field"><label for="flaxShare" data-i18n="lFlaxShare">Flax in the K house</label><select id="flaxShare"><option value="0">0 %</option><option value="0.1">10 %</option><option value="0.2">20 %</option><option value="0.3">30 %</option><option value="0.4">40 %</option><option value="0.5">50 %</option><option value="0.6">60 %</option><option value="0.7">70 %</option><option value="0.8">80 %</option><option value="0.9">90 %</option><option value="1">100 %</option></select></div>
+      <div class="field"><label for="risk" data-i18n="lRisk">Plant</label><select id="risk"><option value="warn" data-i18n="oRiskWarn">Also damaged harvests (orange)</option><option value="ok" data-i18n="oRiskOk">Only full harvests</option></select></div>
       <div class="field"><label for="rotStart" data-i18n="lRotStart">Start</label><select id="rotStart"><option value="today" data-i18n="oStartToday">From the "Plant now" date</option><option value="best" data-i18n="oStartBest">Best start for a whole year</option></select></div>
+    </div>
+    <div class="controls houses-row">
+      <div class="field"><label for="hm1" id="lhm1">House 1</label><select id="hm1"><option value="roof" data-i18n="oHmRoof">Greenhouse, roof months</option><option value="always" data-i18n="oHmAlways">Greenhouse all year</option><option value="open" data-i18n="oHmOpen">Open field</option></select></div>
+      <div class="field"><label for="hm2" id="lhm2">House 2</label><select id="hm2"><option value="roof" data-i18n="oHmRoof">Greenhouse, roof months</option><option value="always" data-i18n="oHmAlways">Greenhouse all year</option><option value="open" data-i18n="oHmOpen">Open field</option></select></div>
+      <div class="field"><label for="hm3" id="lhm3">House 3</label><select id="hm3"><option value="roof" data-i18n="oHmRoof">Greenhouse, roof months</option><option value="always" data-i18n="oHmAlways">Greenhouse all year</option><option value="open" data-i18n="oHmOpen">Open field</option></select></div>
+      <div class="field"><label for="hm4" id="lhm4">House 4</label><select id="hm4"><option value="roof" data-i18n="oHmRoof">Greenhouse, roof months</option><option value="always" data-i18n="oHmAlways">Greenhouse all year</option><option value="open" data-i18n="oHmOpen">Open field</option></select></div>
+    </div>
+    <div class="roofbox">
+      <button type="button" class="reset" id="roofFind" data-i18n="bRoofFind">Suggest roof months</button>
+      <span class="hint" data-i18n="roofHint">Tries which months to keep the greenhouse closed (+5 °C) and which to open the roof, for this rotation and your crops. Only houses set to "Greenhouse, roof months" follow it; the others stay as you set them above.</span>
+      <div class="roof-out" id="roofOut" aria-live="polite"></div>
     </div>
     <p class="rot-start" id="rotStartInfo" aria-live="polite"></p>
     <div class="scroll"><table id="rotTable"></table></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-need" id="needPanel" role="tabpanel">
+    <div class="panel-head">
+      <h2 id="h-need" data-i18n="hNeed">Food needs of your group</h2>
+    </div>
+    <p class="hint" data-i18n="needHint">How much satiety your players eat in one in-game year, from the game's hunger code. Just being online costs 691 satiety per in-game day; walking or swimming adds 3 times that for the time spent moving, sprinting 9 times. The game scales hunger with the speed of time, so per in-game day it stays the same. Blackguards (trait "ravenous") get hungry 30 % faster. Players in creative mode don't get hungry.</p>
+    <p class="hint" data-i18n="plHint">One row per player, or one row for several players who play alike (set "Players" above 1). Each row has its own class, share of game time online and activity level.</p>
+    <div class="scroll"><table class="pl-table" id="plTable"></table></div>
+    <div class="controls">
+      <button type="button" class="reset" id="plAdd" data-i18n="bPlAdd">Add player</button>
+      <div class="field"><label for="hungerMod" data-i18n="lHungerMod">Hunger speed %</label><input id="hungerMod" type="number" min="0" max="500" step="5" value="100"><small data-i18n="sHungerMod">world setting, default 100</small></div>
+    </div>
+    <div class="ext-box">
+      <h3 class="sub-h" data-i18n="hExt">Food from outside the fields</h3>
+      <p class="hint" data-i18n="extHint">Meat, fish, eggs, cheese, fruit trees, berries, foraging and trading. "Of all food" lowers how much your fields have to grow. The food-group fields say how much of each group's need comes from elsewhere, for example 100 % protein if your group eats enough meat; the fields then only have to cover the rest of that group. Dairy always comes from animals.</p>
+      <div class="controls">
+        <div class="field"><label for="extAll" data-i18n="lExtAll">Of all food %</label><input id="extAll" type="number" min="0" max="95" step="5" value="0"></div>
+        <div class="field"><label for="extFruit" data-i18n="lExtFruit">Fruit %</label><input id="extFruit" type="number" min="0" max="100" step="10" value="0"></div>
+        <div class="field"><label for="extVegetable" data-i18n="lExtVegetable">Vegetable %</label><input id="extVegetable" type="number" min="0" max="100" step="10" value="0"></div>
+        <div class="field"><label for="extProtein" data-i18n="lExtProtein">Protein %</label><input id="extProtein" type="number" min="0" max="100" step="10" value="0"></div>
+        <div class="field"><label for="extGrain" data-i18n="lExtGrain">Grain %</label><input id="extGrain" type="number" min="0" max="100" step="10" value="0"></div>
+      </div>
+    </div>
+    <div class="meter" id="meter"></div>
+    <div class="flaxroom" id="flaxRoom"></div>
+    <div class="scroll"><table id="needTable"></table></div>
+    <p class="hint" id="needNote"></p>
+    <h3 class="sub-h" data-i18n="hGroups">Food groups and health</h3>
+    <p class="hint" data-i18n="groupsHint">The game tracks five food groups. Each full group raises max health by 2.5, so all five give +12.5. Eating adds satiety ÷ 2.5 to that food's group, and full groups slowly drain. Keeping a group full only takes about 9 % of what a player eats from that group (dairy about 5 %), so the rest can come from whatever grows best. The bars compare your harvest per group with what keeps it full for the whole group.</p>
+    <div id="groupBars"></div>
   </section>
 
   <div class="two">
@@ -254,7 +469,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       <div class="panel-head">
         <h2 id="h-plan" data-i18n="hPlan">One field, replanted all year</h2>
       </div>
-      <p class="hint" data-i18n="planHint">For a single field outside the four-house rotation that you replant the day it is ripe. Starting on the "Plant now" date, each row is the next crop: the one with the most food per block per day that still gets a full harvest. "Soil" is that crop's nutrient level at planting, after what the crops before it used up, and the growth speed it gives.</p>
+      <p class="hint" data-i18n="planHint">For a single field outside the four-house rotation that you replant the day it is ripe. Starting on the "Plant now" date, each row is the next crop: the one with the most food per block per day (with "Also damaged harvests" on the rotation, damaged but surviving crops count with their reduced harvest). "Soil" is that crop's nutrient level at planting, after what the crops before it used up, and the growth speed it gives.</p>
       <div class="controls">
         <div class="field"><label for="focus" data-i18n="lFocus">Shelf for</label>
           <select id="focus">
@@ -364,19 +579,83 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       fiberLine: (v) => " Plus " + v + " flax fibers per block per day.",
       limits: (c, h) => "Limits: damaged below " + c + " °C or above " + h + " °C.",
       thBest: "Best as (per item)", rawWord: "raw", notRaw: "not edible raw", howShort: { meal: "meal", bread: "bread" },
-      thSoil: "Soil", thDays: "Days", thNut: "Nutr.", thDaysYour: "Days (your soil)", ovFiber: (v) => "+ " + v + " fibers/day",
+      thSoil: "Soil", thDays: "Days", thNut: "Nutr.", thDaysYour: "Days (your soil)", ovFiber: (v) => "+ " + v + " fibers/day", ovFibCell: (v) => "+ " + v + " fibers", ovFiberNote: "fibers per day under each number",
       thCrop: "Crop", thOutcome: "Outcome", thRipe: "Ripe", thFood: "Food/block/day", thPlant: "Plant", thHarvestAll: "Harvest all",
       house: (i) => "House " + i,
       chipFull: "Full", chipDies: (c) => "Dies (" + c + ")", chipSlow: "Too slow", fiberUnit: " fiber",
-      fallow: (d) => "Leave empty until " + d + " (nothing gets a full harvest). The soil recovers faster while empty.",
+      fallow: (d) => "Leave empty until " + d + " (" + ($("risk").value === "warn" ? "nothing survives" : "nothing gets a full harvest") + "). The soil recovers faster while empty.",
       planFood: (v) => "Per block over the year: <b>" + v + "</b> satiety.",
       planFiber: (v) => "Per block over the year: <b>" + v + "</b> flax fibers.",
       pastYear: " The last crop runs past the year.",
       empty: "empty",
       rotBest: "Best per season", rotOnly: (n) => n + " only",
-      rotGap: (d) => "Nothing gets a full harvest. Leave all houses empty until " + d + ".",
+      rotGap: (d) => ($("risk").value === "warn" ? "Nothing survives." : "Nothing gets a full harvest.") + " Leave all houses empty until " + d + ".",
       days: (n) => n + " d",
-      rest: "Rest", emptyRole: (n) => "Empty (" + n + ": nothing safe)", ripeOn: (d) => "ripe " + d,
+      eachHouse: (n) => n + " per house",
+      roofWorking: (n) => "Trying roof patterns… " + n,
+      roofNone: "No house follows the roof months, so there is nothing to suggest. Set a house to \"Greenhouse, roof months\" first.",
+      roofClosed: "Keep the roof closed", roofOpen: "Open the roof", roofAlways: "Keep the roof closed all year.", roofNever: "Keep the roof open all year.",
+      roofGain: (p) => "That gives about <b>" + p + " %</b> more food over the year than your current months.",
+      roofSame: "Your current roof months are already the best this search found.",
+      roofApply: "Use this", roofNote: "Farmland notices a roof change up to half a day late, so close it a day early in autumn.",
+      roofByDate: "Switch the roof on these days", roofOpenOn: (d) => "open on " + d, roofCloseOn: (d) => "close on " + d,
+      roofDaysWhy: (p) => "Exact dates add " + p + " % food over whole months, so they are worth it.",
+      roofMonthsWhy: (p) => "Exact dates would add only " + p + " % over whole months, so whole months are fine.",
+      ghdNote: (sw) => "Roof set by date: " + sw + ". Clicking a month switches back to whole months.",
+      flaxPart: (p) => "+ Flax, " + p + " % of the house",
+      flaxRec: (p, fib, max) => "Recommended: up to <b>" + p + " %</b> of the K house in flax. That keeps at least 25 % spare food and gives about <b>" + fib + "</b> flax fibers a year." + (max > p ? " Without that reserve, up to " + max + " % would still just feed everyone." : ""),
+      flaxNoReserve: (max) => "Your harvest covers the group with less than 25 % to spare, so no extra flax is recommended." + (max > 0 ? " At most " + max + " % of the K house would still just feed everyone." : ""),
+      flaxNoRoom: (max) => "Any flax would leave less than 25 % spare food, so none is recommended." + (max > 0 ? " At most " + max + " % of the K house would still just feed everyone." : ""),
+      flaxHungry: "too much flax: your group goes hungry", flaxThin: "less than 25 % spare food",
+      flaxRoom: (p, fib) => p > 0 ? "Your group stays fed with up to <b>" + p + " %</b> of every planted house in flax: about <b>" + fib + "</b> flax fibers a year." : "Your harvest only just covers your group, so there is no room for extra flax.",
+      flaxNone: "Even without flax the harvest doesn't cover your group, so there is no room for extra flax.",
+      flaxUse: (p) => "Use " + p + " %", flaxTooMuch: "your flax share is higher than that",
+      groupName: { Fruit: "Fruit", Vegetable: "Vegetable", Protein: "Protein", Grain: "Grain", Dairy: "Dairy" },
+      dairyNote: "from animals (cheese, milk)",
+      groupShort: (g, have, miss) => g + " is short: " + (have ? "grow more " + have + "." : "you have no crop for it.") + (miss ? " Missing: " + miss + "." : ""),
+      groupGoalTip: "The rotation goal \"Fill every food group first\" plants for the short groups before going for the most food.",
+      groupAllFull: "Every food group your fields have to supply is covered. Dairy comes from animals.",
+      exLoc: (n) => "This location (" + n + ")", exNothing: "Tick at least one thing to export.",
+      exSummary: (n, g) => n === 0 && !g ? "" : "File holds " + (n ? n + (n === 1 ? " location" : " locations") : "") + (n && g ? " and " : "") + (g ? "the group settings" : "") + ".",
+      exCurrent: "current",
+      imNewLoc: "new location", imCopyOpt: "Add as a copy", imReplaceOpt: "Replace my location of that name",
+      imGroupRow: (rows, players) => "Group hunger settings (" + rows + (rows === 1 ? " row, " : " rows, ") + players + (players === 1 ? " player)" : " players)"),
+      imGroupReplace: "Replace my group", imGroupAdd: "Add these players to mine",
+      imNothing: "Nothing selected.", imRep: (n) => "replaced location \"" + n + "\"", imGroupAdded: "players added to your group",
+      imDone: (parts) => "Imported: " + parts + ".", imLoc: (n) => "location \"" + n + "\"", imGroup: "group hunger settings",
+      imBad: "That file isn't a planner export.", exFail: "Saving a file doesn't work here. Open the planner's GitHub page to export.", imCopy: (n) => n + " (2)",
+      meterOut: "Your harvest per year", meterGoal: "Group needs (estimate)",
+      meterHint: (blocks) => "Harvest from the four-house rotation on the Planting tab with " + blocks + " blocks per house.",
+      meterHintSeeds: "Harvest from the four-house rotation on the Planting tab with your seeds.",
+      meterOver: (p) => "<b>" + p + " %</b> of what your group needs: enough, with room to spare.",
+      meterUnder: (p, b) => "<b>" + p + " %</b> of what your group needs. " + (b ? "About " + b + " more blocks per house would close the gap." : ""),
+      meterNoRot: "No harvest yet: the rotation has nothing it can plant. Check your crops on the Planting tab.",
+      rdDate: "Date", rdMonth: "Month", rdDay: "Day", rdHour: "Hour", rdTemp: "Temp °C", rdRemove: "Remove",
+      rdNeed: "Add at least two readings at different hours.",
+      rdResult: (avg, lat, rain, fitLat) => "Fit: yearly average <b>" + avg + " °C</b>, rainfall <b>" + rain + " %</b>, latitude <b>" + lat + "°</b>" + (fitLat ? "" : " (kept, readings from one season only)") + ".",
+      rdBad: "These readings don't fit the formula well. Check the hours, and that you read outside.",
+      rdErr: (e) => "Average difference to your readings: " + e + " °C.",
+      blocksOf: (a, b) => a + " of " + b + " blocks", blocksFill: (c, a) => "+ " + c + ", " + a + " blocks", blocksRest: (a) => a + " blocks empty",
+      seedsAfter: (list) => "Seeds after the year: " + list + ".", seedsNone: "no seeds left",
+      rotTotalAbs: (parts, fib) => "All four houses over the year: " + parts + " satiety" + (fib ? ", plus <b>" + fib + "</b> flax fibers" : "") + ". A cycle that runs past the year counts only for its days inside it.",
+      notOwned: "not in your crops", missing: "you don't have it",
+      needRows: { min: "Minimum", median: "Median", est: "Estimate", max: "Maximum", group: "Your group" },
+      needWhole: (k) => k === "group" ? "each row at its own activity" : "everyone at this level",
+      plName: "Name", plCount: "Players", plClass: "Class", plOnline: "Online %", plAct: "Activity", plYear: "Per year", plRemove: "Remove",
+      plOther: "Other class", plBg: "Blackguard (+30 %)", plDefault: (n) => "Player " + n,
+      actOpt: { min: "Minimum · mostly at base", median: "Median · 30 % walking", est: "Estimate · 40 % walking, 10 % sprint", max: "Maximum · always on the move" },
+      thGroupDay: "Group per day", collapse: "Collapse section", expand: "Expand section",
+      whyNoCrops: "No harvest: no crop is ticked under \"Your crops and fields\" on the Planting tab.",
+      whyNoBlocks: "No harvest: seed tracking is on, but your houses have 0 blocks. Set the field size on the Planting tab.",
+      whyNoSeeds: "No harvest: seed tracking is on, but none of your ticked crops has seeds entered. Enter your seed counts on the Planting tab, or turn \"Also track seeds\" off to plan with enough seeds for every block.",
+      whyNothingGrows: "No harvest: none of your ticked crops survives a full cycle in your climate. Check the climate settings, or tick more crops on the Planting tab.",
+      meterGoalGroup: "Your group needs", meterGoalFields: (p) => "Needed from the fields (" + p + " % from outside)",
+      groupAllOutside: "all from outside the fields", groupPartOutside: (p) => p + " % from outside", meterNoNeed: "Nobody is online, so there is no hunger to cover.",
+      needAct: { min: "mostly at base, 10 % walking", median: "30 % walking, 5 % sprinting", est: "40 % walking, 10 % sprinting", max: "30 % walking, 40 % sprinting" },
+      thProfile: "Case", thActivity: "Time spent moving", thPerDay: "Per player per day", thPerYear: "Group per year", thBlocks: "Blocks per house", thCover: "Your fields cover",
+      needNote: (food) => "Your rotation grows " + food + " satiety per block per house over the year, which sets the blocks per house. Cooked meals pause hunger for a while after eating, roughly a fifth extra; that is not counted here, so the numbers are on the safe side. Food from animals, fishing, foraging and trading is not counted either.",
+      needNoteAbs: (food) => "Your four houses grow " + food + " satiety over the year with your seeds. Cooked meals pause hunger for a while after eating, roughly a fifth extra; that is not counted here, so the numbers are on the safe side. Food from animals, fishing, foraging and trading is not counted either.",
+      rest: "Rest", emptyRole: (n) => $("risk").value === "warn" ? "Empty (" + n + ": nothing survives)" : "Empty (" + n + ": no full harvest)", emptyRoleSeeds: (n) => "Empty (" + n + ": nothing fits your seeds)", ripeOn: (d) => "ripe " + d,
       rotBestStart: (d, v) => "Best start: <b>" + d + "</b>. Of every possible start day, this one gives the most food over the following year (" + v + " satiety per block for all four houses). Plant all houses then and follow the rows.",
       rotToday: (d) => "Starting " + d + ", the \"Plant now\" date.",
       rotTotal: (parts, fib) => "Per planted block over the year, all four houses together: " + parts + " satiety" + (fib ? ", plus <b>" + fib + "</b> flax fibers" : "") + ". A cycle that runs past the year counts only for its days inside it.",
@@ -412,19 +691,83 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       fiberLine: (v) => " Dazu " + v + " Flachsfasern pro Block und Tag.",
       limits: (c, h) => "Grenzen: Schaden unter " + c + " °C oder über " + h + " °C.",
       thBest: "Am besten als (pro Stück)", rawWord: "roh", notRaw: "roh nicht essbar", howShort: { meal: "Mahlzeit", bread: "Brot" },
-      thSoil: "Boden", thDays: "Tage", thNut: "Nährst.", thDaysYour: "Tage (dein Boden)", ovFiber: (v) => "+ " + v + " Fasern/Tag",
+      thSoil: "Boden", thDays: "Tage", thNut: "Nährst.", thDaysYour: "Tage (dein Boden)", ovFiber: (v) => "+ " + v + " Fasern/Tag", ovFibCell: (v) => "+ " + v + " Fasern", ovFiberNote: "Fasern pro Tag unter jeder Zahl",
       thCrop: "Pflanze", thOutcome: "Ergebnis", thRipe: "Reif", thFood: "Nahrung/Block/Tag", thPlant: "Pflanzen", thHarvestAll: "Alles ernten",
       house: (i) => "Haus " + i,
       chipFull: "Voll", chipDies: (c) => "Stirbt (" + c + ")", chipSlow: "Zu langsam", fiberUnit: " Fasern",
-      fallow: (d) => "Bis " + d + " leer lassen (nichts bringt eine volle Ernte). Leerer Boden erholt sich schneller.",
+      fallow: (d) => "Bis " + d + " leer lassen (" + ($("risk").value === "warn" ? "nichts überlebt" : "nichts bringt eine volle Ernte") + "). Leerer Boden erholt sich schneller.",
       planFood: (v) => "Pro Block über das Jahr: <b>" + v + "</b> Sättigung.",
       planFiber: (v) => "Pro Block über das Jahr: <b>" + v + "</b> Flachsfasern.",
       pastYear: " Die letzte Pflanzung reicht über das Jahr hinaus.",
       empty: "leer",
       rotBest: "Beste je Jahreszeit", rotOnly: (n) => "Nur " + n,
-      rotGap: (d) => "Nichts bringt eine volle Ernte. Alle Häuser bis " + d + " leer lassen.",
+      rotGap: (d) => ($("risk").value === "warn" ? "Nichts überlebt." : "Nichts bringt eine volle Ernte.") + " Alle Häuser bis " + d + " leer lassen.",
       days: (n) => n + " T",
-      rest: "Brache", emptyRole: (n) => "Leer (" + n + ": nichts sicher)", ripeOn: (d) => "reif am " + d,
+      eachHouse: (n) => n + " pro Haus",
+      roofWorking: (n) => "Probiere Dachmuster… " + n,
+      roofNone: "Kein Haus folgt den Dachmonaten, also gibt es nichts vorzuschlagen. Stell zuerst ein Haus auf „Gewächshaus, Dachmonate“.",
+      roofClosed: "Dach zu", roofOpen: "Dach offen", roofAlways: "Dach das ganze Jahr zu lassen.", roofNever: "Dach das ganze Jahr offen lassen.",
+      roofGain: (p) => "Das bringt etwa <b>" + p + " %</b> mehr Nahrung im Jahr als deine jetzigen Monate.",
+      roofSame: "Deine jetzigen Dachmonate sind schon die besten, die die Suche gefunden hat.",
+      roofApply: "Übernehmen", roofNote: "Ackerboden bemerkt einen Dachwechsel bis zu einen halben Tag später, also im Herbst lieber einen Tag früher schließen.",
+      roofByDate: "Dach an diesen Tagen umstellen", roofOpenOn: (d) => "öffnen am " + d, roofCloseOn: (d) => "schließen am " + d,
+      roofDaysWhy: (p) => "Genaue Tage bringen " + p + " % mehr Nahrung als ganze Monate, das lohnt sich.",
+      roofMonthsWhy: (p) => "Genaue Tage brächten nur " + p + " % mehr als ganze Monate, ganze Monate reichen also.",
+      ghdNote: (sw) => "Dach nach Datum: " + sw + ". Ein Klick auf einen Monat schaltet zurück auf ganze Monate.",
+      flaxPart: (p) => "+ Flachs, " + p + " % des Hauses",
+      flaxRec: (p, fib, max) => "Empfohlen: bis zu <b>" + p + " %</b> des K-Hauses als Flachs. Das lässt mindestens 25 % Nahrung übrig und bringt etwa <b>" + fib + "</b> Flachsfasern im Jahr." + (max > p ? " Ohne diese Reserve gingen bis zu " + max + " %, dann wird gerade noch jeder satt." : ""),
+      flaxNoReserve: (max) => "Deine Ernte deckt die Gruppe mit weniger als 25 % Reserve, daher wird kein zusätzlicher Flachs empfohlen." + (max > 0 ? " Höchstens " + max + " % des K-Hauses würden gerade noch alle satt machen." : ""),
+      flaxNoRoom: (max) => "Jeder Flachs ließe weniger als 25 % Reserve übrig, daher wird keiner empfohlen." + (max > 0 ? " Höchstens " + max + " % des K-Hauses würden gerade noch alle satt machen." : ""),
+      flaxHungry: "zu viel Flachs: deine Gruppe wird nicht satt", flaxThin: "weniger als 25 % Reserve",
+      flaxRoom: (p, fib) => p > 0 ? "Deine Gruppe bleibt satt mit bis zu <b>" + p + " %</b> Flachs in jedem bepflanzten Haus: etwa <b>" + fib + "</b> Flachsfasern im Jahr." : "Deine Ernte deckt die Gruppe gerade so, also ist kein Platz für zusätzlichen Flachs.",
+      flaxNone: "Selbst ohne Flachs deckt die Ernte deine Gruppe nicht, also ist kein Platz für zusätzlichen Flachs.",
+      flaxUse: (p) => p + " % übernehmen", flaxTooMuch: "dein Flachsanteil ist höher",
+      groupName: { Fruit: "Obst", Vegetable: "Gemüse", Protein: "Protein", Grain: "Getreide", Dairy: "Milchprodukte" },
+      dairyNote: "von Tieren (Käse, Milch)",
+      groupShort: (g, have, miss) => g + " reicht nicht: " + (have ? "mehr " + have + " anbauen." : "du hast keine Pflanze dafür.") + (miss ? " Fehlt dir: " + miss + "." : ""),
+      groupGoalTip: "Das Rotationsziel „Erst jede Nahrungsgruppe füllen“ pflanzt zuerst für die knappen Gruppen, bevor es auf die meiste Nahrung geht.",
+      groupAllFull: "Jede Nahrungsgruppe, die deine Felder liefern müssen, ist gedeckt. Milchprodukte kommen von Tieren.",
+      exLoc: (n) => "Dieser Standort (" + n + ")", exNothing: "Wähle mindestens eine Sache zum Exportieren.",
+      exSummary: (n, g) => n === 0 && !g ? "" : "Die Datei enthält " + (n ? n + (n === 1 ? " Standort" : " Standorte") : "") + (n && g ? " und " : "") + (g ? "die Gruppen-Einstellungen" : "") + ".",
+      exCurrent: "aktuell",
+      imNewLoc: "neuer Standort", imCopyOpt: "Als Kopie hinzufügen", imReplaceOpt: "Meinen gleichnamigen Standort ersetzen",
+      imGroupRow: (rows, players) => "Hunger-Einstellungen der Gruppe (" + rows + (rows === 1 ? " Zeile, " : " Zeilen, ") + players + " Spieler)",
+      imGroupReplace: "Meine Gruppe ersetzen", imGroupAdd: "Diese Spieler zu meinen hinzufügen",
+      imNothing: "Nichts ausgewählt.", imRep: (n) => "Standort „" + n + "“ ersetzt", imGroupAdded: "Spieler zur Gruppe hinzugefügt",
+      imDone: (parts) => "Importiert: " + parts + ".", imLoc: (n) => "Standort „" + n + "“", imGroup: "Hunger-Einstellungen der Gruppe",
+      imBad: "Diese Datei ist kein Export des Planers.", exFail: "Dateien speichern geht hier nicht. Öffne die GitHub-Seite des Planers zum Exportieren.", imCopy: (n) => n + " (2)",
+      meterOut: "Deine Ernte pro Jahr", meterGoal: "Bedarf der Gruppe (Schätzung)",
+      meterHint: (blocks) => "Ernte aus der Vier-Häuser-Rotation im Tab Anbau mit " + blocks + " Blöcken pro Haus.",
+      meterHintSeeds: "Ernte aus der Vier-Häuser-Rotation im Tab Anbau mit deinen Samen.",
+      meterOver: (p) => "<b>" + p + " %</b> des Bedarfs deiner Gruppe: genug, mit Reserve.",
+      meterUnder: (p, b) => "<b>" + p + " %</b> des Bedarfs deiner Gruppe. " + (b ? "Etwa " + b + " Blöcke mehr pro Haus würden die Lücke schließen." : ""),
+      meterNoRot: "Noch keine Ernte: Die Rotation kann nichts pflanzen. Prüfe deine Pflanzen im Tab Anbau.",
+      rdDate: "Datum", rdMonth: "Monat", rdDay: "Tag", rdHour: "Stunde", rdTemp: "Temp. °C", rdRemove: "Entfernen",
+      rdNeed: "Füge mindestens zwei Messungen zu verschiedenen Stunden hinzu.",
+      rdResult: (avg, lat, rain, fitLat) => "Ergebnis: Jahresmittel <b>" + avg + " °C</b>, Niederschlag <b>" + rain + " %</b>, Breitengrad <b>" + lat + "°</b>" + (fitLat ? "" : " (beibehalten, Messungen nur aus einer Jahreszeit)") + ".",
+      rdBad: "Diese Messungen passen schlecht zur Formel. Prüf die Stunden und ob du draußen gemessen hast.",
+      rdErr: (e) => "Mittlere Abweichung zu deinen Messungen: " + e + " °C.",
+      blocksOf: (a, b) => a + " von " + b + " Blöcken", blocksFill: (c, a) => "+ " + c + ", " + a + " Blöcke", blocksRest: (a) => a + " Blöcke leer",
+      seedsAfter: (list) => "Samen nach dem Jahr: " + list + ".", seedsNone: "keine Samen übrig",
+      rotTotalAbs: (parts, fib) => "Alle vier Häuser über das Jahr: " + parts + " Sättigung" + (fib ? ", dazu <b>" + fib + "</b> Flachsfasern" : "") + ". Eine Runde, die über das Jahr hinausgeht, zählt nur mit ihren Tagen innerhalb des Jahres.",
+      notOwned: "nicht in deinen Pflanzen", missing: "fehlt dir",
+      needRows: { min: "Minimum", median: "Median", est: "Schätzung", max: "Maximum", group: "Deine Gruppe" },
+      needWhole: (k) => k === "group" ? "jede Zeile mit ihrer Aktivität" : "alle auf dieser Stufe",
+      plName: "Name", plCount: "Spieler", plClass: "Klasse", plOnline: "Online %", plAct: "Aktivität", plYear: "Pro Jahr", plRemove: "Entfernen",
+      plOther: "Andere Klasse", plBg: "Blackguard (+30 %)", plDefault: (n) => "Spieler " + n,
+      actOpt: { min: "Minimum · meist an der Basis", median: "Median · 30 % gehen", est: "Schätzung · 40 % gehen, 10 % sprinten", max: "Maximum · ständig unterwegs" },
+      thGroupDay: "Gruppe pro Tag", collapse: "Bereich einklappen", expand: "Bereich ausklappen",
+      whyNoCrops: "Keine Ernte: Unter „Deine Pflanzen und Felder“ im Tab Anbau ist keine Pflanze angehakt.",
+      whyNoBlocks: "Keine Ernte: Die Samenverfolgung ist an, aber deine Häuser haben 0 Blöcke. Stell die Feldgröße im Tab Anbau ein.",
+      whyNoSeeds: "Keine Ernte: Die Samenverfolgung ist an, aber für keine angehakte Pflanze sind Samen eingetragen. Trag deine Samenzahlen im Tab Anbau ein, oder schalte „Auch Samen verfolgen“ aus, um mit genug Samen für jeden Block zu planen.",
+      whyNothingGrows: "Keine Ernte: Keine deiner angehakten Pflanzen übersteht in deinem Klima eine ganze Runde. Prüf die Klimaeinstellungen oder hake mehr Pflanzen im Tab Anbau an.",
+      meterGoalGroup: "Bedarf deiner Gruppe", meterGoalFields: (p) => "Bedarf von den Feldern (" + p + " % von außerhalb)",
+      groupAllOutside: "alles von außerhalb der Felder", groupPartOutside: (p) => p + " % von außerhalb", meterNoNeed: "Niemand ist online, also gibt es keinen Hunger zu decken.",
+      needAct: { min: "meist an der Basis, 10 % gehen", median: "30 % gehen, 5 % sprinten", est: "40 % gehen, 10 % sprinten", max: "30 % gehen, 40 % sprinten" },
+      thProfile: "Fall", thActivity: "Zeit in Bewegung", thPerDay: "Pro Spieler und Tag", thPerYear: "Gruppe pro Jahr", thBlocks: "Blöcke pro Haus", thCover: "Deine Felder decken",
+      needNote: (food) => "Deine Rotation bringt " + food + " Sättigung pro Block und Haus im Jahr; daraus ergeben sich die Blöcke pro Haus. Gekochte Mahlzeiten pausieren den Hunger nach dem Essen eine Weile, etwa ein Fünftel extra; das ist hier nicht eingerechnet, die Zahlen sind also auf der sicheren Seite. Nahrung von Tieren, Fischen, Sammeln und Handel ist auch nicht eingerechnet.",
+      needNoteAbs: (food) => "Deine vier Häuser bringen mit deinen Samen " + food + " Sättigung im Jahr. Gekochte Mahlzeiten pausieren den Hunger nach dem Essen eine Weile, etwa ein Fünftel extra; das ist hier nicht eingerechnet, die Zahlen sind also auf der sicheren Seite. Nahrung von Tieren, Fischen, Sammeln und Handel ist auch nicht eingerechnet.",
+      rest: "Brache", emptyRole: (n) => $("risk").value === "warn" ? "Leer (" + n + ": nichts überlebt)" : "Leer (" + n + ": keine volle Ernte)", emptyRoleSeeds: (n) => "Leer (" + n + ": nichts passt zu deinen Samen)", ripeOn: (d) => "reif am " + d,
       rotBestStart: (d, v) => "Bester Start: <b>" + d + "</b>. Von allen möglichen Starttagen bringt dieser im folgenden Jahr die meiste Nahrung (" + v + " Sättigung pro Block für alle vier Häuser). Bepflanze dann alle Häuser und folge den Zeilen.",
       rotToday: (d) => "Start am " + d + ", dem Datum unter „Jetzt pflanzen“.",
       rotTotal: (parts, fib) => "Pro bepflanztem Block über das Jahr, alle vier Häuser zusammen: " + parts + " Sättigung" + (fib ? ", dazu <b>" + fib + "</b> Flachsfasern" : "") + ". Eine Runde, die über das Jahr hinausgeht, zählt nur mit ihren Tagen innerhalb des Jahres.",
@@ -440,10 +783,30 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     ovHint: "Nahrung pro Block und Tag für eine Ernte auf voll erholtem Boden bei warmem Wetter (10 °C oder mehr, kein Schaden), mit deinem Wachstumstempo und deinen Tagen pro Monat. Jedes Stück zählt in seiner besten Form: als Kochtopf-Mahlzeit oder, bei Getreide und Maniok, als perfekt gebackenes Brot (halb gebacken die Hälfte, verkohlt 70 %). Jede Spalte ist eine Bodenfruchtbarkeit; deine ist hervorgehoben und bestimmt die Reihenfolge.",
     lOffset: "Wetter-Abweichung °C", sOffset: "unten messen; 0 = nur Formel",
     hMeasure: "Wetter-Abweichung messen", lMTemp: "Temperatur °C", lMHour: "Stunde", bApply: "Als Abweichung übernehmen",
-    measureHint: "Das Spiel legt zufälliges Wetterrauschen über die Formel: einen langsamen Teil (meist innerhalb ±4 °C), der viele Spielmonate bleibt, und einen schnellen Teil (etwa ±1 °C), der sich innerhalb von Stunden ändert. Gib <code>/wgen pos climate</code> ein und trag den ersten Wert (Temperature) und die Spielstunde ein. Das Datum kommt aus „Jetzt pflanzen“. Nimm zwei, drei Messungen zu verschiedenen Zeiten und den Mittelwert. Etwa einmal pro Spieljahr neu messen. Mit gesetzter Abweichung reicht ein Sicherheitspuffer von etwa 1,5 °C.",
-    lRotStart: "Start", oStartToday: "Ab dem Datum unter „Jetzt pflanzen“", oStartBest: "Bester Start für ein ganzes Jahr",
-    lProfile: "Standort", bNew: "Neu", bRename: "Umbenennen", bDelete: "Löschen",
-    sProfile: "Ein Satz Einstellungen pro Hof-Standort. Alles hier wird in diesem Browser gespeichert und ist beim nächsten Besuch wieder da.",
+    measureHint: "Das Spiel legt zufälliges Wetterrauschen über die Formel: einen langsamen Teil (meist innerhalb ±4 °C), der viele Spielmonate bleibt, und einen schnellen Teil (etwa ±1 °C), der sich innerhalb von Stunden ändert. Gib <code>/wgen pos climate</code> ein und trag den ersten Wert (Temperature) ein, oder die Temperatur, die dir das Spiel draußen zeigt, und die Spielstunde. Das Datum kommt aus „Jetzt pflanzen“. Nimm zwei, drei Messungen zu verschiedenen Zeiten und den Mittelwert. Etwa einmal pro Spieljahr neu messen. Mit gesetzter Abweichung reicht ein Sicherheitspuffer von etwa 1,5 °C.",
+    lGoal: "Ziel", oGoalFood: "Meiste Nahrung", oGoalBal: "Erst jede Nahrungsgruppe füllen", lFlaxShare: "Flachs im K-Haus",
+    hGroups: "Nahrungsgruppen und Gesundheit",
+    hExt: "Nahrung von außerhalb der Felder",
+    extHint: "Fleisch, Fisch, Eier, Käse, Obstbäume, Beeren, Sammeln und Handel. „Von aller Nahrung“ senkt, wie viel deine Felder anbauen müssen. Die Felder je Nahrungsgruppe sagen, wie viel vom Bedarf dieser Gruppe anderswo herkommt, zum Beispiel 100 % Protein, wenn deine Gruppe genug Fleisch isst; die Felder müssen dann nur den Rest dieser Gruppe decken. Milchprodukte kommen immer von Tieren.",
+    lExtAll: "Von aller Nahrung %", lExtFruit: "Obst %", lExtVegetable: "Gemüse %", lExtProtein: "Protein %", lExtGrain: "Getreide %",
+    groupsHint: "Das Spiel verfolgt fünf Nahrungsgruppen. Jede volle Gruppe erhöht die maximale Gesundheit um 2,5, alle fünf also um 12,5. Essen füllt die Gruppe der Speise um Sättigung ÷ 2,5 auf, und volle Gruppen leeren sich langsam. Um eine Gruppe voll zu halten, reichen etwa 9 % der Nahrung eines Spielers aus dieser Gruppe (Milchprodukte etwa 5 %); der Rest kann vom ertragreichsten Anbau kommen. Die Balken vergleichen deine Ernte je Gruppe mit dem, was sie für die ganze Gruppe voll hält.",
+    lRisk: "Pflanzen", oRiskWarn: "Auch beschädigte Ernten (orange)", oRiskOk: "Nur volle Ernten",
+    oHmRoof: "Gewächshaus, Dachmonate", oHmAlways: "Gewächshaus ganzjährig", oHmOpen: "Freies Feld",
+    lRotStart: "Start", bRoofFind: "Dachmonate vorschlagen", roofHint: "Probiert aus, in welchen Monaten das Gewächshaus zu bleibt (+5 °C) und wann das Dach offen sein sollte, für diese Rotation und deine Pflanzen. Nur Häuser auf „Gewächshaus, Dachmonate“ folgen dem; die anderen bleiben, wie du sie oben eingestellt hast.", oStartToday: "Ab dem Datum unter „Jetzt pflanzen“", oStartBest: "Bester Start für ein ganzes Jahr",
+    tabPlan: "Anbau", tabNeed: "Hunger",
+    rdSum: "Keine Admin-Rechte? Klima aus Temperaturmessungen einrichten",
+    rdHint: "Die /wgen-Befehle brauchen Admin-Rechte. Notiere stattdessen ein paar Mal die Temperatur, die dir das Spiel zeigt, draußen und nicht im Gewächshaus, mit Spieldatum und Stunde. (1) An einem Tag eine Messung gegen 4:00 (am kältesten) und eine gegen 16:00 (am wärmsten): Das ergibt die Tag/Nacht-Schwankung und damit den Niederschlag. (2) In einer anderen Jahreszeit zwei weitere Messungen; Mittwinter und Mittsommer eignen sich am besten. Damit lassen sich Jahresmittel und Breitengrad trennen. Der Planer passt die Temperaturformel des Spiels an deine Messungen an. Mit Messungen aus nur einer Jahreszeit behält er deinen Breitengrad und berechnet Jahresmittel und Niederschlag; das Jahresmittel stimmt dann nur, wenn der Breitengrad ungefähr stimmt. Das Wetterrauschen landet im Jahresmittel, daher wird die Wetter-Abweichung auf 0 gesetzt.",
+    bRdAdd: "Messung hinzufügen", bRdApply: "Diese Werte übernehmen",
+    hCrops: "Deine Pflanzen und Felder",
+    cropsHint: "Entferne den Haken bei Pflanzen, für die du keine Samen hast. Rotation, Einzelfeld-Plan und „Jetzt pflanzen“ planen nur mit angehakten Pflanzen. Der Kalender und „Alle Pflanzen im Überblick“ zeigen weiter alle, damit du siehst, was dir fehlt.",
+    bAll: "Alle anhaken", bNone: "Alle abwählen", lTrack: "Auch Samen verfolgen (optional)",
+    trackHint: "Trag neben jeder Pflanze ein, wie viele Samen du hast. Die Rotation bepflanzt dann nur so viele Blöcke, wie du Samen hast, füllt freie Blöcke mit einer anderen Pflanze desselben Nährstoffs, die rechtzeitig reif ist, und rechnet die Samen mit, die du zurückbekommst. Pass die Samenzahl an, wenn dein echter Vorrat abweicht, zum Beispiel nach Frost oder einer schlechten Ernte.",
+    lBlocksTotal: "Blöcke, alle Häuser", lHousesManual: "Jedes Haus einzeln", lSeedRet: "Samen zurück pro Block", sSeedRet: "Spieldurchschnitt 1,2 bei Reife",
+    hNeed: "Nahrungsbedarf deiner Gruppe",
+    needHint: "Wie viel Sättigung deine Spieler in einem Spieljahr verbrauchen, nach dem Hunger-Code des Spiels. Allein online zu sein kostet 691 Sättigung pro Spieltag; Gehen oder Schwimmen kostet in der Zeit zusätzlich das Dreifache, Sprinten das Neunfache. Das Spiel skaliert Hunger mit der Zeitgeschwindigkeit, pro Spieltag bleibt es also gleich. Blackguards (Eigenschaft „ravenous“) werden 30 % schneller hungrig. Im Kreativmodus gibt es keinen Hunger.",
+    plHint: "Eine Zeile pro Spieler, oder eine Zeile für mehrere Spieler, die ähnlich spielen („Spieler“ über 1). Jede Zeile hat eigene Klasse, eigenen Online-Anteil und eigene Aktivität.", bPlAdd: "Spieler hinzufügen", lHungerMod: "Hungertempo %", sHungerMod: "Welteinstellung, Standard 100",
+    lProfile: "Standort", bNew: "Neu", bRename: "Umbenennen", bDelete: "Löschen", bExport: "Exportieren", bImport: "Importieren", lExGroup: "Hunger-Einstellungen der Gruppe", bExDo: "Datei herunterladen", lExLocs: "Standorte", lExAll: "Alle Standorte", lExOther: "Gruppe", lImFile: "In dieser Datei", bImDo: "Ausgewähltes importieren", bImCancel: "Abbrechen",
+    sProfile: "Ein Satz Einstellungen pro Hof-Standort. Alles wird in diesem Browser gespeichert und ist beim nächsten Besuch wieder da. Exportieren packt beliebige Standorte und die Gruppen-Einstellungen in eine Datei zum Teilen oder Sichern; Importieren zeigt, was in einer Datei steckt, und du wählst aus, was du übernimmst.",
     climateHint: "Stell dich ins Gewächshaus und gib <code>/wgen pos climate</code> und <code>/wgen pos latitude</code> ein. Die Werte unten sind eine Beispielwelt (Jahresmittel 7,6 °C, 45 % Regen, 47,32° N). Trag deine eigenen ein.",
     lAvg: "Jahresmittel °C", sAvg: "„Year avg“ in /wgen pos climate",
     lLat: "Breitengrad °", sLat: "0 Äquator, 90 Pol",
@@ -460,11 +823,11 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     lgFull: "Volle Ernte", lgWarn: "Beschädigt, weniger Ernte", lgBad: "Stirbt (48 h Schaden)", lgSlow: "Reift nicht innerhalb eines Jahres", lgToday: "Heute",
     detail: "Fahre über ein Feld, um Pflanz- und Erntedatum, Ertrag und Nahrung pro Block zu sehen.",
     hRot: "Rotation mit vier Gewächshäusern",
-    rotHint: "Alle vier Häuser werden am selben Tag bepflanzt. Du erntest sie zusammen, sobald die langsamste Pflanze reif ist. Danach rückt jedes Haus einen Schritt weiter: N → P → K → Brache. In der Brache erholt sich der Boden. Pflanzen, die früher reif sind, bleiben bis zum Erntetag stehen und werden auch in dieser Zeit auf Schaden geprüft. Für jede Runde wählt der Planer die Kombination mit der meisten Nahrung pro Tag, bei der jede Pflanze eine volle Ernte bringt. Die Zahl neben dem Nährstoff ist der Stand im Haus beim Pflanzen.",
+    rotHint: "Alle vier Häuser werden am selben Tag bepflanzt. Du erntest sie zusammen, sobald die langsamste Pflanze reif ist. Danach rückt jedes Haus einen Schritt weiter: N → P → K → Brache. In der Brache erholt sich der Boden. Pflanzen, die früher reif sind, bleiben bis zum Erntetag stehen und werden auch in dieser Zeit auf Schaden geprüft. Für jede Runde wählt der Planer die Kombination mit der meisten Nahrung pro Tag. Mit „Auch beschädigte Ernten“ wird auch eine Pflanze gesetzt, die Frost- oder Hitzeschaden nimmt, aber überlebt, denn 50–75 % einer Ernte (und die Samen zurück) sind besser als ein leeres Haus; ihr Anteil steht in einem orangen Feld. Flachs kann das K-Haus übernehmen: Sein Korn wird zu Brot, die Fasern gibt es dazu. „Flachs im K-Haus“ baut diesen Anteil des K-Hauses als Flachs statt Nahrung an, für Leinen und Windmühlenflügel, bis zum ganzen Haus; das Brachehaus ruht immer. Der Tab Hunger empfiehlt, wie viel Flachs sich deine Gruppe mit Nahrungsreserve leisten kann. Die Zahl neben dem Nährstoff ist der Stand im Haus beim Pflanzen.",
     lRotN: "N-Haus", lRotP: "P-Haus", lRotK: "K-Haus", lRot4: "4. Haus", oRest: "Brache (leer)", oFlax: "Flachs für Fasern",
     hNow: "Jetzt pflanzen", lMonth: "Monat im Spiel", lDay: "Tag",
     hPlan: "Ein Feld, das ganze Jahr bepflanzt",
-    planHint: "Für ein einzelnes Feld außerhalb der Vier-Häuser-Rotation, das du am Tag der Reife neu bepflanzt. Ab dem Datum unter „Jetzt pflanzen“ ist jede Zeile die nächste Pflanze: die mit der meisten Nahrung pro Block und Tag, die noch eine volle Ernte bringt. „Boden“ ist der Stand ihres Nährstoffs beim Pflanzen, nach dem, was die Pflanzen davor verbraucht haben, und das Wachstumstempo, das er ergibt.",
+    planHint: "Für ein einzelnes Feld außerhalb der Vier-Häuser-Rotation, das du am Tag der Reife neu bepflanzt. Ab dem Datum unter „Jetzt pflanzen“ ist jede Zeile die nächste Pflanze: die mit der meisten Nahrung pro Block und Tag (mit „Auch beschädigte Ernten“ bei der Rotation zählen beschädigte, aber überlebende Pflanzen mit ihrer kleineren Ernte). „Boden“ ist der Stand ihres Nährstoffs beim Pflanzen, nach dem, was die Pflanzen davor verbraucht haben, und das Wachstumstempo, das er ergibt.",
     lFocus: "Etage für", oFood: "Beliebige Nahrung", oVeg: "Gemüse", oGrain: "Getreide", oProt: "Protein", oFiber: "Flachsfasern",
     hTl: "Dasselbe Feld im Kalender", tlN: "braucht N", tlP: "braucht P", tlK: "braucht K",
     nTemp: "<b>Temperatur:</b> Jahresmittel, plus eine Jahreszeiten-Schwankung von Breitengrad/90 × 65 °C (im Norden am kältesten Mitte Januar), plus eine Tag/Nacht-Schwankung von 18 − 13 × Niederschlag °C (am kältesten um 4:00, am wärmsten um 16:00). Das ist die Formel des Spiels selbst, ohne sein zufälliges Wetterrauschen. Der Sicherheitspuffer steht für dieses Rauschen.",
@@ -476,7 +839,10 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   };
 
   const $ = (id) => document.getElementById(id);
-  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "offset", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4", "rotStart"];
+  const ids = ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "offset", "tmonth", "tday", "focus", "rotN", "rotP", "rotK", "rot4", "rotStart", "risk", "goal", "flaxShare", "hm1", "hm2", "hm3", "hm4", "blocksTotal", "house1", "house2", "house3", "house4", "seedRet"];
+  // The group is the same for every location, so its settings are stored once.
+  // Crops the player has (all by default) and seed stock per crop, kept per location.
+  let OWN = new Set(CROPS.map((c) => c.id)), SEEDS = {};
   // Months with the greenhouse bonus. Example default: roof open June–August.
   let GH = [true, true, true, true, true, false, false, false, true, true, true, true];
   let LANG = "en";
@@ -500,7 +866,8 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       const S = smootherstep(Math.min(1, Math.abs(cyc(ref, yearRel * 12, 12)) / 6));
       const D = smoothstep(Math.min(1, Math.abs(cyc(4, hour, 24)) / 12));
       const m = Math.min(11, Math.floor(yearRel * 12));
-      return s.avg - A / 2 + A * S + (D - 0.5) * diAmp + (s.ghMonths[m] ? 5 : 0) + (s.offset || 0);
+      const gh = s.ghDays ? s.ghDays[((Math.floor(day) % year) + year) % year] : s.ghMonths[m];
+      return s.avg - A / 2 + A * S + (D - 0.5) * diAmp + (gh ? 5 : 0) + (s.offset || 0);
     };
   }
 
@@ -551,12 +918,20 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   }
 
   // ---- helpers ----
+  function houseSizes(num) {
+    if ($("housesManual").checked) return [1, 2, 3, 4].map((h) => Math.max(0, Math.floor(num("house" + h, 0))));
+    const tot = Math.max(0, Math.floor(num("blocksTotal", 684))), base = Math.floor(tot / 4);
+    return [0, 1, 2, 3].map((h) => base + (h < tot % 4 ? 1 : 0));
+  }
   function read() {
     const num = (id, d) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : d; };
     return {
       avg: num("avg", 7.6), lat: Math.min(90, Math.max(0, Math.abs(num("lat", 47.32)))), hemi: $("hemi").value,
       rain: Math.min(100, Math.max(0, num("rain", 45))), ghMonths: GH.slice(), margin: Math.max(0, num("margin", 2)),
       dpm: Math.round(Math.min(30, Math.max(3, num("dpm", 9)))), speed: Math.min(150, Math.max(10, num("speed", 97))),
+      houseMode: [1, 2, 3, 4].map((h) => { const v = $("hm" + h).value; return v === "always" || v === "open" ? v : "roof"; }),
+      own: new Set(OWN), track: $("track").checked, seeds: Object.assign({}, SEEDS),
+      houses: houseSizes(num), seedRet: Math.min(3, Math.max(0, num("seedRet", 1.2))),
       fert: Math.min(100, Math.max(0, num("fert", 50))), offset: Math.min(15, Math.max(-15, num("offset", 0))),
     };
   }
@@ -576,16 +951,29 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   // ---- state ----
   let S, temp, RES, YEAR, todayIdx = 0, selected = null;
 
+  let TEMPM = {}, RESM = {};
+  // Roof by exact day (from the suggestion), or null for whole months.
+  let GHD = null;
+  const monthsFromDays = (d, dpm) => Array.from({ length: 12 }, (_, m) => d.slice(m * dpm, m * dpm + dpm).filter(Boolean).length * 2 >= dpm);
+  const daysFromMonths = (g, dpm) => Array.from({ length: 12 * dpm }, (_, i) => g[Math.floor(i / dpm)]);
   function compute() {
     S = read();
+    S.ghDays = GHD && GHD.length === 12 * S.dpm ? GHD.slice() : null;
     temp = makeClimate(S);
     ROTCACHE = new Map(); BESTMEMO = null;
     YEAR = 12 * S.dpm;
+    // Houses can follow the roof months, stay a greenhouse all year, or be open fields; each gets its own climate.
+    TEMPM = { roof: temp }; RESM = { roof: null };
+    for (const md of ["always", "open"]) if (S.houseMode.includes(md)) {
+      TEMPM[md] = makeClimate(Object.assign({}, S, { ghMonths: new Array(12).fill(md === "always"), ghDays: null }));
+      RESM[md] = {}; for (const c of CROPS) { RESM[md][c.id] = []; for (let d = 0; d < YEAR; d++) RESM[md][c.id].push(simulate(c, d, S, TEMPM[md])); }
+    }
     RES = {};
     for (const c of CROPS) {
       RES[c.id] = [];
       for (let d = 0; d < YEAR; d++) RES[c.id].push(simulate(c, d, S, temp));
     }
+    RESM.roof = RES;
   }
 
   function renderClimateLine() {
@@ -623,9 +1011,14 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     }
     const todayLine = '<line x1="' + x(todayIdx) + '" x2="' + x(todayIdx) + '" y1="' + top + '" y2="' + (h - bottom) + '" stroke="var(--ink)" stroke-width="1.5"/>';
     let mlabels = "", open = "";
+    const openRect = (d0, len) => '<rect x="' + (labelW + d0 * cw) + '" y="' + top + '" width="' + (len * cw) + '" height="' + (h - top - bottom) + '" fill="var(--accent-soft)"/>' +
+      '<text x="' + (labelW + d0 * cw + 2) + '" y="' + (top + 10) + '" style="fill:var(--accent)">' + t().open + "</text>";
+    if (S.ghDays) {
+      for (let d0 = 0; d0 < YEAR;) { if (S.ghDays[d0]) { d0++; continue; } let d1 = d0; while (d1 < YEAR && !S.ghDays[d1]) d1++; open += openRect(d0, d1 - d0); d0 = d1; }
+    }
     for (let m = 0; m < 12; m++) {
       mlabels += '<text x="' + (labelW + m * S.dpm * cw + 2) + '" y="' + (h - 4) + '">' + t().months[m] + "</text>";
-      if (!S.ghMonths[m]) open += '<rect x="' + (labelW + m * S.dpm * cw) + '" y="' + top + '" width="' + (S.dpm * cw) + '" height="' + (h - top - bottom) + '" fill="var(--accent-soft)"/>' +
+      if (!S.ghDays && !S.ghMonths[m]) open += '<rect x="' + (labelW + m * S.dpm * cw) + '" y="' + top + '" width="' + (S.dpm * cw) + '" height="' + (h - top - bottom) + '" fill="var(--accent-soft)"/>' +
         '<text x="' + (labelW + m * S.dpm * cw + 2) + '" y="' + (top + 10) + '" style="fill:var(--accent)">' + t().open + "</text>";
     }
     TG = { labelW, cw, w, top, bottom, h, y, mins, maxs };
@@ -649,7 +1042,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   function renderMeasure() {
     const v = parseFloat($("mTemp").value);
     let h = parseInt($("mHour").value, 10); if (!Number.isFinite(h)) h = 12; h = Math.min(23, Math.max(0, h));
-    const f = makeClimate(Object.assign({}, S, { ghMonths: new Array(12).fill(false), offset: 0 }))(todayIdx * 24 + h);
+    const f = makeClimate(Object.assign({}, S, { ghMonths: new Array(12).fill(false), ghDays: null, offset: 0 }))(todayIdx * 24 + h);
     if (!Number.isFinite(v)) { $("mOut").innerHTML = t().mNeed; $("mApply").disabled = true; return; }
     const off = Math.round((v - f) * 10) / 10;
     $("mOut").innerHTML = t().mOut(dateLabel(todayIdx, S.dpm), h, fmt(f, 1), (off > 0 ? "+" : "") + fmt(off, 1));
@@ -673,13 +1066,405 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     FERTS.forEach((f, i) => { html += '<th class="num' + (i === selIdx ? " sel" : "") + '">' + labels[i] + "</th>"; });
     html += "</tr></thead><tbody>";
     for (const { c, res, mine } of rows) {
-      html += "<tr><td>" + cname(c) + ' <span class="hint">' + t().catOne[c.cat] + (c.fibers && mine.days ? ", " + t().ovFiber(fmt(c.fibers / mine.days, 2)) : "") + "</span></td>" +
+      html += "<tr><td>" + cname(c) + (S.own.has(c.id) ? "" : '<span class="miss">' + t().missing + "</span>") + ' <span class="hint">' + t().catOne[c.cat] + (c.fibers ? ", " + t().ovFiberNote : "") + "</span></td>" +
         '<td class="mono">' + c.nut + "</td><td>" + t().howShort[c.how] + " <b>" + fmt(c.sat / (c.id === "pineapple" ? 12 : 1)) + '</b>' + (c.id === "pineapple" ? " × 12" : "") + ' <span class="hint">(' + (c.raw == null ? t().notRaw : t().rawWord + " " + fmt(c.raw / (c.id === "pineapple" ? 12 : 1))) + ')</span></td><td class="num">' + (mine.days ? fmt(mine.days, 1) : "–") + "</td>";
-      res.forEach((r, i) => { html += '<td class="num' + (i === selIdx ? " sel" : "") + '">' + (r.perDay ? fmt(r.perDay) : "–") + "</td>"; });
+      res.forEach((r, i) => { html += '<td class="num' + (i === selIdx ? " sel" : "") + '">' + (r.perDay ? fmt(r.perDay) : "–") + (c.fibers && r.fibersPerDay ? '<br><span class="hint">' + t().ovFibCell(fmt(r.fibersPerDay, 2)) + "</span>" : "") + "</td>"; });
       html += "</tr>";
     }
     $("ovTable").innerHTML = html + "</tbody>";
   }
+
+  // ---- your crops: which ones you have, and optionally how many seeds ----
+  function renderCrops() {
+    const box = $("cropList");
+    box.innerHTML = CROPS.map((c) => '<label class="cchip' + (OWN.has(c.id) ? "" : " off") + '"><input type="checkbox" data-own="' + c.id + '"' + (OWN.has(c.id) ? " checked" : "") + '><span class="nm">' + cname(c) + '</span><span class="nut">' + c.nut + '</span><input class="seedin" type="number" min="0" step="1" data-seed="' + c.id + '" value="' + (SEEDS[c.id] != null ? SEEDS[c.id] : 0) + '" aria-label="' + cname(c) + ' seeds"></label>').join("");
+    const tracking = $("track").checked, manual = $("housesManual").checked;
+    $("cropsPanel").classList.toggle("tracking", tracking);
+    $("trackBox").hidden = !tracking;
+    document.querySelectorAll(".hsize").forEach((el) => (el.style.display = manual ? "" : "none"));
+    $("blocksTotal").disabled = manual;
+    for (let h = 1; h <= 4; h++) { $("lh" + h).textContent = t().house(h); $("lhm" + h).textContent = t().house(h); }
+  }
+  function renderBlocksEach() {
+    const sz = S.houses;
+    $("blocksEach").textContent = $("housesManual").checked ? "" : t().eachHouse(fmt(sz[0]));
+  }
+  $("cropList").addEventListener("change", (e) => {
+    const own = e.target.dataset.own, seed = e.target.dataset.seed;
+    if (own) { if (e.target.checked) OWN.add(own); else OWN.delete(own); e.target.closest(".cchip").classList.toggle("off", !e.target.checked); full(); }
+    if (seed) { const v = parseInt(e.target.value, 10); SEEDS[seed] = Number.isFinite(v) && v > 0 ? v : 0; full(); }
+  });
+  $("ownAll").addEventListener("click", () => { OWN = new Set(CROPS.map((c) => c.id)); renderCrops(); full(); });
+  $("ownNone").addEventListener("click", () => { OWN = new Set(); renderCrops(); full(); });
+  ["track", "housesManual"].forEach((k) => $(k).addEventListener("change", () => { renderCrops(); full(); }));
+
+  // ---- food needs: the game's hunger drain over an in-game year ----
+  // Per real second at normal game speed: 0.24 always, +0.72 walking/swimming, +2.22 sprinting (BehaviorHunger.cs).
+  // One in-game day is 2880 real seconds at normal speed; the game scales hunger with the speed of time.
+  // Food groups: each full group gives +2.5 max health. A group drains 0.001 × its level per hunger tick (dairy half as fast),
+  // and eating refills satiety ÷ 2.5, so keeping one full takes about 270/2880 ≈ 9.4 % of a player's satiety (dairy 4.7 %).
+  const FOOD_GROUPS = ["Fruit", "Vegetable", "Protein", "Grain"];
+  const GROUP_SHARE = { Fruit: 270 / 2880, Vegetable: 270 / 2880, Protein: 270 / 2880, Grain: 270 / 2880, Dairy: 135 / 2880 };
+  function groupYearNeed() { return PLAYERS.reduce((a, r) => a + rowDay(r), 0) * YEAR; }
+  // Food from outside the fields: a share of all food, and per food group the share of that group's need covered elsewhere.
+  const pctIn = (id, max) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? Math.min(max, Math.max(0, v)) / 100 : 0; };
+  const extAll = () => pctIn("extAll", 95);
+  const extOf = (g) => g === "Dairy" ? 1 : pctIn("ext" + g, 100);
+  const groupGoal = (need, g) => need * GROUP_SHARE[g] * (1 - extOf(g));
+  const NEED_PROFILES = [["min", 0.1, 0], ["median", 0.3, 0.05], ["est", 0.4, 0.1], ["max", 0.3, 0.4]];
+  // Players: one row per player or per group of similar players.
+  let PLAYERS = [{ name: "", n: 1, bg: false, online: 100, act: "est" }];
+  const ACTS = ["min", "median", "est", "max"];
+  function profRate(k) { const pr = NEED_PROFILES.find((x) => x[0] === k); return 0.24 + pr[1] * 0.72 + pr[2] * 2.22; }
+  function hungerMod() { const v = parseFloat($("hungerMod").value); return Number.isFinite(v) ? Math.max(0, v) / 100 : 1; }
+  // Satiety one row eats per in-game day: rate × 2880 s × hunger speed × online share × players × class factor.
+  function rowDay(r, act) { return profRate(act || r.act) * 2880 * hungerMod() * (Math.min(100, Math.max(0, r.online)) / 100) * Math.max(1, r.n) * (r.bg ? 1.3 : 1); }
+  function renderPlayers() {
+    let html = "<thead><tr><th>" + t().plName + '</th><th class="num">' + t().plCount + "</th><th>" + t().plClass + '</th><th class="num">' + t().plOnline + "</th><th>" + t().plAct + '</th><th class="num">' + t().plYear + "</th><th></th></tr></thead><tbody>";
+    PLAYERS.forEach((r, i) => {
+      html += '<tr><td><input type="text" maxlength="40" data-pl="' + i + '" data-k="name" placeholder="' + t().plDefault(i + 1) + '" aria-label="' + t().plName + '"></td>' +
+        '<td><input class="num-in" type="number" min="1" step="1" data-pl="' + i + '" data-k="n" value="' + r.n + '" aria-label="' + t().plCount + '"></td>' +
+        '<td><select data-pl="' + i + '" data-k="bg" aria-label="' + t().plClass + '"><option value="0"' + (r.bg ? "" : " selected") + ">" + t().plOther + '</option><option value="1"' + (r.bg ? " selected" : "") + ">" + t().plBg + "</option></select></td>" +
+        '<td><input class="num-in" type="number" min="0" max="100" step="5" data-pl="' + i + '" data-k="online" value="' + r.online + '" aria-label="' + t().plOnline + '"></td>' +
+        '<td><select data-pl="' + i + '" data-k="act" aria-label="' + t().plAct + '">' + ACTS.map((a) => '<option value="' + a + '"' + (a === r.act ? " selected" : "") + ">" + t().actOpt[a] + "</option>").join("") + "</select></td>" +
+        '<td class="yr" id="plYear' + i + '"></td>' +
+        '<td><button type="button" class="reset" data-pldel="' + i + '"' + (PLAYERS.length < 2 ? " disabled" : "") + ">" + t().plRemove + "</button></td></tr>";
+    });
+    $("plTable").innerHTML = html + "</tbody>";
+    // names go in as values, never as markup
+    $("plTable").querySelectorAll('input[data-k="name"]').forEach((el) => { el.value = PLAYERS[+el.dataset.pl].name || ""; });
+  }
+  $("plTable").addEventListener("input", (e) => {
+    const i = e.target.dataset.pl, k = e.target.dataset.k; if (i == null) return;
+    const r = PLAYERS[+i];
+    if (k === "name") r.name = e.target.value.slice(0, 40);
+    else if (k === "n") { const v = parseInt(e.target.value, 10); r.n = Number.isFinite(v) && v >= 1 ? v : 1; }
+    else if (k === "online") { const v = parseFloat(e.target.value); r.online = Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : 0; }
+    needsChanged();
+  });
+  $("plTable").addEventListener("change", (e) => {
+    const i = e.target.dataset.pl, k = e.target.dataset.k; if (i == null || e.target.tagName !== "SELECT") return;
+    if (k === "bg") PLAYERS[+i].bg = e.target.value === "1"; else if (k === "act") PLAYERS[+i].act = e.target.value;
+    needsChanged();
+  });
+  $("plTable").addEventListener("click", (e) => {
+    const i = e.target.dataset.pldel; if (i == null || PLAYERS.length < 2) return;
+    PLAYERS.splice(+i, 1); renderPlayers(); needsChanged();
+  });
+  $("plAdd").addEventListener("click", () => {
+    PLAYERS.push({ name: "", n: 1, bg: false, online: 100, act: "est" }); renderPlayers(); needsChanged();
+    const inputs = $("plTable").querySelectorAll('input[data-k="name"]'); inputs[inputs.length - 1].focus();
+  });
+  $("hungerMod").addEventListener("input", needsChanged);
+  ["extAll"].concat(FOOD_GROUPS.map((g) => "ext" + g)).forEach((k) => $(k).addEventListener("input", needsChanged));
+  function needsChanged() { if ($("goal").value === "balance") { BESTMEMO = null; renderRotation(); } renderNeeds(); save(); }
+
+  function renderNeeds() {
+    PLAYERS.forEach((r, i) => { const el = $("plYear" + i); if (el) el.textContent = fmt(rowDay(r) * YEAR); });
+    const groupDay = (act) => PLAYERS.reduce((a, r) => a + rowDay(r, act), 0);
+    const rot = LASTROT && LASTROT.food > 0 ? LASTROT : null;
+    let html = "<thead><tr><th>" + t().thProfile + "</th><th>" + t().thActivity + '</th><th class="num">' + t().thGroupDay + '</th><th class="num">' + t().thPerYear + '</th><th class="num">' + (rot && rot.tracking ? t().thCover : t().thBlocks) + "</th></tr></thead><tbody>";
+    const year = {};
+    for (const k of ["min", "median", "est", "max", "group"]) {
+      const day = groupDay(k === "group" ? null : k); year[k] = day * YEAR;
+      let last = "–";
+      const fieldYear = year[k] * (1 - extAll());
+      if (rot && fieldYear > 0) last = rot.tracking ? fmt(Math.round(rot.food / fieldYear * 100)) + " %" : fmt(Math.ceil(fieldYear / rot.food));
+      html += "<tr" + (k === "group" ? ' class="est"' : "") + "><td><b>" + t().needRows[k] + '</b></td><td class="hint">' + t().needWhole(k) + '</td><td class="num">' + fmt(day) + '</td><td class="num">' + fmt(year[k]) + '</td><td class="num">' + last + "</td></tr>";
+    }
+    $("needTable").innerHTML = html + "</tbody>";
+    const fieldShare = 1 - extAll(), fieldNeed = {};
+    Object.keys(year).forEach((k) => (fieldNeed[k] = year[k] * fieldShare));
+    renderMeter(rot, fieldNeed);
+    renderFlaxRoom(rot, fieldNeed.group);
+    renderGroups(rot, year.group);
+    $("needNote").textContent = rot ? (rot.tracking ? t().needNoteAbs(fmt(rot.food)) : t().needNote(fmt(rot.food))) : "";
+  }
+  function renderMeter(rot, need) {
+    const avgSize = S.houses.reduce((a, b) => a + b, 0) / 4;
+    const out = rot ? (rot.tracking ? rot.food : rot.food * avgSize) : 0;
+    if (!rot) { $("meter").innerHTML = '<p class="meter-verdict">' + noHarvestReason() + "</p>"; return; }
+    if (!(need.group > 0)) { $("meter").innerHTML = '<p class="meter-verdict">' + t().meterNoNeed + "</p>"; return; }
+    const top = Math.max(out, need.max, need.group) * 1.08, pos = (v) => v / top * 100, pct = (v) => pos(v).toFixed(2) + "%";
+    const ratio = out / need.group;
+    const cls = ratio >= 1 ? "" : out >= need.min ? " under" : " low";
+    // Marks for minimum, median and maximum, plus the goal (your group). Labels that would touch move to a second lane.
+    const items = [["min", need.min], ["median", need.median], ["max", need.max], ["group", need.group]].sort((a, b) => a[1] - b[1]);
+    let marks = "", labels = "", lastPos = [-1e9, -1e9];
+    for (const [k, v] of items) {
+      const g = k === "group", p = pos(v);
+      let lane = p - lastPos[0] >= 11 ? 0 : p - lastPos[1] >= 11 ? 1 : (g ? 1 : -1);
+      marks += '<div class="meter-mark' + (g ? " goal" : "") + '" style="left:' + pct(v) + '" title="' + t().needRows[k] + ": " + fmt(v) + '"></div>';
+      if (lane >= 0) { lastPos[lane] = p; labels += '<span class="' + (g ? "goal " : "") + "lane" + lane + '" style="left:' + pct(v) + '">' + t().needRows[k] + "</span>"; }
+    }
+    const gapBlocks = !rot.tracking && ratio < 1 ? Math.ceil((need.group - out) / rot.food) : 0;
+    $("meter").innerHTML =
+      '<div class="meter-head"><span>' + t().meterOut + ": <b>" + fmt(out) + '</b></span><span style="color:var(--hunger)">' + (extAll() > 0 ? t().meterGoalFields(Math.round(extAll() * 100)) : t().meterGoalGroup) + ": <b>" + fmt(need.group) + "</b></span></div>" +
+      '<div class="meter-track" role="img" aria-label="' + t().meterOut + " " + fmt(out) + ", " + t().meterGoalGroup + " " + fmt(need.group) + '"><div class="meter-bar' + cls + '" style="width:' + pct(out) + '"></div>' + marks + "</div>" +
+      '<div class="meter-labels">' + labels + "</div>" +
+      '<p class="meter-verdict">' + (ratio >= 1 ? t().meterOver(fmt(Math.round(ratio * 100))) : t().meterUnder(fmt(Math.round(ratio * 100)), gapBlocks > 0 ? fmt(gapBlocks) : "")) + "</p>" +
+      '<p class="hint">' + (rot.tracking ? t().meterHintSeeds : t().meterHint(fmt(avgSize, 0))) + "</p>";
+  }
+  ["blocksTotal", "house1", "house2", "house3", "house4", "seedRet"].forEach((k) => $(k).addEventListener("change", full));
+
+  // How much of the K house can grow flax. Recommended: the largest share that still leaves 25 % spare food; also the largest that just feeds everyone.
+  const FLAX_RESERVE = 1.25;
+  function renderFlaxRoom(rot, need) {
+    const box = $("flaxRoom");
+    if (!rot || !(need > 0) || !S.own.has("flax")) { box.innerHTML = ""; return; }
+    const avgSize = S.houses.reduce((a, b) => a + b, 0) / 4 || 1, scale = rot.tracking ? 1 : avgSize;
+    let safeF = -1, safeFib = 0, maxF = -1;
+    for (let k = 0; k <= 10; k++) {
+      const f = k / 10, cy = rotation(rot.start, { flaxShare: f }), food = cy.food * scale;
+      if (food >= need) maxF = f; else break;
+      if (food >= need * FLAX_RESERVE) { safeF = f; safeFib = cy.fibers * scale; }
+    }
+    const cur = +$("flaxShare").value || 0, pc = (f) => Math.round(f * 100);
+    if (maxF < 0) { box.innerHTML = "<span>" + t().flaxNone + "</span>"; return; }
+    let html = "<span>" + (safeF < 0 ? t().flaxNoReserve(pc(maxF)) : safeF === 0 ? t().flaxNoRoom(pc(maxF)) : t().flaxRec(pc(safeF), fmt(safeFib), pc(maxF))) + "</span>";
+    if (cur > 0 && cur > maxF) html += '<span class="chip bad">' + t().flaxHungry + "</span>";
+    else if (cur > 0 && cur > safeF) html += '<span class="chip warn">' + t().flaxThin + "</span>";
+    if (safeF > 0 && cur !== safeF) html += '<button type="button" class="reset" id="flaxUse">' + t().flaxUse(pc(safeF)) + "</button>";
+    box.innerHTML = html;
+    const b = $("flaxUse"); if (b) b.addEventListener("click", () => { $("flaxShare").value = String(safeF); BESTMEMO = null; renderRotation(); renderNeeds(); save(); });
+  }
+  // Why the rotation grows nothing, in words the player can act on.
+  function noHarvestReason() {
+    const owned = CROPS.filter((c) => S.own.has(c.id));
+    if (!owned.length) return t().whyNoCrops;
+    if (S.track && !S.houses.some((h) => h > 0)) return t().whyNoBlocks;
+    if (S.track && !owned.some((c) => (+S.seeds[c.id] || 0) >= 1)) return t().whyNoSeeds;
+    return t().whyNothingGrows;
+  }
+  function renderGroups(rot, need) {
+    const box = $("groupBars");
+    if (!(need > 0)) { box.innerHTML = ""; return; }
+    if (!rot) { box.innerHTML = '<p class="meter-verdict">' + noHarvestReason() + "</p>"; return; }
+    const avgSize = S.houses.reduce((a, b) => a + b, 0) / 4 || 1, scale = rot && !rot.tracking ? avgSize : 1;
+    let html = "";
+    for (const g of FOOD_GROUPS.concat(["Dairy"])) {
+      const goal = groupGoal(need, g), have = g === "Dairy" || !rot ? 0 : (rot.cat[g] || 0) * scale, ext = extOf(g);
+      const top = Math.max(goal * 2, have, 1), w = Math.min(100, have / top * 100), gp = goal / top * 100;
+      const val = g === "Dairy" ? t().dairyNote : ext >= 1 ? t().groupAllOutside : fmt(have) + " / " + fmt(goal) + (ext > 0 ? " · " + t().groupPartOutside(Math.round(ext * 100)) : "");
+      html += '<div class="gbar"><span>' + t().groupName[g] + '</span><div class="track"><div class="fill' + (have < goal && goal > 0 ? " short" : "") + '" style="width:' + w.toFixed(1) + '%"></div><div class="goal" style="left:' + gp.toFixed(1) + '%"></div></div><span class="val">' + val + "</span></div>";
+    }
+    const short = FOOD_GROUPS.filter((g) => groupGoal(need, g) > 0 && (!rot || (rot.cat[g] || 0) * scale < groupGoal(need, g)));
+    let fixable = false;
+    const tip = short.map((g) => {
+      const crops = CROPS.filter((c) => (c.cat === "Fiber" ? "Grain" : c.cat) === g);
+      const have = crops.filter((c) => S.own.has(c.id)).map(cname), miss = crops.filter((c) => !S.own.has(c.id)).map(cname);
+      if (have.length) fixable = true;
+      return t().groupShort(t().groupName[g], have.join(", "), miss.join(", "));
+    });
+    html += '<p class="hint">' + (tip.length ? tip.join(" ") + (fixable ? " " + t().groupGoalTip : "") : t().groupAllFull) + "</p>";
+    box.innerHTML = html;
+  }
+
+  // ---- collapsible sections (remembered per browser) ----
+  let COLLAPSED = new Set();
+  function setupCollapse() {
+    document.querySelectorAll("section.panel").forEach((sec) => {
+      const head = sec.querySelector(":scope > .panel-head"), h2 = head && head.querySelector("h2");
+      if (!h2 || head.querySelector(".collapse")) return;
+      const key = sec.getAttribute("aria-labelledby");
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "collapse"; b.textContent = "▾"; b.dataset.sec = key;
+      head.insertBefore(b, h2);
+      b.addEventListener("click", () => toggleSection(key));
+      h2.addEventListener("click", () => toggleSection(key));
+    });
+    applyCollapse();
+  }
+  function applyCollapse() {
+    document.querySelectorAll("section.panel").forEach((sec) => {
+      const key = sec.getAttribute("aria-labelledby"), c = COLLAPSED.has(key), b = sec.querySelector(".collapse");
+      sec.classList.toggle("collapsed", c);
+      if (b) { b.setAttribute("aria-expanded", String(!c)); b.setAttribute("aria-label", c ? t().expand : t().collapse); }
+    });
+  }
+  function toggleSection(key) { if (COLLAPSED.has(key)) COLLAPSED.delete(key); else COLLAPSED.add(key); applyCollapse(); save(); }
+
+  // ---- tabs (remembered per browser) ----
+  let TAB = "plan";
+  function showTab(tab) {
+    TAB = tab === "need" ? "need" : "plan";
+    document.querySelector(".wrap").dataset.tab = TAB;
+    $("tab-plan").setAttribute("aria-selected", String(TAB === "plan"));
+    $("tab-need").setAttribute("aria-selected", String(TAB === "need"));
+  }
+  $("tab-plan").addEventListener("click", () => { showTab("plan"); save(); });
+  $("tab-need").addEventListener("click", () => { showTab("need"); save(); });
+
+  // ---- climate from temperature readings (for players without /wgen) ----
+  // Outside temperature = avg + A·(S(date) − ½) + swing·(D(hour) − ½), linear in avg, A and swing, so a least-squares fit works.
+  let READINGS = [];
+  function readingFeatures(rd) {
+    const year = 12 * S.dpm, ref = S.hemi === "N" ? 0.5 : 6.5;
+    const day = rd.m * S.dpm + Math.min(S.dpm, Math.max(1, rd.d)) - 1;
+    const yearRel = ((day + rd.h / 24) / year) % 1;
+    const Sv = smootherstep(Math.min(1, Math.abs(cyc(ref, yearRel * 12, 12)) / 6));
+    const Dv = smoothstep(Math.min(1, Math.abs(cyc(4, rd.h, 24)) / 12));
+    return [Sv - 0.5, Dv - 0.5];
+  }
+  function solve(Ax, b) { // normal equations, Gaussian elimination
+    const n = Ax[0].length, M = [];
+    for (let i = 0; i < n; i++) { M.push([]); for (let j = 0; j <= n; j++) { let v = 0; for (let k = 0; k < Ax.length; k++) v += Ax[k][i] * (j < n ? Ax[k][j] : b[k]); M[i].push(v); } }
+    for (let i = 0; i < n; i++) {
+      let piv = i; for (let r = i + 1; r < n; r++) if (Math.abs(M[r][i]) > Math.abs(M[piv][i])) piv = r;
+      [M[i], M[piv]] = [M[piv], M[i]];
+      if (Math.abs(M[i][i]) < 1e-9) return null;
+      for (let r = 0; r < n; r++) if (r !== i) { const f = M[r][i] / M[i][i]; for (let c = i; c <= n; c++) M[r][c] -= f * M[i][c]; }
+    }
+    return M.map((row, i) => row[n] / row[i]);
+  }
+  let RDFIT = null;
+  function fitReadings() {
+    RDFIT = null;
+    const rows = READINGS.filter((r) => Number.isFinite(r.t) && Number.isFinite(r.h));
+    if (rows.length < 2) return t().rdNeed;
+    const f = rows.map(readingFeatures);
+    const sSpread = Math.max(...f.map((x) => x[0])) - Math.min(...f.map((x) => x[0]));
+    const dSpread = Math.max(...f.map((x) => x[1])) - Math.min(...f.map((x) => x[1]));
+    if (dSpread < 0.3) return t().rdNeed;
+    const fitLat = sSpread >= 0.25 && rows.length >= 3;
+    const Acur = Math.abs(S.lat) / 90 * 65;
+    const Ax = rows.map((r, i) => fitLat ? [1, f[i][0], f[i][1]] : [1, f[i][1]]);
+    const b = rows.map((r, i) => fitLat ? r.t : r.t - Acur * f[i][0]);
+    const x = solve(Ax, b);
+    if (!x) return t().rdBad;
+    const avg = x[0], A = fitLat ? x[1] : Acur, swing = fitLat ? x[2] : x[1];
+    const err = rows.reduce((e, r, i) => e + Math.abs(avg + A * f[i][0] + swing * f[i][1] - r.t), 0) / rows.length;
+    const lat = Math.min(90, Math.max(0, A / 65 * 90)), rain = Math.min(100, Math.max(0, (18 - swing) / 13 * 100));
+    if (A < -5 || swing < 0 || swing > 22) return t().rdBad;
+    RDFIT = { avg, lat, rain };
+    return t().rdResult(fmt(avg, 1), fmt(lat, 2), fmt(rain, 0), fitLat) + " " + t().rdErr(fmt(err, 1));
+  }
+  function renderReadings() {
+    let html = "<thead><tr><th>" + t().rdMonth + "</th><th>" + t().rdDay + "</th><th>" + t().rdHour + "</th><th>" + t().rdTemp + "</th><th></th></tr></thead><tbody>";
+    READINGS.forEach((r, i) => {
+      html += '<tr><td><select data-rd="' + i + '" data-k="m">' + t().monthsLong.map((m, j) => '<option value="' + j + '"' + (j === r.m ? " selected" : "") + ">" + m + "</option>").join("") + "</select></td>" +
+        '<td><input type="number" min="1" max="' + S.dpm + '" data-rd="' + i + '" data-k="d" value="' + r.d + '"></td>' +
+        '<td><input type="number" min="0" max="23" step="1" data-rd="' + i + '" data-k="h" value="' + r.h + '"></td>' +
+        '<td><input type="number" step="0.1" data-rd="' + i + '" data-k="t" value="' + (Number.isFinite(r.t) ? r.t : "") + '"></td>' +
+        '<td><button type="button" class="reset" data-rdel="' + i + '">' + t().rdRemove + "</button></td></tr>";
+    });
+    $("rdTable").innerHTML = html + "</tbody>";
+    updateReadingsOut();
+  }
+  function updateReadingsOut() { $("rdOut").innerHTML = fitReadings(); $("rdApply").disabled = !RDFIT; }
+  $("rdTable").addEventListener("input", (e) => {
+    const i = e.target.dataset.rd, k = e.target.dataset.k; if (i == null) return;
+    const v = parseFloat(e.target.value); READINGS[+i][k] = k === "t" ? v : (Number.isFinite(v) ? v : 0);
+    updateReadingsOut(); save();
+  });
+  $("rdTable").addEventListener("change", (e) => { if (e.target.tagName === "SELECT") { READINGS[+e.target.dataset.rd].m = +e.target.value; updateReadingsOut(); save(); } });
+  $("rdTable").addEventListener("click", (e) => { const i = e.target.dataset.rdel; if (i == null) return; READINGS.splice(+i, 1); renderReadings(); save(); });
+  $("rdAdd").addEventListener("click", () => { READINGS.push({ m: Math.floor(todayIdx / S.dpm), d: todayIdx % S.dpm + 1, h: READINGS.length % 2 ? 16 : 4, t: NaN }); renderReadings(); save(); });
+  $("rdApply").addEventListener("click", () => {
+    if (!RDFIT) return;
+    $("avg").value = RDFIT.avg.toFixed(1); $("lat").value = RDFIT.lat.toFixed(2); $("rain").value = Math.round(RDFIT.rain); $("offset").value = 0;
+    full();
+  });
+
+  // ---- roof months: search which months to keep the greenhouse closed, scored by the rotation's yearly food ----
+  function monthRanges(g, want) {
+    // consecutive months (wrapping around the year) where g[m] === want, as "Sep – May"
+    if (g.every((x) => x === want)) return [];
+    let startM = g.findIndex((x, m) => x !== g[(m + 11) % 12]); if (startM < 0) startM = 0;
+    const out = []; let run = null;
+    for (let k = 0; k < 12; k++) {
+      const m = (startM + k) % 12;
+      if (g[m] === want) { if (!run) run = [m, m]; else run[1] = m; } else if (run) { out.push(run); run = null; }
+    }
+    if (run) out.push(run);
+    return out.map(([a, b]) => a === b ? t().months[a] : t().months[a] + " – " + t().months[b]);
+  }
+  let ROOF = null;
+  async function suggestRoof() {
+    const btn = $("roofFind"), box = $("roofOut"), orig = GH.slice();
+    if (!S.houseMode.includes("roof")) { ROOF = { none: true }; renderRoof(); return; }
+    btn.disabled = true;
+    const origD = GHD ? GHD.slice() : null, dpm = S.dpm;
+    // g is either 12 months or one value per day
+    const score = (g) => {
+      if (g.length === 12) { GH = g.slice(); GHD = null; } else { GHD = g.slice(); GH = monthsFromDays(g, dpm); }
+      compute(); return ($("rotStart").value === "best" ? bestRotationStart().cycles : rotation(todayIdx)).food;
+    };
+    let n = 0;
+    const tick = async () => { n++; box.textContent = t().roofWorking(n); await new Promise((r) => setTimeout(r, 0)); };
+    try {
+      const base = score(origD || orig); await tick();
+      // starting points: your months, always closed, and the summer opened for 2, 3 or 5 months
+      const sh = S.hemi === "S" ? 6 : 0, open = (ms) => GH.map((_, m) => !ms.includes((m + 12 - sh) % 12));
+      const seeds = [orig, open([]), open([6, 7]), open([5, 6, 7]), open([4, 5, 6, 7, 8])];
+      let best = { g: orig.slice(), score: base };
+      for (const sd of seeds.slice(1)) { const sc = score(sd); await tick(); if (sc > best.score * 1.0005) best = { g: sd.slice(), score: sc }; }
+      // then flip single months while that still helps
+      for (let pass = 0, improved = true; improved && pass < 3; pass++) {
+        improved = false;
+        for (let m = 0; m < 12; m++) {
+          const g = best.g.slice(); g[m] = !g[m];
+          const sc = score(g); await tick();
+          if (sc > best.score * 1.0005) { best = { g, score: sc }; improved = true; }
+        }
+      }
+      // Then move each switching date day by day (steps of 4, 2 and 1 days) while that adds food.
+      const Y = 12 * dpm;
+      let cur = { d: daysFromMonths(best.g, dpm), score: best.score };
+      const shift = (d, b, k) => { const nd = d.slice(), v = k < 0 ? d[b] : d[(b - 1 + Y) % Y]; for (let j = 0; j < Math.abs(k); j++) nd[((k < 0 ? b + k + j : b + j) % Y + Y) % Y] = v; return nd; };
+      for (let pass = 0; pass < 2; pass++) {
+        for (const sw of roofSwitches(cur.d)) {
+          let b = sw.day;
+          for (let it = 0, moved = true; moved && it < 6; it++) {
+            moved = false;
+            for (const k of [-4, 4, -2, 2, -1, 1]) {
+              const nd = shift(cur.d, b, k); const sc = score(nd); await tick();
+              if (sc > cur.score * 1.0005) { cur = { d: nd, score: sc }; b = ((b + k) % Y + Y) % Y; moved = true; break; }
+            }
+          }
+        }
+      }
+      const dayGain = best.score > 0 ? (cur.score / best.score - 1) * 100 : 0;
+      const useDays = dayGain >= 2; // exact dates only when they add at least 2 % food over whole months
+      const fin = useDays ? cur : best;
+      const sameAsNow = useDays ? (origD && cur.d.every((x, i) => x === origD[i])) : (!origD && best.g.every((x, m) => x === orig[m]));
+      ROOF = { g: best.g, days: useDays ? cur.d : null, dayGain, gain: base > 0 ? (fin.score / base - 1) * 100 : 0, same: !!sameAsNow };
+    } finally {
+      GH = orig; GHD = origD; full(); btn.disabled = false;
+    }
+    renderRoof();
+  }
+  // Roof switching dates of a day pattern: [{day, open: true|false}]
+  function roofSwitches(d) {
+    const out = [];
+    for (let i = 0; i < d.length; i++) if (d[i] !== d[(i - 1 + d.length) % d.length]) out.push({ day: i, open: !d[i] });
+    return out;
+  }
+  function switchesText(d) { return roofSwitches(d).map((x) => (x.open ? t().roofOpenOn : t().roofCloseOn)(dateLabel(x.day, S.dpm))).join(", "); }
+  function renderGhdNote() { $("ghdNote").textContent = S.ghDays ? t().ghdNote(switchesText(S.ghDays)) : ""; }
+  function renderRoof() {
+    const box = $("roofOut");
+    if (!ROOF) { box.textContent = ""; return; }
+    if (ROOF.none) { box.innerHTML = "<span>" + t().roofNone + "</span>"; return; }
+    let html;
+    if (ROOF.days) {
+      html = "<span><b>" + t().roofByDate + ":</b> " + switchesText(ROOF.days) + "</span>";
+    } else {
+      const closed = monthRanges(ROOF.g, true), opened = monthRanges(ROOF.g, false);
+      html = "<span>" + (opened.length === 0 ? t().roofAlways : closed.length === 0 ? t().roofNever : "<b>" + t().roofClosed + ":</b> " + closed.join(", ") + " · <b>" + t().roofOpen + ":</b> " + opened.join(", ")) + "</span>";
+    }
+    html += "<span>" + (ROOF.same ? t().roofSame : t().roofGain(fmt(Math.round(ROOF.gain)))) + "</span>";
+    if (!ROOF.same) html += '<button type="button" class="reset" id="roofApply">' + t().roofApply + "</button>";
+    html += '<span class="hint">' + (ROOF.days ? t().roofDaysWhy(fmt(ROOF.dayGain, 1)) : t().roofMonthsWhy(fmt(Math.max(0, ROOF.dayGain), 1))) + " " + t().roofNote + "</span>";
+    box.innerHTML = html;
+    const b = $("roofApply");
+    if (b) b.addEventListener("click", () => {
+      if (ROOF.days) { GHD = ROOF.days.slice(); GH = monthsFromDays(GHD, S.dpm); } else { GH = ROOF.g.slice(); GHD = null; }
+      ROOF = Object.assign({}, ROOF, { same: true, gain: 0 }); renderGhMonths(); full(); renderRoof();
+    });
+  }
+  $("roofFind").addEventListener("click", suggestRoof);
+  ["hm1", "hm2", "hm3", "hm4"].forEach((k) => $(k).addEventListener("change", () => { ROOF = null; renderRoof(); full(); }));
 
   // ---- hover readout on the temperature strip ----
   const NOISE = 4; // game weather noise: yearly ±3 plus daily ±1 (Systems/Temperature.cs)
@@ -698,7 +1483,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     const m = Math.floor(d / S.dpm), f1 = (v) => fmt(v, 1);
     const range = (a, b) => f1(a) + " … " + f1(b) + " °C";
     const tip = $("ttip");
-    tip.innerHTML = "<b>" + dateLabel(d, S.dpm) + '</b> <span class="sub">· ' + t().tipGh(S.ghMonths[m]) + "</span>" +
+    tip.innerHTML = "<b>" + dateLabel(d, S.dpm) + '</b> <span class="sub">· ' + t().tipGh(S.ghDays ? S.ghDays[d] : S.ghMonths[m]) + "</span>" +
       '<div class="row"><span>' + t().tipFormula + "</span><span>" + range(lo, hi) + "</span></div>" +
       '<div class="row"><span>' + t().tipAvg + "</span><span>" + f1((lo + hi) / 2) + " °C</span></div>" +
       (S.offset ? '<div class="row sub"><span>' + t().tipOffset + "</span><span>" + (S.offset > 0 ? "+" : "") + f1(S.offset) + " °C</span></div>" : "") +
@@ -730,7 +1515,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     for (const cat of CATS) {
       parts.push('<div class="catlabel" style="grid-row:' + row++ + '">' + t().cat[cat] + "</div>");
       for (const c of CROPS.filter((x) => x.cat === cat)) {
-        parts.push('<div class="rowlabel" style="grid-row:' + row + '" title="' + t().limitsTitle(cname(c), c.cold, c.heat) + '">' + cname(c) + ' <span class="nut">' + c.nut + "</span></div>");
+        parts.push('<div class="rowlabel' + (S.own.has(c.id) ? "" : " notown") + '" style="grid-row:' + row + '" title="' + t().limitsTitle(cname(c), c.cold, c.heat) + '">' + cname(c) + ' <span class="nut">' + c.nut + "</span></div>");
         const r = RES[c.id];
         for (let d = 0; d < YEAR; d++) {
           const cls = ["c", r[d].status];
@@ -761,12 +1546,13 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   function renderNow() {
     const rows = CROPS.map((c) => ({ c, r: RES[c.id][todayIdx] }));
     const rank = { ok: 0, warn: 1, slow: 2, bad: 3 };
-    rows.sort((a, b) => rank[a.r.status] - rank[b.r.status] || (b.r.perDay || 0) - (a.r.perDay || 0));
+    rows.sort((a, b) => (S.own.has(b.c.id) - S.own.has(a.c.id)) || rank[a.r.status] - rank[b.r.status] || (b.r.perDay || 0) - (a.r.perDay || 0));
     let html = "<thead><tr><th>" + t().thCrop + "</th><th>" + t().thOutcome + "</th><th>" + t().thRipe + '</th><th class="num">' + t().thFood + "</th></tr></thead><tbody>";
     for (const { c, r } of rows) {
       const grows = r.status === "ok" || r.status === "warn";
       const outcome = r.status === "ok" ? t().chipFull : r.status === "warn" ? Math.round(r.mul * 100) + " %" : r.status === "bad" ? t().chipDies(t().cause[r.cause]) : t().chipSlow;
-      html += "<tr><td>" + cname(c) + ' <span class="hint">' + t().catOne[c.cat] + "</span></td>" +
+      const own = S.own.has(c.id);
+      html += "<tr" + (own ? "" : ' class="notown"') + "><td>" + cname(c) + ' <span class="hint">' + (own ? t().catOne[c.cat] : t().notOwned) + "</span></td>" +
         '<td><span class="chip ' + r.status + '">' + outcome + "</span></td>" +
         '<td class="mono">' + (grows ? dateLabel(r.harvestDay, S.dpm) : "–") + "</td>" +
         '<td class="num">' + (grows ? (c.cat === "Fiber" ? fmt(r.fibersPerDay, 2) + t().fiberUnit : fmt(r.perDay)) : "–") + "</td></tr>";
@@ -776,7 +1562,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
 
   function plan() {
     const focus = $("focus").value;
-    const pool = CROPS.filter((c) => focus === "food" ? c.cat !== "Fiber" : c.cat === focus);
+    const pool = CROPS.filter((c) => S.own.has(c.id) && (focus === "food" ? c.cat !== "Fiber" : c.cat === focus));
     const steps = [];
     const cache = new Map();
     const sim = (c, di, n) => { const k = c.id + "|" + di + "|" + Math.round(n); if (!cache.has(k)) cache.set(k, simulate(c, di, S, temp, 0, Math.round(n))); return cache.get(k); };
@@ -786,9 +1572,9 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       const di = d % YEAR;
       let best = null, bestScore = 0;
       for (const c of pool) {
-        if (RES[c.id][di].status !== "ok") continue;
+        if (!usable(RES[c.id][di].status)) continue;
         const r = sim(c, di, soil[c.nut]);
-        if (r.status !== "ok") continue;
+        if (!usable(r.status)) continue;
         const score = focus === "Fiber" ? r.fibersPerDay : r.perDay;
         if (score > bestScore) { bestScore = score; best = { c, r }; }
       }
@@ -813,7 +1599,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
         continue;
       }
       totalFood += s.c.yield * s.c.sat * s.r.mul; totalFiber += (s.c.fibers || 0) * s.r.mul;
-      html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + "</td><td>" + cname(s.c) + "</td>" +
+      html += '<tr><td class="mono">' + dateLabel(s.start, S.dpm) + "</td><td>" + cname(s.c) + (s.r.status === "warn" ? ' <span class="chip warn">' + Math.round(s.r.mul * 100) + " %</span>" : "") + "</td>" +
         '<td class="mono">' + s.c.nut + " " + fmt(s.nut) + ' <span class="hint">(' + Math.round(nutFactor(Math.round(s.nut)) * 100) + " %)</span></td>" +
         '<td class="mono">' + dateLabel(s.r.harvestDay, S.dpm) + '</td><td class="num">' + fmt(s.r.days, 1) + "</td>" +
         '<td class="num">' + (focus === "Fiber" ? fmt(s.r.fibersPerDay, 2) + t().fiberUnit : fmt(s.r.perDay)) + "</td></tr>";
@@ -852,63 +1638,161 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     }
   }
 
-  let ROTCACHE = new Map(), BESTMEMO = null;
-  function rotation(start) {
+  let ROTCACHE = new Map(), BESTMEMO = null, LASTROT = null;
+  // A planting counts if it gets a full harvest, or, when allowed, a damaged one it survives (orange: 50–75 % of the harvest).
+  const usable = (st) => st === "ok" || (st === "warn" && $("risk").value === "warn");
+  function rotation(start, opt) {
+    opt = opt || {};
     const food = CROPS.filter((c) => c.cat !== "Fiber");
     const flaxCrop = CROPS.find((c) => c.id === "flax");
     const cands = {};
-    for (const n of ROLE_NUT) { const v = $("rot" + n).value; cands[n] = v === "auto" ? food.filter((c) => c.nut === n) : food.filter((c) => c.id === v); }
-    const useFlax = $("rot4").value === "flax";
+    const useFlax = false; // the 4th house always rests; flax goes into the K house
+    for (const n of ROLE_NUT) {
+      const v = $("rot" + n).value;
+      // Flax is a K crop too: unless it already has the 4th house, it may take the K house (grain for bread, plus fibers).
+      const pool = n === "K" && !useFlax ? food.concat([flaxCrop]) : food;
+      cands[n] = (v === "auto" ? pool.filter((c) => c.nut === n) : pool.filter((c) => c.id === v)).filter((c) => S.own.has(c.id));
+    }
+    // Without seed tracking every house counts as one block with endless seeds, so totals come out per block.
+    const tracking = S.track, sizes = tracking ? S.houses : [1, 1, 1, 1];
+    const stock = {}; CROPS.forEach((c) => (stock[c.id] = tracking ? Math.max(0, +S.seeds[c.id] || 0) : Infinity));
+    const flaxShare = opt.flaxShare != null ? opt.flaxShare : (+$("flaxShare").value || 0);
+    // "Fill every food group first": food from a group still below its yearly target counts triple when choosing crops.
+    const balance = $("goal").value === "balance";
+    const avgSize = S.houses.reduce((a, b) => a + b, 0) / 4 || 1;
+    const groupTarget = {}; FOOD_GROUPS.forEach((g) => (groupTarget[g] = groupGoal(groupYearNeed(), g) / (tracking ? 1 : avgSize)));
+    const catOf = (c) => c.cat === "Fiber" ? "Grain" : c.cat;
+    const yearCat = { Vegetable: 0, Grain: 0, Protein: 0, Fruit: 0 }; let yearFibers = 0;
+    // Value of food in a group: triple up to what the group still misses by the end of this cycle (pro rata over the year), normal beyond.
+    const valued = (c, amount, dNow, L) => {
+      if (!balance) return amount;
+      const g = catOf(c), due = groupTarget[g] * Math.min(1, (dNow - start + L) / YEAR), gap = Math.max(0, due - yearCat[g]);
+      return amount + 2 * Math.min(amount, gap);
+    };
     const cache = ROTCACHE; // shared across start days; cleared whenever the settings change
-    const sim = (c, di, n, L) => { const k = c.id + "|" + di + "|" + Math.round(n) + "|" + L; if (!cache.has(k)) cache.set(k, simulate(c, di, S, temp, L, Math.round(n))); return cache.get(k); };
+    const sim = (c, di, nut, L, role) => {
+      const md = role == null ? "roof" : modeOf(role);
+      const k = c.id + "|" + di + "|" + Math.round(nut) + "|" + L + "|" + md;
+      if (!cache.has(k)) cache.set(k, simulate(c, di, S, TEMPM[md], L, Math.round(nut)));
+      return cache.get(k);
+    };
     // Each house keeps its own soil. In cycle n, the crop of role r goes into house (r - n) mod 4.
     let soils = [0, 1, 2, 3].map(() => ({ N: S.fert, P: S.fert, K: S.fert }));
     const houseOf = (role, n) => (((role - n) % 4) + 4) % 4;
     const cycles = [];
     const end = start + YEAR;
     let d = start, gapStart = null, n = 0, gained = 0;
+    const modeOf = (role) => S.houseMode[houseOf(role, n)];
+    const resOf = (role) => RESM[modeOf(role)];
     while (d < end) {
       const di = d % YEAR;
       const nutFor = (c, role) => soils[houseOf(role, n)][c.nut];
-      const opts = ROLE_NUT.map((nu, role) => [null].concat(cands[nu].filter((c) => RES[c.id][di].status === "ok" && sim(c, di, nutFor(c, role), 0).status === "ok")));
-      const flax = useFlax && RES.flax[di].status === "ok" && sim(flaxCrop, di, nutFor(flaxCrop, 3), 0).status === "ok" ? flaxCrop : null;
+      const sizeOf = (role) => sizes[houseOf(role, n)];
+      const hasSeed = (c) => stock[c.id] >= 1;
+      const opts = ROLE_NUT.map((nu, role) => [null].concat(sizeOf(role) > 0 ? cands[nu].filter((c) => hasSeed(c) && usable(resOf(role)[c.id][di].status) && usable(sim(c, di, nutFor(c, role), 0, role).status)) : []));
+      const flaxHere = flaxShare > 0 && S.own.has("flax") && stock.flax >= 1 && usable(resOf(2).flax[di].status);
+      const flax = useFlax && sizeOf(3) > 0 && hasSeed(flaxCrop) && usable(resOf(3).flax[di].status) && usable(sim(flaxCrop, di, nutFor(flaxCrop, 3), 0, 3).status) ? flaxCrop : null;
       let best = null;
       for (const a of opts[0]) for (const b of opts[1]) for (const k of opts[2]) {
         if (!a && !b && !k) continue;
         const picks = [a, b, k, flax];
-        const L = Math.max(...picks.map((c, role) => c ? Math.ceil(sim(c, di, nutFor(c, role), 0).days) : 0));
-        let total = 0, ok = true; const res = [];
+        let L = Math.max(...picks.map((c, role) => c ? Math.ceil(sim(c, di, nutFor(c, role), 0, role).days) : 0));
+        // With a flax share, the cycle lasts until the flax planted beside the main crops is ripe too.
+        if (flaxHere && picks[2] && picks[2].id !== "flax") { const fr = sim(flaxCrop, di, nutFor(flaxCrop, 2), 0, 2); if (usable(fr.status)) L = Math.max(L, Math.ceil(fr.days)); }
+        let total = 0, wtotal = 0, ok = true; const res = [], planted = [];
         for (let role = 0; role < 4; role++) {
           const c = picks[role];
-          if (!c) { res.push(null); continue; }
-          const r = sim(c, di, nutFor(c, role), L);
-          if (r.status !== "ok") { ok = false; break; }
+          if (!c) { res.push(null); planted.push(0); continue; }
+          const r = sim(c, di, nutFor(c, role), L, role);
+          if (!usable(r.status)) { ok = false; break; }
           res.push(r);
-          if (c.cat !== "Fiber") total += c.yield * c.sat;
+          const b = Math.min(sizeOf(role), Math.floor(stock[c.id]));
+          planted.push(b);
+          total += b * c.yield * c.sat * r.mul; // flax counts with its grain; fibers come on top
+          wtotal += valued(c, b * c.yield * c.sat * r.mul, d, L);
         }
         if (!ok) continue;
-        const score = total / L;
-        if (!best || score > best.score) best = { score, L, picks, res };
+        const score = wtotal / L;
+        if (!best || score > best.score) best = { score, L, picks, res, planted, total };
       }
       if (!best) { if (gapStart === null) gapStart = d; soils = soils.map((so) => soilRest(so, 1, S.fert)); d += 1; continue; }
       if (gapStart !== null) { cycles.push({ gap: true, start: gapStart, end: d }); gapStart = null; }
       const startNut = best.picks.map((c, role) => c ? nutFor(c, role) : null);
+      // Flax share: that share of the K house grows flax instead of the K food crop, if flax is ripe in time and survives.
+      const flaxIn = [null, null, null, null];
+      if (flaxShare > 0 && S.own.has("flax")) {
+        for (let role = 2; role <= 2; role++) {
+          const main = best.picks[role];
+          if (!main || main.id === "flax" || !usable(resOf(role).flax[di].status)) continue;
+          const r0 = sim(flaxCrop, di, nutFor(flaxCrop, role), 0, role);
+          if (!usable(r0.status) || Math.ceil(r0.days) > best.L) continue;
+          const r = sim(flaxCrop, di, nutFor(flaxCrop, role), best.L, role);
+          if (!usable(r.status)) continue;
+          const size = sizeOf(role);
+          const fb = tracking ? Math.min(Math.round(size * flaxShare), Math.floor(stock.flax)) : flaxShare;
+          if (!(fb > 0)) continue;
+          const mainNew = tracking ? Math.min(best.planted[role], size - fb) : 1 - flaxShare;
+          best.total -= (best.planted[role] - mainNew) * main.yield * main.sat * best.res[role].mul;
+          best.planted[role] = mainNew;
+          if (tracking) stock.flax -= fb;
+          flaxIn[role] = { r, planted: fb };
+          best.total += fb * flaxCrop.yield * flaxCrop.sat * r.mul;
+        }
+      }
+      // Seeds: plant the main crops, then fill spare blocks with the best other crop of the same nutrient that is ripe by harvest day.
+      best.picks.forEach((c, role) => { if (c) stock[c.id] -= best.planted[role]; });
+      const fills = [null, null, null, null];
+      if (tracking) {
+        for (let role = 0; role < 4; role++) {
+          const main = best.picks[role];
+          const spare = sizeOf(role) - best.planted[role];
+          if (spare <= 0 || (role === 3 && !main)) continue;
+          const pool = role === 3 ? [] : cands[ROLE_NUT[role]];
+          let pick = null;
+          for (const c of pool) {
+            if ((main && c.id === main.id) || stock[c.id] < 1 || !usable(resOf(role)[c.id][di].status)) continue;
+            const r0 = sim(c, di, nutFor(c, role), 0, role);
+            if (!usable(r0.status) || Math.ceil(r0.days) > best.L) continue;
+            const r = sim(c, di, nutFor(c, role), best.L, role);
+            if (!usable(r.status)) continue;
+            if (!pick || c.yield * c.sat * r.mul > pick.c.yield * pick.c.sat * pick.r.mul) pick = { c, r };
+          }
+          if (pick) {
+            const b = Math.min(spare, Math.floor(stock[pick.c.id]));
+            stock[pick.c.id] -= b;
+            fills[role] = { c: pick.c, r: pick.r, planted: b };
+            best.total += b * pick.c.yield * pick.c.sat * pick.r.mul;
+          }
+        }
+        best.picks.forEach((c, role) => { if (c) stock[c.id] += best.planted[role] * S.seedRet; });
+        fills.forEach((f) => { if (f) stock[f.c.id] += f.planted * S.seedRet; });
+        flaxIn.forEach((f) => { if (f) stock.flax += f.planted * S.seedRet; });
+      }
       soils = soils.map((so, h) => {
         const role = (h + n) % 4, c = best.picks[role];
         return c ? soilAfter(so, c, best.res[role], S.fert) : soilRest(so, best.L, S.fert);
       });
-      cycles.push({ start: d, L: best.L, picks: best.picks, res: best.res, startNut });
-      gained += best.score * best.L * Math.min(1, (end - d) / best.L); // a last cycle that runs past the year counts in part
+      cycles.push({ start: d, L: best.L, picks: best.picks, res: best.res, startNut, planted: best.planted, fills, flaxIn, sizes: [0, 1, 2, 3].map(sizeOf) });
+      const share = Math.min(1, (end - d) / best.L); // a last cycle that runs past the year counts in part
+      gained += best.total * share;
+      best.picks.forEach((c, role) => {
+        if (!c) return;
+        const r = best.res[role], b = best.planted[role];
+        yearCat[catOf(c)] += b * c.yield * c.sat * r.mul * share;
+        if (c.fibers) yearFibers += b * c.fibers * r.mul * share;
+      });
+      fills.forEach((f) => { if (f) yearCat[catOf(f.c)] += f.planted * f.c.yield * f.c.sat * f.r.mul * share; });
+      flaxIn.forEach((f) => { if (f) { yearCat.Grain += f.planted * flaxCrop.yield * flaxCrop.sat * f.r.mul * share; yearFibers += f.planted * flaxCrop.fibers * f.r.mul * share; } });
       d += best.L; n++;
     }
     if (gapStart !== null) cycles.push({ gap: true, start: gapStart, end: end });
-    cycles.food = gained; cycles.start = start;
+    cycles.food = gained; cycles.start = start; cycles.stock = stock; cycles.tracking = tracking; cycles.cat = yearCat; cycles.fibers = yearFibers;
     return cycles;
   }
 
   // The start day (0 = 1 Jan) whose following year of rotation gives the most food. Ties go to the earliest day.
   function bestRotationStart() {
-    const key = ["rotN", "rotP", "rotK", "rot4"].map((k) => $(k).value).join("|");
+    const key = ["rotN", "rotP", "rotK", "rot4", "risk", "goal", "flaxShare"].map((k) => $(k).value).join("|") + "|" + (($("goal").value === "balance") ? Math.round(groupYearNeed()) + "|" + FOOD_GROUPS.map(extOf).join(",") : "");
     if (BESTMEMO && BESTMEMO.key === key) return BESTMEMO;
     let best = null;
     for (let d0 = 0; d0 < YEAR; d0++) {
@@ -932,8 +1816,8 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     let html = "<thead><tr><th>" + t().thPlant + "</th><th>" + t().thHarvestAll + "</th>";
     for (let h = 1; h <= 4; h++) html += "<th>" + t().house(h) + "</th>";
     html += "</tr></thead><tbody>";
-    const totals = { Vegetable: 0, Grain: 0, Protein: 0, Fruit: 0 };
-    let fibers = 0, n = 0;
+    const totals = cycles.cat, fibers = cycles.fibers;
+    let n = 0;
     for (const cy of cycles) {
       if (cy.gap) {
         html += '<tr><td class="mono">' + dateLabel(cy.start, S.dpm) + '</td><td colspan="5" class="hint">' + t().rotGap(dateLabel(cy.end, S.dpm)) + "</td></tr>";
@@ -943,19 +1827,48 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       for (let h = 0; h < 4; h++) {
         const role = (h + n) % 4; // each house moves one step per cycle
         const c = cy.picks[role], r = cy.res[role];
-        if (!c) {
-          html += "<td>" + (role === 3 ? '<span class="hint">' + t().rest + "</span>" : '<span class="hint">' + t().emptyRole(ROLE_NUT[role]) + "</span>") + "</td>";
+        const f = cy.fills[role];
+        if (!c && !f) {
+          html += "<td>" + (role === 3 ? '<span class="hint">' + t().rest + "</span>" : '<span class="hint">' + (cycles.tracking ? t().emptyRoleSeeds : t().emptyRole)(ROLE_NUT[role]) + "</span>") + "</td>";
           continue;
         }
-        html += "<td>" + cname(c) + ' <span class="nut-tag">' + c.nut + " " + fmt(cy.startNut[role]) + '</span><br><span class="hint">' + t().ripeOn(dateLabel(r.harvestDay, S.dpm)) + "</span></td>";
-        const share = Math.min(1, (cycles.start + YEAR - cy.start) / cy.L); // a cycle running past the year counts in part
-        if (c.cat === "Fiber") fibers += c.fibers * share; else totals[c.cat] += c.yield * c.sat * share;
+        let cell = "";
+        const fx = cy.flaxIn[role];
+        if (c && fx && !(cy.planted[role] > 0)) {
+          // the whole K house is flax
+          cell += cname(CROPS.find((x) => x.id === "flax")) + ' <span class="nut-tag">K ' + fmt(cy.startNut[role]) + "</span>";
+          if (cycles.tracking) cell += '<br><span class="blk">' + t().blocksOf(fmt(fx.planted), fmt(cy.sizes[role])) + "</span>";
+          cell += '<br><span class="hint">' + t().ripeOn(dateLabel(fx.r.harvestDay, S.dpm)) + "</span>";
+          if (fx.r.status === "warn") cell += ' <span class="chip warn">' + Math.round(fx.r.mul * 100) + " %</span>";
+        } else if (c) {
+          const b = cy.planted[role];
+          cell += cname(c) + ' <span class="nut-tag">' + c.nut + " " + fmt(cy.startNut[role]) + "</span>";
+          if (cycles.tracking) cell += '<br><span class="blk">' + t().blocksOf(fmt(b), fmt(cy.sizes[role])) + "</span>";
+          cell += '<br><span class="hint">' + t().ripeOn(dateLabel(r.harvestDay, S.dpm)) + "</span>";
+          if (r.status === "warn") cell += ' <span class="chip warn" title="' + t().dmg(r.cold || r.ripeCold, r.heat, Math.round(r.mul * 100)) + '">' + Math.round(r.mul * 100) + " %</span>";
+          if (cy.flaxIn[role]) cell += '<br><span class="blk">' + (cycles.tracking ? t().blocksFill(cname(CROPS.find((x) => x.id === "flax")), fmt(cy.flaxIn[role].planted)) : t().flaxPart(Math.round(cy.flaxIn[role].planted * 100))) + "</span>";
+        }
+        if (f) {
+          cell += (cell ? "<br>" : "") + '<span class="blk">' + t().blocksFill(cname(f.c), fmt(f.planted)) + "</span>";
+          if (f.r.status === "warn") cell += ' <span class="chip warn">' + Math.round(f.r.mul * 100) + " %</span>";
+        }
+        if (cycles.tracking) {
+          const spare = cy.sizes[role] - (c ? cy.planted[role] : 0) - (f ? f.planted : 0) - (cy.flaxIn[role] ? cy.flaxIn[role].planted : 0);
+          if (spare > 0) cell += '<br><span class="hint">' + t().blocksRest(fmt(spare)) + "</span>";
+        }
+        html += "<td>" + cell + "</td>";
       }
       html += "</tr>";
       n++;
     }
     const parts = Object.entries(totals).filter(([, v]) => v > 0).map(([k, v]) => t().catOne[k] + " <b>" + fmt(v) + "</b>");
-    html += '</tbody><tfoot><tr><td colspan="6" class="hint">' + t().rotTotal(parts.join(", "), fibers ? fmt(fibers, 0) : "") + "</td></tr></tfoot>";
+    let foot = (cycles.tracking ? t().rotTotalAbs : t().rotTotal)(parts.join(", "), fibers ? fmt(fibers, 0) : "");
+    if (cycles.tracking) {
+      const left = CROPS.filter((c) => S.own.has(c.id) && cycles.stock[c.id] >= 1).map((c) => cname(c) + " " + fmt(Math.floor(cycles.stock[c.id])));
+      foot += " " + t().seedsAfter(left.length ? left.join(", ") : t().seedsNone);
+    }
+    html += '</tbody><tfoot><tr><td colspan="6" class="hint">' + foot + "</td></tr></tfoot>";
+    LASTROT = { food: Object.values(totals).reduce((a, b) => a + b, 0), tracking: cycles.tracking, cat: Object.assign({}, totals), fibers, start: cycles.start };
     $("rotTable").innerHTML = html;
   }
 
@@ -998,18 +1911,52 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   function snapshot() {
     const o = {}; ids.forEach((k) => (o[k] = $(k).value));
     o.ghm = GH.map((x) => (x ? "1" : "0")).join("");
+    o.ghd = GHD ? GHD.map((x) => (x ? "1" : "0")).join("") : "";
+    o.own = Array.from(OWN).join(","); o.seeds = Object.assign({}, SEEDS);
+    o.track = $("track").checked; o.housesManual = $("housesManual").checked;
+    o.readings = READINGS.map((r) => ({ m: r.m, d: r.d, h: r.h, t: Number.isFinite(r.t) ? r.t : null }));
     return o;
   }
   function applySnapshot(o) {
     if (!o) return;
     ids.forEach((k) => { if (o[k] != null && $(k)) $(k).value = o[k]; });
     if (typeof o.ghm === "string" && o.ghm.length === 12) GH = o.ghm.split("").map((c) => c === "1");
-    renderGhMonths();
+    GHD = typeof o.ghd === "string" && o.ghd.length >= 36 ? o.ghd.split("").map((c) => c === "1") : null;
+    OWN = typeof o.own === "string" ? new Set(o.own.split(",").filter((id) => CROPS.some((c) => c.id === id))) : new Set(CROPS.map((c) => c.id));
+    SEEDS = o.seeds && typeof o.seeds === "object" ? Object.assign({}, o.seeds) : {};
+    $("track").checked = !!o.track; $("housesManual").checked = !!o.housesManual;
+    READINGS = Array.isArray(o.readings) ? o.readings.map((r) => ({ m: +r.m || 0, d: +r.d || 1, h: +r.h || 0, t: r.t == null ? NaN : +r.t })) : [];
+    renderGhMonths(); renderCrops();
   }
   const activeProfile = () => PROFILES.find((p) => p.id === ACTIVE);
+  function groupSnapshot() { return { hungerMod: $("hungerMod").value, extAll: $("extAll").value, ext: Object.fromEntries(FOOD_GROUPS.map((g) => [g, $("ext" + g).value])), players: PLAYERS.map((r) => ({ name: r.name || "", n: r.n, bg: !!r.bg, online: r.online, act: r.act })) }; }
+  // Player rows from any stored group: the current list format, or the older counts for the whole group.
+  function groupPlayers(g) {
+    if (!g || typeof g !== "object") return null;
+    if (Array.isArray(g.players) && g.players.length) {
+      return g.players.slice(0, 200).map((r) => ({ name: String((r && r.name) || "").slice(0, 40), n: Math.max(1, parseInt(r && r.n, 10) || 1), bg: !!(r && r.bg),
+        online: Math.min(100, Math.max(0, Number.isFinite(+(r && r.online)) ? +r.online : 100)), act: ACTS.includes(r && r.act) ? r.act : "est" }));
+    }
+    if (g.players != null && !Array.isArray(g.players)) {
+      const n = Math.max(1, parseInt(g.players, 10) || 1), bg = Math.min(n, Math.max(0, parseInt(g.blackguards, 10) || 0));
+      const online = Math.min(100, Math.max(0, parseFloat(g.online) || 100)), out = [];
+      if (n - bg > 0) out.push({ name: "", n: n - bg, bg: false, online, act: "est" });
+      if (bg > 0) out.push({ name: "", n: bg, bg: true, online, act: "est" });
+      return out;
+    }
+    return null;
+  }
+  function applyGroup(g) {
+    if (!g || typeof g !== "object") return;
+    if (g.hungerMod != null) $("hungerMod").value = g.hungerMod;
+    if (g.extAll != null) $("extAll").value = g.extAll;
+    if (g.ext && typeof g.ext === "object") FOOD_GROUPS.forEach((k) => { if (g.ext[k] != null) $("ext" + k).value = g.ext[k]; });
+    const rows = groupPlayers(g); if (rows && rows.length) PLAYERS = rows;
+    renderPlayers();
+  }
   function save() {
     const p = activeProfile(); if (p) p.data = snapshot();
-    try { localStorage.setItem(STORE, JSON.stringify({ lang: LANG, active: ACTIVE, profiles: PROFILES })); } catch (e) {}
+    try { localStorage.setItem(STORE, JSON.stringify({ lang: LANG, active: ACTIVE, profiles: PROFILES, tab: TAB, group: groupSnapshot(), collapsed: Array.from(COLLAPSED) })); } catch (e) {}
   }
   function newId() { return "p" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36); }
   function renderProfiles() {
@@ -1024,6 +1971,11 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     try { st = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) {}
     if (!st) { try { old = JSON.parse(localStorage.getItem("gh-cal-v2") || "null"); } catch (e) {} }
     const lang = (st || old || {}).lang;
+    if (st && st.tab) showTab(st.tab);
+    if (st && Array.isArray(st.collapsed)) COLLAPSED = new Set(st.collapsed.filter((x) => typeof x === "string"));
+    // Group settings: stored once; older saves kept them inside the active location.
+    if (st && st.group) applyGroup(st.group);
+    else if (st && Array.isArray(st.profiles)) { const a = st.profiles.find((x) => x && x.id === st.active); if (a && a.data) applyGroup(a.data); }
     if (lang === "de" || lang === "en") LANG = lang;
     else if ((navigator.language || "").toLowerCase().startsWith("de")) LANG = "de";
     applyLang(); // builds the selects, so stored values can be set afterwards
@@ -1038,6 +1990,133 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     applySnapshot(activeProfile().data);
     renderProfiles();
   }
+  // ---- sharing: export / import a location and/or the group settings as a small JSON file ----
+  const EXPORT_APP = "vs-greenhouse-planner";
+  // Inside the claude.ai viewer, files are saved through its downloads capability; everywhere else a normal download link works.
+  let DL = null;
+  try { if (window.claude && typeof window.claude.use === "function") window.claude.use("downloads").then((d) => { DL = d; }, () => {}); } catch (e) {}
+  function closeShareBoxes() { $("exportBox").hidden = true; $("importBox").hidden = true; $("cfgExport").setAttribute("aria-expanded", "false"); }
+  // Export: tick any locations (the current one by default) and/or the group settings; everything goes into one file.
+  function renderExportList() {
+    const list = $("exList"); list.textContent = "";
+    PROFILES.forEach((p) => {
+      const lab = document.createElement("label"); lab.className = "check";
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.dataset.exid = p.id; cb.checked = p.id === ACTIVE;
+      const sp = document.createElement("span"); sp.textContent = p.name + (p.id === ACTIVE ? " (" + t().exCurrent + ")" : "");
+      lab.append(cb, " ", sp); list.appendChild(lab);
+    });
+    syncExport();
+  }
+  function syncExport() {
+    const boxes = Array.from($("exList").querySelectorAll("input[data-exid]")), n = boxes.filter((b) => b.checked).length;
+    $("exAll").checked = n === boxes.length && n > 0; $("exAll").indeterminate = n > 0 && n < boxes.length;
+    $("exSummary").textContent = t().exSummary(n, $("exGroup").checked);
+  }
+  $("cfgExport").addEventListener("click", () => {
+    const open = $("exportBox").hidden;
+    closeShareBoxes(); $("cfgMsg").textContent = "";
+    if (open) { save(); renderExportList(); $("exportBox").hidden = false; $("cfgExport").setAttribute("aria-expanded", "true"); }
+  });
+  $("exList").addEventListener("change", syncExport);
+  $("exGroup").addEventListener("change", syncExport);
+  $("exAll").addEventListener("change", () => { $("exList").querySelectorAll("input[data-exid]").forEach((b) => (b.checked = $("exAll").checked)); syncExport(); });
+  const slugOf = (x) => String(x).toLowerCase().replace(/[^a-z0-9äöüß]+/gi, "-").replace(/^-|-$/g, "") || "planner";
+  $("exDo").addEventListener("click", () => {
+    const ids = Array.from($("exList").querySelectorAll("input[data-exid]")).filter((b) => b.checked).map((b) => b.dataset.exid);
+    const withGroup = $("exGroup").checked;
+    if (!ids.length && !withGroup) { $("cfgMsg").textContent = t().exNothing; return; }
+    save();
+    const locs = PROFILES.filter((p) => ids.includes(p.id));
+    const out = { app: EXPORT_APP, version: 2, exported: new Date().toISOString().slice(0, 10), locations: locs.map((p) => ({ name: p.name, data: p.data })) };
+    if (withGroup) out.group = groupSnapshot();
+    const slug = locs.length === PROFILES.length && locs.length > 1 ? (withGroup ? "all" : "all-locations") : locs.length === 1 ? slugOf(locs[0].name) : locs.length ? locs.length + "-locations" : "group";
+    const text = JSON.stringify(out, null, 2), filename = "vs-planner-" + slug + ".json";
+    if (DL) {
+      DL.save({ filename, data: text }).catch((err) => { if (!err || err.code !== "declined") $("cfgMsg").textContent = t().exFail; });
+      return;
+    }
+    const blob = new Blob([text], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+
+  // Import: read the file, show what it holds, and let the viewer pick each location (copy or replace) and the group (replace or add).
+  let PENDING = null;
+  $("cfgImport").addEventListener("click", () => { closeShareBoxes(); $("cfgMsg").textContent = ""; $("cfgFile").click(); });
+  $("cfgFile").addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0]; e.target.value = "";
+    if (!file) return;
+    let o = null;
+    try { o = JSON.parse(await file.text()); } catch (err) {}
+    const rawLocs = o && o.app === EXPORT_APP ? (Array.isArray(o.locations) ? o.locations : o.location ? [o.location] : []) : [];
+    const locs = rawLocs.slice(0, 100).filter((l) => l && l.data && typeof l.data === "object")
+      .map((l, i) => ({ name: String(l.name || t().profDefault(i + 1)).slice(0, 60), data: l.data }));
+    const players = o && o.app === EXPORT_APP ? groupPlayers(o.group) : null;
+    if (!locs.length && !players) { $("cfgMsg").textContent = t().imBad; return; }
+    PENDING = { locs, group: players ? o.group : null, players };
+    renderImportList();
+    $("importBox").hidden = false;
+  });
+  function renderImportList() {
+    const list = $("imList"); list.textContent = "";
+    PENDING.locs.forEach((l, i) => {
+      const row = document.createElement("div"); row.className = "im-row";
+      const lab = document.createElement("label"); lab.className = "check";
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = true; cb.dataset.imloc = i;
+      const sp = document.createElement("span"); sp.textContent = l.name;
+      lab.append(cb, " ", sp); row.appendChild(lab);
+      if (PROFILES.some((p) => p.name === l.name)) {
+        const sel = document.createElement("select"); sel.dataset.immode = i;
+        [["copy", t().imCopyOpt], ["replace", t().imReplaceOpt]].forEach(([v, txt]) => { const op = document.createElement("option"); op.value = v; op.textContent = txt; sel.appendChild(op); });
+        row.appendChild(sel);
+      } else {
+        const hint = document.createElement("span"); hint.className = "hint"; hint.textContent = t().imNewLoc; row.appendChild(hint);
+      }
+      list.appendChild(row);
+    });
+    if (PENDING.players) {
+      const row = document.createElement("div"); row.className = "im-row";
+      const lab = document.createElement("label"); lab.className = "check";
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = true; cb.id = "imGroup";
+      const sp = document.createElement("span"); sp.textContent = t().imGroupRow(PENDING.players.length, PENDING.players.reduce((a, r) => a + r.n, 0));
+      lab.append(cb, " ", sp); row.appendChild(lab);
+      const sel = document.createElement("select"); sel.id = "imGroupMode";
+      [["replace", t().imGroupReplace], ["add", t().imGroupAdd]].forEach(([v, txt]) => { const op = document.createElement("option"); op.value = v; op.textContent = txt; sel.appendChild(op); });
+      row.appendChild(sel); list.appendChild(row);
+    }
+  }
+  $("imCancel").addEventListener("click", () => { PENDING = null; closeShareBoxes(); });
+  $("imDo").addEventListener("click", () => {
+    if (!PENDING) return;
+    save();
+    const parts = []; let first = null;
+    PENDING.locs.forEach((l, i) => {
+      const cb = $("imList").querySelector('input[data-imloc="' + i + '"]');
+      if (!cb || !cb.checked) return;
+      const sel = $("imList").querySelector('select[data-immode="' + i + '"]');
+      const existing = PROFILES.find((p) => p.name === l.name);
+      if (sel && sel.value === "replace" && existing) {
+        existing.data = l.data; first = first || existing.id; parts.push(t().imRep(l.name));
+      } else {
+        let name = l.name;
+        while (PROFILES.some((x) => x.name === name)) name = t().imCopy(name).slice(0, 60);
+        const np = { id: newId(), name, data: l.data }; PROFILES.push(np); first = first || np.id; parts.push(t().imLoc(name));
+      }
+    });
+    const gcb = $("imGroup");
+    if (PENDING.players && gcb && gcb.checked) {
+      if ($("imGroupMode").value === "add") { PLAYERS = PLAYERS.concat(PENDING.players).slice(0, 200); renderPlayers(); parts.push(t().imGroupAdded); }
+      else { applyGroup(PENDING.group); parts.push(t().imGroup); }
+    }
+    if (!parts.length) { $("cfgMsg").textContent = t().imNothing; return; }
+    if (first) { ACTIVE = first; applySnapshot(activeProfile().data); }
+    renderProfiles(); PENDING = null; closeShareBoxes();
+    full();
+    $("cfgMsg").textContent = t().imDone(parts.join(", "));
+  });
+
   $("profile").addEventListener("change", (e) => {
     save(); // keep the edits of the profile we leave
     ACTIVE = e.target.value; applySnapshot(activeProfile().data); full();
@@ -1062,19 +2141,22 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     applySnapshot(activeProfile().data); renderProfiles(); full();
   });
 
-  function full() { compute(); readToday(); renderMeasure(); renderOverview(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); refreshDetail(); save(); }
-  function light() { readToday(); renderMeasure(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); save(); }
-  function texts() { renderMeasure(); renderOverview(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNow(); renderPlan(); refreshDetail(); save(); }
+  function full() { compute(); readToday(); renderGhdNote(); renderBlocksEach(); renderReadings(); renderMeasure(); renderOverview(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNeeds(); renderNow(); renderPlan(); refreshDetail(); save(); }
+  function light() { readToday(); renderMeasure(); renderTemp(); renderGrid(); renderRotation(); renderNeeds(); renderNow(); renderPlan(); save(); }
+  function texts() { renderGhdNote(); renderRoof(); renderPlayers(); applyCollapse(); renderCrops(); renderBlocksEach(); renderReadings(); renderMeasure(); renderOverview(); renderClimateLine(); renderTemp(); renderGrid(); renderRotation(); renderNeeds(); renderNow(); renderPlan(); refreshDetail(); save(); }
   function refreshDetail() { if (selected && RES[selected.id] && selected.d < YEAR) $("detail").innerHTML = describe(selected.id, selected.d); }
 
   load();
+  renderPlayers(); setupCollapse();
   $("lang-en").addEventListener("click", () => { if (LANG !== "en") { LANG = "en"; applyLang(); texts(); } });
   $("lang-de").addEventListener("click", () => { if (LANG !== "de") { LANG = "de"; applyLang(); texts(); } });
   $("ghMonths").addEventListener("click", (e) => {
     const b = e.target.closest(".mbtn"); if (!b) return;
-    const i = +b.dataset.m; GH[i] = !GH[i]; b.setAttribute("aria-pressed", String(GH[i])); full();
+    const i = +b.dataset.m; GH[i] = !GH[i]; b.setAttribute("aria-pressed", String(GH[i])); GHD = null; full();
   });
-  ["rotN", "rotP", "rotK", "rot4", "rotStart"].forEach((k) => $(k).addEventListener("change", () => { renderRotation(); save(); }));
+  ["rotN", "rotP", "rotK", "rot4", "rotStart"].forEach((k) => $(k).addEventListener("change", () => { renderRotation(); renderNeeds(); save(); }));
+  $("risk").addEventListener("change", () => { BESTMEMO = null; renderRotation(); renderNeeds(); renderPlan(); save(); });
+  ["goal", "flaxShare"].forEach((k) => $(k).addEventListener("change", () => { BESTMEMO = null; renderRotation(); renderNeeds(); save(); }));
   ["avg", "lat", "hemi", "rain", "margin", "dpm", "speed", "fert", "offset"].forEach((k) => $(k).addEventListener("change", full));
   ["tmonth", "tday"].forEach((k) => $(k).addEventListener("change", light));
   $("focus").addEventListener("change", () => { renderPlan(); save(); });
