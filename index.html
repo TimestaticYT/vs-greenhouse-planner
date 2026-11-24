@@ -347,12 +347,12 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     </div>
     <div class="crop-list" id="cropList"></div>
     <div class="controls fieldsize">
-      <div class="field"><label for="blocksTotal" data-i18n="lBlocksTotal">Blocks, all houses</label><input id="blocksTotal" type="number" min="0" step="1" value="684"><small id="blocksEach"></small></div>
+      <div class="field"><label for="blocksTotal" data-i18n="lBlocksTotal">Blocks, all houses</label><input id="blocksTotal" type="number" min="0" step="1" value="784"><small id="blocksEach"></small></div>
       <label class="check"><input type="checkbox" id="housesManual"> <span data-i18n="lHousesManual">Set each house</span></label>
-      <div class="field hsize"><label for="house1" id="lh1">House 1</label><input id="house1" type="number" min="0" step="1" value="171"></div>
-      <div class="field hsize"><label for="house2" id="lh2">House 2</label><input id="house2" type="number" min="0" step="1" value="171"></div>
-      <div class="field hsize"><label for="house3" id="lh3">House 3</label><input id="house3" type="number" min="0" step="1" value="171"></div>
-      <div class="field hsize"><label for="house4" id="lh4">House 4</label><input id="house4" type="number" min="0" step="1" value="171"></div>
+      <div class="field hsize"><label for="house1" id="lh1">House 1</label><input id="house1" type="number" min="0" step="1" value="196"></div>
+      <div class="field hsize"><label for="house2" id="lh2">House 2</label><input id="house2" type="number" min="0" step="1" value="196"></div>
+      <div class="field hsize"><label for="house3" id="lh3">House 3</label><input id="house3" type="number" min="0" step="1" value="196"></div>
+      <div class="field hsize"><label for="house4" id="lh4">House 4</label><input id="house4" type="number" min="0" step="1" value="196"></div>
     </div>
     <div class="track-box" id="trackBox" hidden>
       <p class="hint" data-i18n="trackHint">Type how many seeds you have next to each crop. The rotation then plants only as many blocks as you have seeds, fills spare blocks with another crop of the same nutrient that is ripe in time, and counts the seeds you get back. Update the seed counts whenever your real stock differs, for example after a frost or a bad harvest.</p>
@@ -920,7 +920,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   // ---- helpers ----
   function houseSizes(num) {
     if ($("housesManual").checked) return [1, 2, 3, 4].map((h) => Math.max(0, Math.floor(num("house" + h, 0))));
-    const tot = Math.max(0, Math.floor(num("blocksTotal", 684))), base = Math.floor(tot / 4);
+    const tot = Math.max(0, Math.floor(num("blocksTotal", 784))), base = Math.floor(tot / 4);
     return [0, 1, 2, 3].map((h) => base + (h < tot % 4 ? 1 : 0));
   }
   function read() {
@@ -1920,6 +1920,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   function applySnapshot(o) {
     if (!o) return;
     ids.forEach((k) => { if (o[k] != null && $(k)) $(k).value = o[k]; });
+    if (String(o.blocksTotal) === "684") $("blocksTotal").value = "784"; // old default; a full house is 14 × 14 = 196 blocks
     if (typeof o.ghm === "string" && o.ghm.length === 12) GH = o.ghm.split("").map((c) => c === "1");
     GHD = typeof o.ghd === "string" && o.ghd.length >= 36 ? o.ghd.split("").map((c) => c === "1") : null;
     OWN = typeof o.own === "string" ? new Set(o.own.split(",").filter((id) => CROPS.some((c) => c.id === id))) : new Set(CROPS.map((c) => c.id));
