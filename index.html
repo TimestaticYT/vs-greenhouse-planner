@@ -64,7 +64,9 @@ code { font-family: var(--f-mono); font-size: 12.5px; background: var(--accent-s
 .measure h3 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
 .measure .controls { margin-top: 8px; }
 .measure .controls .field { min-width: 120px; flex: 0 1 150px; }
-.measure .out { font-size: 13px; padding-bottom: 8px; }
+.measure .out { font-size: 13px; }
+.m-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; }
+.m-actions .out { flex-basis: 100%; }
 .measure .out b { font-family: var(--f-mono); }
 .rot-start { margin: 8px 0 0; font-size: 13.5px; }
 .houses-row .field { min-width: 210px; flex: 0 1 230px; }
@@ -315,12 +317,18 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     <div class="climate-line" id="climateLine"></div>
     <div class="measure">
       <h3 data-i18n="hMeasure">Measure the weather offset</h3>
-      <p class="hint" data-i18n="measureHint">The game adds random weather noise to the formula: a slow part (usually within ±4 °C) that stays for many in-game months, and a fast part (about ±1 °C) that changes within hours. Run <code>/wgen pos climate</code> and type its first value (Temperature), or the temperature your game shows you outside, and the in-game hour. The date comes from "Plant now". Take two or three readings at different times and use the average. Measure again about once per in-game year. With an offset set, a safety margin of about 1.5 °C is enough.</p>
+      <p class="hint" data-i18n="measureHint">The game adds random weather noise to the formula: a slow part (usually within ±4 °C) that stays for many in-game months, and a fast part (about ±1 °C) that changes within hours. Run <code>/wgen pos climate</code> and type its first value (Temperature), or the temperature your game shows you outside, and the in-game hour. Enter the in-game date and hour of the reading. Take two or three readings at different times and use the average. Measure again about once per in-game year. With an offset set, a safety margin of about 1.5 °C is enough.</p>
       <div class="controls">
-        <div class="field"><label for="mTemp" data-i18n="lMTemp">Temperature °C</label><input id="mTemp" type="number" step="0.1"></div>
+        <div class="field"><label for="mMonth" data-i18n="lMMonth">Month</label><select id="mMonth"></select></div>
+        <div class="field"><label for="mDay" data-i18n="lMDay">Day</label><input id="mDay" type="number" step="1" min="1"></div>
         <div class="field"><label for="mHour" data-i18n="lMHour">Hour</label><input id="mHour" type="number" step="1" min="0" max="23" value="12"></div>
+        <div class="field"><label for="mTemp" data-i18n="lMTemp">Temperature °C</label><input id="mTemp" type="number" step="0.1"></div>
+      </div>
+      <div class="m-actions">
         <div class="out" id="mOut" aria-live="polite"></div>
         <button type="button" class="reset" id="mApply" data-i18n="bApply" disabled>Use as offset</button>
+        <button type="button" class="reset" id="mUndo" data-i18n="bUndo" disabled>Undo</button>
+        <button type="button" class="reset" id="mReset" data-i18n="bResetOff">Reset offset to 0</button>
       </div>
     </div>
     <details class="readings" id="rdBox">
@@ -331,7 +339,11 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
         <button type="button" class="reset" id="rdAdd" data-i18n="bRdAdd">Add reading</button>
       </div>
       <p class="rd-out" id="rdOut" aria-live="polite"></p>
-      <button type="button" class="reset" id="rdApply" data-i18n="bRdApply" disabled>Use these values</button>
+      <div class="m-actions">
+        <button type="button" class="reset" id="rdApply" data-i18n="bRdApply" disabled>Use these values</button>
+        <button type="button" class="reset" id="rdUndo" data-i18n="bUndo" disabled>Undo</button>
+        <button type="button" class="reset" id="rdClear" data-i18n="bRdClear">Clear all readings</button>
+      </div>
     </details>
   </section>
 
@@ -631,6 +643,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       meterOver: (p) => "<b>" + p + " %</b> of what your group needs: enough, with room to spare.",
       meterUnder: (p, b) => "<b>" + p + " %</b> of what your group needs. " + (b ? "About " + b + " more blocks per house would close the gap." : ""),
       meterNoRot: "No harvest yet: the rotation has nothing it can plant. Check your crops on the Planting tab.",
+      rdClearAsk: "Delete all temperature readings of this location?",
       rdDate: "Date", rdMonth: "Month", rdDay: "Day", rdHour: "Hour", rdTemp: "Temp °C", rdRemove: "Remove",
       rdNeed: "Add at least two readings at different hours.",
       rdResult: (avg, lat, rain, fitLat) => "Fit: yearly average <b>" + avg + " °C</b>, rainfall <b>" + rain + " %</b>, latitude <b>" + lat + "°</b>" + (fitLat ? "" : " (kept, readings from one season only)") + ".",
@@ -743,6 +756,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
       meterOver: (p) => "<b>" + p + " %</b> des Bedarfs deiner Gruppe: genug, mit Reserve.",
       meterUnder: (p, b) => "<b>" + p + " %</b> des Bedarfs deiner Gruppe. " + (b ? "Etwa " + b + " Blöcke mehr pro Haus würden die Lücke schließen." : ""),
       meterNoRot: "Noch keine Ernte: Die Rotation kann nichts pflanzen. Prüfe deine Pflanzen im Tab Anbau.",
+      rdClearAsk: "Alle Temperaturmessungen dieses Standorts löschen?",
       rdDate: "Datum", rdMonth: "Monat", rdDay: "Tag", rdHour: "Stunde", rdTemp: "Temp. °C", rdRemove: "Entfernen",
       rdNeed: "Füge mindestens zwei Messungen zu verschiedenen Stunden hinzu.",
       rdResult: (avg, lat, rain, fitLat) => "Ergebnis: Jahresmittel <b>" + avg + " °C</b>, Niederschlag <b>" + rain + " %</b>, Breitengrad <b>" + lat + "°</b>" + (fitLat ? "" : " (beibehalten, Messungen nur aus einer Jahreszeit)") + ".",
@@ -783,8 +797,8 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     hOv: "Alle Pflanzen im Überblick",
     ovHint: "Nahrung pro Block und Tag für eine Ernte auf voll erholtem Boden bei warmem Wetter (10 °C oder mehr, kein Schaden), mit deinem Wachstumstempo und deinen Tagen pro Monat. Jedes Stück zählt in seiner besten Form: als Kochtopf-Mahlzeit oder, bei Getreide und Maniok, als perfekt gebackenes Brot (halb gebacken die Hälfte, verkohlt 70 %). Jede Spalte ist eine Bodenfruchtbarkeit; deine ist hervorgehoben und bestimmt die Reihenfolge.",
     lOffset: "Wetter-Abweichung °C", sOffset: "unten messen; 0 = nur Formel",
-    hMeasure: "Wetter-Abweichung messen", lMTemp: "Temperatur °C", lMHour: "Stunde", bApply: "Als Abweichung übernehmen",
-    measureHint: "Das Spiel legt zufälliges Wetterrauschen über die Formel: einen langsamen Teil (meist innerhalb ±4 °C), der viele Spielmonate bleibt, und einen schnellen Teil (etwa ±1 °C), der sich innerhalb von Stunden ändert. Gib <code>/wgen pos climate</code> ein und trag den ersten Wert (Temperature) ein, oder die Temperatur, die dir das Spiel draußen zeigt, und die Spielstunde. Das Datum kommt aus „Jetzt pflanzen“. Nimm zwei, drei Messungen zu verschiedenen Zeiten und den Mittelwert. Etwa einmal pro Spieljahr neu messen. Mit gesetzter Abweichung reicht ein Sicherheitspuffer von etwa 1,5 °C.",
+    hMeasure: "Wetter-Abweichung messen", lMMonth: "Monat", lMDay: "Tag", bUndo: "Rückgängig", bResetOff: "Abweichung auf 0 setzen", bRdClear: "Alle Messungen löschen", lMTemp: "Temperatur °C", lMHour: "Stunde", bApply: "Als Abweichung übernehmen",
+    measureHint: "Das Spiel legt zufälliges Wetterrauschen über die Formel: einen langsamen Teil (meist innerhalb ±4 °C), der viele Spielmonate bleibt, und einen schnellen Teil (etwa ±1 °C), der sich innerhalb von Stunden ändert. Gib <code>/wgen pos climate</code> ein und trag den ersten Wert (Temperature) ein, oder die Temperatur, die dir das Spiel draußen zeigt, und die Spielstunde. Trag Spieldatum und Stunde der Messung ein. Nimm zwei, drei Messungen zu verschiedenen Zeiten und den Mittelwert. Etwa einmal pro Spieljahr neu messen. Mit gesetzter Abweichung reicht ein Sicherheitspuffer von etwa 1,5 °C.",
     lGoal: "Ziel", oGoalFood: "Meiste Nahrung", oGoalBal: "Erst jede Nahrungsgruppe füllen", lFlaxShare: "Flachs im K-Haus",
     hGroups: "Nahrungsgruppen und Gesundheit",
     hExt: "Nahrung von außerhalb der Felder",
@@ -1041,17 +1055,31 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   }
 
   // ---- measuring the weather offset: /wgen temperature minus the plain formula (outside, no greenhouse) ----
+  // The reading has its own date (starts at the "Plant now" date). Undo puts back the offset from before the last change.
+  let OFF_UNDO = null, RD_UNDO = null;
   function renderMeasure() {
+    if (!$("mMonth").options.length) fillMonths();
+    if ($("mDay").value === "") { $("mMonth").value = String(Math.floor(todayIdx / S.dpm)); $("mDay").value = String(todayIdx % S.dpm + 1); }
+    $("mDay").max = S.dpm;
+    const mo = parseInt($("mMonth").value, 10) || 0;
+    let dd = parseInt($("mDay").value, 10); if (!Number.isFinite(dd)) dd = 1; dd = Math.min(S.dpm, Math.max(1, dd));
+    const di = mo * S.dpm + dd - 1;
     const v = parseFloat($("mTemp").value);
     let h = parseInt($("mHour").value, 10); if (!Number.isFinite(h)) h = 12; h = Math.min(23, Math.max(0, h));
-    const f = makeClimate(Object.assign({}, S, { ghMonths: new Array(12).fill(false), ghDays: null, offset: 0 }))(todayIdx * 24 + h);
+    const f = makeClimate(Object.assign({}, S, { ghMonths: new Array(12).fill(false), ghDays: null, offset: 0 }))(di * 24 + h);
+    $("mUndo").disabled = OFF_UNDO === null;
+    $("mReset").disabled = !(parseFloat($("offset").value) || 0);
+    $("rdUndo").disabled = RD_UNDO === null;
     if (!Number.isFinite(v)) { $("mOut").innerHTML = t().mNeed; $("mApply").disabled = true; return; }
     const off = Math.round((v - f) * 10) / 10;
-    $("mOut").innerHTML = t().mOut(dateLabel(todayIdx, S.dpm), h, fmt(f, 1), (off > 0 ? "+" : "") + fmt(off, 1));
+    $("mOut").innerHTML = t().mOut(dateLabel(di, S.dpm), h, fmt(f, 1), (off > 0 ? "+" : "") + fmt(off, 1));
     $("mApply").disabled = false; $("mApply").dataset.off = off;
   }
-  ["mTemp", "mHour"].forEach((k) => $(k).addEventListener("input", renderMeasure));
-  $("mApply").addEventListener("click", () => { $("offset").value = $("mApply").dataset.off; full(); });
+  ["mTemp", "mHour", "mDay"].forEach((k) => $(k).addEventListener("input", renderMeasure));
+  $("mMonth").addEventListener("change", renderMeasure);
+  $("mApply").addEventListener("click", () => { OFF_UNDO = $("offset").value; $("offset").value = $("mApply").dataset.off; full(); });
+  $("mUndo").addEventListener("click", () => { if (OFF_UNDO === null) return; $("offset").value = OFF_UNDO; OFF_UNDO = null; full(); });
+  $("mReset").addEventListener("click", () => { OFF_UNDO = $("offset").value; $("offset").value = 0; full(); });
 
   // ---- overview: every crop at every fertility, warm weather ----
   const FERTS = [5, 25, 50, 65, 80];
@@ -1362,8 +1390,17 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
   $("rdTable").addEventListener("change", (e) => { if (e.target.tagName === "SELECT") { READINGS[+e.target.dataset.rd].m = +e.target.value; updateReadingsOut(); save(); } });
   $("rdTable").addEventListener("click", (e) => { const i = e.target.dataset.rdel; if (i == null) return; READINGS.splice(+i, 1); renderReadings(); save(); });
   $("rdAdd").addEventListener("click", () => { READINGS.push({ m: Math.floor(todayIdx / S.dpm), d: todayIdx % S.dpm + 1, h: READINGS.length % 2 ? 16 : 4, t: NaN }); renderReadings(); save(); });
+  $("rdUndo").addEventListener("click", () => {
+    if (!RD_UNDO) return;
+    ["avg", "lat", "rain", "offset"].forEach((k) => ($(k).value = RD_UNDO[k])); RD_UNDO = null; full();
+  });
+  $("rdClear").addEventListener("click", () => {
+    if (!READINGS.length || !confirm(t().rdClearAsk)) return;
+    READINGS = []; renderReadings(); save();
+  });
   $("rdApply").addEventListener("click", () => {
     if (!RDFIT) return;
+    RD_UNDO = { avg: $("avg").value, lat: $("lat").value, rain: $("rain").value, offset: $("offset").value };
     $("avg").value = RDFIT.avg.toFixed(1); $("lat").value = RDFIT.lat.toFixed(2); $("rain").value = Math.round(RDFIT.rain); $("offset").value = 0;
     full();
   });
@@ -1878,6 +1915,8 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     const sel = $("tmonth"), keep = sel.value || "5";
     sel.innerHTML = t().monthsLong.map((m, i) => '<option value="' + i + '">' + m + "</option>").join("");
     sel.value = keep;
+    const ms = $("mMonth"), mk = ms.value || keep;
+    ms.innerHTML = sel.innerHTML; ms.value = mk;
   }
 
   function readToday() {
@@ -1927,6 +1966,7 @@ button.reset { font: inherit; font-size: 13px; color: var(--accent); background:
     OWN = typeof o.own === "string" ? new Set(o.own.split(",").filter((id) => CROPS.some((c) => c.id === id))) : new Set(CROPS.map((c) => c.id));
     SEEDS = o.seeds && typeof o.seeds === "object" ? Object.assign({}, o.seeds) : {};
     $("track").checked = !!o.track; $("housesManual").checked = !!o.housesManual;
+    OFF_UNDO = null; RD_UNDO = null;
     READINGS = Array.isArray(o.readings) ? o.readings.map((r) => ({ m: +r.m || 0, d: +r.d || 1, h: +r.h || 0, t: r.t == null ? NaN : +r.t })) : [];
     renderGhMonths(); renderCrops();
   }
